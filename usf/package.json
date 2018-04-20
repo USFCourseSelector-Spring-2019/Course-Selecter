@@ -9,6 +9,8 @@
   "author": "Nick the Sick",
   "license": "ISC",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.2"
+    "cheerio": "^1.0.0-rc.2",
+    "read-json-file": "^1.0.1",
+    "write-json-file": "^2.3.0"
   }
 }
