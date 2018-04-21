@@ -4,8 +4,8 @@ const scraper = require('../usf/index'),
 
 Promise.promisifyAll(mydb);
 const getAndUse = dbName => Promise.promisifyAll(mydb.use(dbName))
-scraper().then(data => {
-    getAndUse('usf').insertAsync({ docs: data }).then((body) => {
+scraper.loadFile().then(data => {
+    getAndUse('usf').insertAsync({ ...data }).then((body) => {
         console.log(body)
         console.log('Successfully put all USF Data!')
     }).catch((err) => {
