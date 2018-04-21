@@ -22,6 +22,7 @@ function loadFile(file) {
 
 function scraper(doTheThing) {
     return doTheThing().then(html => cheerio.load(html)).then($ => {
+        console.log("Transforming data to JSON...")
         const [accessedBy, semester, accessDate] = $('.staticheaders').text().trimSplitLines(),
             headers = $('table.datadisplaytable').find('tr')[1].children.map(node => $(node).text().trimLines()).filter(a => a.length),
             length = headers.length,
@@ -126,7 +127,7 @@ function scraper(doTheThing) {
             courses,
 
         }
-        //console.log(courses)
+        console.log("Transformed Successfully!")
         return obj
     }).then(results => write(path.resolve(__dirname, './courses.json'), results).then(() => results)).catch((err) => { console.log("welp something went wrong", err) })
 }
