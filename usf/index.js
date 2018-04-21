@@ -1,6 +1,7 @@
 const cheerio = require('cheerio'),
     write = require('write-json-file'),
-    fs = require('fs')
+    fs = require('fs'),
+    getHTML = require('./puppet')
 let obj = {}
 String.prototype.trimSplitLines = function () {
     return this.trim().split("\n").map(str => str.trim())
@@ -18,8 +19,8 @@ function loadFile(file) {
     }))
 }
 
-
-loadFile('./all-classes.html').then(html => cheerio.load(html)).then($ => {
+function scraper(doTheThing){
+doTheThing().then(html => cheerio.load(html)).then($ => {
     const [accessedBy, semester, accessDate] = $('.staticheaders').text().trimSplitLines(),
         headers = $('table.datadisplaytable').find('tr')[1].children.map(node => $(node).text().trimLines()).filter(a => a.length),
         length = headers.length,
@@ -119,6 +120,13 @@ loadFile('./all-classes.html').then(html => cheerio.load(html)).then($ => {
         courses,
 
     }
-    console.log(courses)
+    //console.log(courses)
     return obj
 }).then(results => write('./courses.json', results)).catch((err) => { console.log("welp something went wrong", err) })
+}
+
+if(!module.parent){
+    //scraper(()=>loadFile('./all-classes.html'))
+    scraper(()=>getHTML())
+}
+module.exports = scraper
