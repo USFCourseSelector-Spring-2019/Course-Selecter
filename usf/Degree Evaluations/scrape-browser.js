@@ -1,10 +1,18 @@
 const puppeteer = require('puppeteer');
-const CREDS = require('./creds')
+const CREDS = require('../creds')
+const waitForLoad = (page) => new Promise((resolve) => {
+    page.on('rquest', (req) => {
+        waitForLoad(page)
+    })
+    page.on('requestfinished', (req) => {
+        setTimeout(() => resolve("idle"), 3000)
+    })
+})
 
 let scrape = async() => {
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
-
+    console.log("Scraping with the browser...")
     await page.goto('https://usfcas.usfca.edu/cas/login?service=https%3A%2F%2Faphrodite01.usfca.edu%3A8010%2Fssomanager%2Fc%2FSSB%3Fpkg%3Dhttps%3A%2F%2Fhebe.usfca.edu%2Fprod%2Ftwbkwbis.P_GenMenu%3Fname%3Dbmenu.P_StuMainMnu');
     await page.click('#username');
     await page.keyboard.type(CREDS.username);
@@ -14,37 +22,53 @@ let scrape = async() => {
         page.click('#fm1 > div.row.btn-row > input.btn-submit'),
         page.waitForNavigation()
     ])
-    await Promise.all([
-        page.click('body > div.pagebodydiv > table.menuplaintable > tbody > tr:nth-child(1) > td:nth-child(2) > a'),
-        page.waitForNavigation()
-    ])
+    //console.log(2)
     await Promise.all([
         page.click('body > div.pagebodydiv > table.menuplaintable > tbody > tr:nth-child(2) > td:nth-child(2) > a'),
         page.waitForNavigation()
     ])
-    //await page.waitForNavigation();
-    await page.evaluate(() => {
-        document.querySelector('select option:nth-child(2)').selected = true
-    })
+    //console.log(3)
     await Promise.all([
-        page.click('body > div.pagebodydiv > form > input[type="submit"]:nth-child(5)'),
+        page.click('body > div.pagebodydiv > table.menuplaintable > tbody > tr:nth-child(4) > td:nth-child(2) > a'),
         page.waitForNavigation()
     ])
-    await page.evaluate(()=>{
-        document.querySelector('#subj_id > option:nth-child(1)').selected = true
+    //console.log(4)
+    await waitForLoad(page)
+    //console.log(5)
+    const bodyHTML = await page.evaluate(async() => {
+        console.log('start')
+        function checkIframeLoaded(iframe, afterLoading) {
+            var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            console.log(iframe,iframeDoc)
+            if (iframeDoc.readyState == 'complete') {
+                afterLoading();
+                return;
+            }
+            setInterval(()=>checkIframeLoaded(iframe,afterLoading), 50);
+        }
+        const waitForFrameToLoad = frame => new Promise(resolve => checkIframeLoaded(frame, resolve));
+        const iframe = document.querySelector('html > frameset > frame:nth-child(4)')
+        console.log(iframe)
+        await waitForFrameToLoad(iframe)
+        
+        const content = (iframe.contentDocument || iframe.contentWindow.document)
+        console.log(content, content.readyState)
+        const iframe_2 = content.children[0].querySelector('html > frameset > frameset > frame:nth-child(2)')
+        await waitForFrameToLoad(iframe_2)
+        console.log(iframe_2)
+        const content_2 = (iframe_2.contentDocument || iframe_2.contentWindow.document)
+        console.log(content_2)
+        console.log('end')
+        return content_2.children[0].innerHTML
     })
-    await Promise.all([
-        page.click('body > div.pagebodydiv > form > input[type="submit"]:nth-child(20)'),
-        page.waitForNavigation()
-    ])
-    let bodyHTML = await page.evaluate(() => document.body.innerHTML)
-
+    //console.log(bodyHTML)
+    console.log("Scraped Successfully!")
     browser.close();
     return bodyHTML;
 };
-if(!module.parent){
-scrape().then((value) => {
-    console.log(value); // Success!
-});
+if (!module.parent) {
+    scrape().then((value) => {
+        console.log(value); // Success!
+    });
 }
-module.exports=scrape
+module.exports = scrape
