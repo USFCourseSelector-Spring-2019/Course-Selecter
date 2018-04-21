@@ -1,0 +1,15 @@
+{
+  "name": "course-selecter-server",
+  "version": "1.0.0",
+  "description": "Server for the Course-Selecter",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nick the Sick",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "nano": "^6.4.3"
+  }
+}
