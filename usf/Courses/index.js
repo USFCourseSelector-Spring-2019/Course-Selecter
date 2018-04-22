@@ -31,7 +31,9 @@ function scraper(doTheThing) {
                 instructors: [],
                 titles: [],
                 subjects: [],
+                campuses: [],
                 categories: [],
+                count:-1
             }
 
         function transformVal(val, key, index, row, headers) {
@@ -46,7 +48,7 @@ function scraper(doTheThing) {
                         if (!currentCat.courses.map(cur => cur.id).includes(val) && val.length) {
                             currentCat.courses.push({ id: val, title: '', attributes: [], classes: [] })
                             currentCat.shortcode = subject
-                            if(!criteria.subjects.includes(subject)){
+                            if (!criteria.subjects.includes(subject)) {
                                 criteria.subjects.push(subject)
                             }
                         }
@@ -76,15 +78,15 @@ function scraper(doTheThing) {
                     return ['instructor', val]
                 },
                 Attribute: (val) => {
-                    return val.split(" and ").map(attr => {
+                    return ['attributes',val.split(" and ").map(attr => {
                         if (!criteria.attributes.includes(attr) && attr.length) {
                             criteria.attributes.push(attr)
                         }
                         if (currentCourse.attributes.length === 0 && attr.length) {
                             currentCourse.attributes.push(attr)
                         }
-                        return ['attributes', attr.trim()]
-                    })
+                        return attr.trim()
+                    })]
                 },
                 Days: (val) => {
                     const arr = [];
@@ -97,13 +99,20 @@ function scraper(doTheThing) {
                 },
                 Time: val => ['times', val.split("-")],
                 'Date (MM/DD)': val => ['dates', val.split("-")],
-                Subj: val => ['subject', val],
+                Subj: val => ['shortcode', val],
                 Cred: val => ['credits', val],
                 Sec: val => ['section', val],
+                Act: val => ['enrolled', Number(val)],
                 Rem: val => ['remaining', Number(val)],
                 Cap: val => ['capacity', Number(val)],
                 Location: val => ['loc', val],
-                'WL Rem': val => ['wl_remaining', Number(val)]
+                'WL Rem': val => ['wl_remaining', Number(val)],
+                Cmp: val => {
+                    if (!criteria.campuses.includes(val)) {
+                        criteria.campuses.push(val)
+                    }
+                    return ['campus', val]
+                },
             }
             if (transformer[key]) {
                 return transformer[key](val, index)
@@ -130,6 +139,7 @@ function scraper(doTheThing) {
                         return obj
                     }, {})
                     obj.subject = criteria.categories[criteria.categories.length - 1].subject
+                    obj.index=criteria.count++
                     currentCat.courses[currentCat.courses.length - 1].classes.push(obj)
                     return arr.concat(obj)
                 }
@@ -138,11 +148,10 @@ function scraper(doTheThing) {
         }, [])
 
 
-
         obj = {
             semester,
             accessDate: new Date(accessDate),
-            criteria,
+            ...criteria,
 
         }
         console.log("Transformed Successfully!")
