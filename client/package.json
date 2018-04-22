@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "nuxt": "^1.0.0",
+    "pouchdb": "^6.4.3",
     "vuetify": "^1.0.0"
   },
   "devDependencies": {
