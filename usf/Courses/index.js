@@ -1,7 +1,7 @@
 const cheerio = require('cheerio'),
     write = require('write-json-file'),
     fs = require('fs'),
-    getHTML = require('./puppet'),
+    getHTML = require('./scrape-browser'),
     path = require('path')
 let obj = {}
 String.prototype.trimSplitLines = function () {
@@ -29,55 +29,62 @@ function scraper(doTheThing) {
             criteria = {
                 attributes: [],
                 instructors: [],
-                categories: [],
                 titles: [],
-                subjects: {}
+                subjects: [],
+                categories: [],
             }
 
         function transformVal(val, key, index, row, headers) {
+            const currentCat = criteria.categories[criteria.categories.length - 1]
+            const currentCourse = currentCat.courses[currentCat.courses.length - 1]
             const transformer = {
+                CRN: val => ['id', val],
                 Crse: val => {
 
                     const subject = row[headers.indexOf('Subj')]
                     if (subject.length) {
-                        if (!criteria.subjects[subject]) {
-                            criteria.subjects[subject] = []
-                        }
-                        if (!criteria.subjects[subject].includes(val) && val.length) {
-                            criteria.subjects[subject].push(val)
+                        if (!currentCat.courses.map(cur => cur.id).includes(val) && val.length) {
+                            currentCat.courses.push({ id: val, title: '', attributes: [], classes: [] })
+                            currentCat.shortcode = subject
+                            if(!criteria.subjects.includes(subject)){
+                                criteria.subjects.push(subject)
+                            }
                         }
                     }
-                    return val
+                    return ['id', val]
                 },
                 Select: (val) => {
-                    return val !== 'C'
+                    return ['available', val !== 'C']
                 },
                 Title: (val) => {
-                    if (!criteria.titles.includes(val)) {
-                        if (val && val.length) {
-                            criteria.titles.push(val)
-                        }
+                    if (!criteria.titles.includes(val) && val.length) {
+                        criteria.titles.push(val)
                     }
-                    return val
+
+                    if (currentCourse.title == '') {
+                        currentCourse.title = val
+                    }
+                    return ['title', val]
                 },
                 Instructor: (val) => {
-                    val=val.split(" ").filter(a=>a.length).join(" ")
+                    val = val.split(" ").filter(a => a.length).join(" ")
                     if (!criteria.instructors.includes(val)) {
                         if (val && val !== "TBA" && val.length) {
                             criteria.instructors.push(val)
                         }
                     }
-                    return val
+                    return ['instructor', val]
                 },
                 Attribute: (val) => {
-                    val.split(" and ").forEach(attr => {
-                        if (!criteria.attributes.includes(attr)) {
-                            if (attr && attr.length) {
-                                criteria.attributes.push(attr)
-                            }
+                    return val.split(" and ").map(attr => {
+                        if (!criteria.attributes.includes(attr) && attr.length) {
+                            criteria.attributes.push(attr)
                         }
+                        if (currentCourse.attributes.length === 0 && attr.length) {
+                            currentCourse.attributes.push(attr)
+                        }
+                        return ['attributes', attr.trim()]
                     })
-                    return val
                 },
                 Days: (val) => {
                     const arr = [];
@@ -86,15 +93,22 @@ function scraper(doTheThing) {
                             arr.push(cur)
                         }
                     })
-                    return arr
+                    return ['days', arr]
                 },
-                Time: val => val.split("-"),
-                'Date (MM/DD)': val => val.split("-")
+                Time: val => ['times', val.split("-")],
+                'Date (MM/DD)': val => ['dates', val.split("-")],
+                Subj: val => ['subject', val],
+                Cred: val => ['credits', val],
+                Sec: val => ['section', val],
+                Rem: val => ['remaining', Number(val)],
+                Cap: val => ['capacity', Number(val)],
+                Location: val => ['loc', val],
+                'WL Rem': val => ['wl_remaining', Number(val)]
             }
             if (transformer[key]) {
                 return transformer[key](val, index)
             }
-            return val
+            return [false, val]
         }
 
 
@@ -103,15 +117,20 @@ function scraper(doTheThing) {
                 const row = Array.from($(cur).find('td')).map(node => $(node).text().trimLines())
                 const header = Array.from($(cur).find('th'))
                 if (header.length == 1) {
-                    criteria.categories.push($(header[0]).text())
+                    criteria.categories.push({ subject: $(header[0]).text(), courses: [], shortcode: '' })
                 }
                 if (row.length) {
+                    const currentCat = criteria.categories[criteria.categories.length - 1]
                     const obj = row.reduce((obj, val, i, row) => {
                         const key = headers[i]
-                        obj[key] = transformVal(val, key, i, row, headers)
+                        const [newKey, newVal] = transformVal(val, key, i, row, headers)
+                        if (newKey) {
+                            obj[newKey] = newVal
+                        }
                         return obj
                     }, {})
-                    obj.Category = criteria.categories[criteria.categories.length - 1]
+                    obj.subject = criteria.categories[criteria.categories.length - 1].subject
+                    currentCat.courses[currentCat.courses.length - 1].classes.push(obj)
                     return arr.concat(obj)
                 }
             }
@@ -124,7 +143,6 @@ function scraper(doTheThing) {
             semester,
             accessDate: new Date(accessDate),
             criteria,
-            courses,
 
         }
         console.log("Transformed Successfully!")
