@@ -21,9 +21,7 @@
             </v-btn>
         </v-toolbar>
         <v-content>
-            <v-container>
-                <nuxt />
-            </v-container>
+            <nuxt />
         </v-content>
         <v-navigation-drawer temporary right v-model="rightDrawer" fixed>
             Planner?
