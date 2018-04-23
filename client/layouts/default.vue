@@ -1,6 +1,6 @@
 <template>
     <v-app dark>
-        <v-navigation-drawer v-model="drawer" fixed app>
+        <v-navigation-drawer v-model="drawer" fixed app disable-resize-watcher>
             <v-list>
                 <v-list-tile router :to="item.to" :key="i" v-for="(item, i) in items" exact>
                     <v-list-tile-action>
@@ -23,7 +23,7 @@
         <v-content>
             <nuxt />
         </v-content>
-        <v-navigation-drawer temporary right v-model="rightDrawer" fixed>
+        <v-navigation-drawer temporary right v-model="rightDrawer" fixed floating width="600">
             Planner?
         </v-navigation-drawer>
     </v-app>
@@ -32,7 +32,7 @@
 export default {
     data() {
         return {
-            drawer: true,
+            drawer: false,
             fixed: false,
             items: [{
                 icon: 'apps',

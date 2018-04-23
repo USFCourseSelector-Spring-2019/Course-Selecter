@@ -12,7 +12,9 @@ import {
   VToolbar,
   VExpansionPanel,
   VTextField,
-  VSelect
+  VSelect,
+  VAlert,
+  VDataTable
 } from 'vuetify'
 
 Vue.use(Vuetify, {
@@ -28,6 +30,8 @@ Vue.use(Vuetify, {
     VToolbar,
     VExpansionPanel,
     VTextField,
-    VSelect
+    VSelect,
+    VAlert,
+    VDataTable
   }
 })

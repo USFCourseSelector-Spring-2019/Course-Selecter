@@ -1,6 +1,6 @@
 <template>
-    <v-layout row>
-        <v-flex lg2 md2 sm12 class="px-3 py-3">
+    <v-layout row wrap>
+        <v-flex xl2 md3 sm12 :class="{'px-3':true, 'py-3':true, fixed:$vuetify.breakpoint.mdAndUp}">
             <h1>Search Courses</h1>
             <v-text-field v-model.trim="query" label="Search" append-icon="search" clearable solo class="mb-2"></v-text-field>
             <div class="hidden-sm-and-down">
@@ -19,50 +19,31 @@
                     <div slot="header">
                         <h2 class="title mb-1">Filters</h2>
                     </div>
-                    <v-layout justify-center column>
+                    <v-layout justify-center column class="px-4">
                         <v-flex xs12>
                             <template v-for="(filter,i) in filters">
-                                <v-select :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete :open-on-clear="false" color="light-blue">
+                                <v-select :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete color="light-blue" v-if="filter.possibles.length">
                                     <template slot="item" slot-scope="data">
                                         <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
                                     </template>
                                 </v-select>
+                                <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
                             </template>
                         </v-flex>
                     </v-layout>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-flex>
-        <v-flex lg10 md10 sm12 class="pa-3">
+        <v-flex xl10 offset-xl2 md9 offset-md3 sm12 offset-sm0 :class="{'pa-3':$vuetify.breakpoint.mdAndUp}">
             <v-layout>
-                <v-flex>All Subjects</v-flex>
+                <h1 class="pl-2">Results</h1>
             </v-layout>
-            <v-expansion-panel>
-                <v-expansion-panel-content v-for="category in categories_results">
-                    <div slot="header" v-text="category.subject" :key="category.shortcode"></div>
-                    <v-expansion-panel expand>
-                        <v-expansion-panel-content v-for="course in category.courses" :key="course.id" :to="`/courses/${category.shortcode}/${course.id}`">
-                            <h3 slot="header">{{category.shortcode}} {{course.id}} - {{course.title}}</h3>
-                            <v-layout row wrap>
-                                <v-card class="flex xs4 md3" v-for="(classy,i) in course.classes" :key="category.shortcode+course.id+classy.id+i">
-                                    <v-card-text>
-                                        <h3>{{category.shortcode}} {{classy.id}} - {{classy.title}}</h3>
-                                        <h4>Proffessor: {{classy.instructor}} " {{(classy.days||["UKNOWN"]).join("")}} - {{(classy.dates||["UNKNOWN"]).join("-")}}</h4>
-                                        <p>
-                                            <span v-if="Number(classy.remaining)">Spots: {{classy.remaining}}</span>
-                                            <span v-else>Waitlist remaing spots: {{classy.wl_remaining}}</span>
-                                        </p>
-                                    </v-card-text>
-                                </v-card>
-                            </v-layout>
-                        </v-expansion-panel-content>
-                    </v-expansion-panel>
-                </v-expansion-panel-content>
-            </v-expansion-panel>
+            <Subject v-for="category in categories_results" :key="category.shortcode" v-bind:subject="category" />
         </v-flex>
     </v-layout>
 </template>
 <script>
+import Subject from '../../components/Subject'
 let PouchDB
 if (process.browser) {
     PouchDB = require('pouchdb').default
@@ -167,7 +148,7 @@ export default {
                                     return classy[key] === selected
                                 }
                                 return classy[key] === selected.key
-                            })) {
+                            }) && this.searchWithin(classy, query)) {
                             arr.push(classy)
                         }
                         return arr
@@ -198,7 +179,7 @@ export default {
                         return false
                     }
                     if (typeof val === 'string') {
-                        return val.includes(str)
+                        return val.toLowerCase().includes(str)
                     } else {
                         return this.searchWithin(val, str)
                     }
@@ -217,6 +198,14 @@ export default {
                     return arr
                 }, [])
             }
+        },
+        components: {
+            Subject
         }
 }
 </script>
+<style>
+.fixed {
+    position: fixed;
+}
+</style>
