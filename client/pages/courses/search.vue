@@ -1,10 +1,10 @@
 <template>
     <v-layout row wrap>
         <v-flex xl2 md3 sm12 :class="{'px-3':true, 'py-3':true, fixed:$vuetify.breakpoint.mdAndUp}">
-            <h1>Search Courses</h1>
+            <h1 class="text-xs-center">Search Courses</h1>
             <v-text-field v-model.trim="query" label="Search" append-icon="search" clearable solo class="mb-2"></v-text-field>
             <div class="hidden-sm-and-down">
-                <h2 class="title mb-1 mt-3">Filters</h2>
+                <h2 class="title mb-1 my-3">Filters</h2>
                 <template v-for="(filter,i) in filters">
                     <v-select :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete color="light-blue" v-if="filter.possibles.length">
                         <template slot="item" slot-scope="data">
@@ -50,6 +50,21 @@ if (process.browser) {
 }
 export default {
     data() {
+            const mapDays = {
+                M: 'Monday',
+                T: 'Tuesday',
+                W: 'Wednesday',
+                R: 'Thurdsday',
+                F: 'Friday',
+                S: 'Saturday',
+                U: 'Sunday'
+            }
+            const stringify = arr => arr.map(cur => {
+                cur.label = cur.map(dayCode => mapDays[dayCode]).join(', ')
+                cur.key = cur.join('')
+                cur.toString = () => cur.key
+                return cur
+            })
             return {
                 query: '',
                 categories: [],
@@ -67,6 +82,24 @@ export default {
                     title: 'Course ID',
                     key: 'id',
                     possibles: [],
+                    selected: null
+                }, {
+                    title: 'Days',
+                    key: 'days',
+                    possibles: stringify([
+                        ['M', 'W', 'F'],
+                        ['T', 'R'],
+                        ['M', 'W'],
+                        ['W', 'F'],
+                        ['M'],
+                        ['T'],
+                        ['W'],
+                        ['R'],
+                        ['F'],
+                        ['S', 'U'],
+                        ['S'],
+                        ['U']
+                    ]),
                     selected: null
                 }]
             }
@@ -144,10 +177,22 @@ export default {
                                 selected,
                                 key
                             }) => {
-                                if (typeof selected == 'string') {
-                                    return classy[key] === selected
+                                let compareTo;
+                                if (!Array.isArray(classy[key])) {
+                                    compareTo = [classy[key]]
+                                } else {
+                                    compareTo = classy[key]
                                 }
-                                return classy[key] === selected.key
+                                return (Array.isArray(selected) ? selected : compareTo).every((value, i) => {
+                                    if (typeof selected == 'string' || selected === null) {
+                                        return value === selected
+                                    }
+                                    if (Array.isArray(selected)) {
+                                        return selected.length === compareTo.length && value === compareTo[i]
+                                    }
+                                    return value === selected.key
+                                })
+
                             }) && this.searchWithin(classy, query)) {
                             arr.push(classy)
                         }
