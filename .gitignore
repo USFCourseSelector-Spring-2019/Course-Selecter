@@ -2,3 +2,4 @@ node_modules
 usf/courses.json
 usf/creds.js
 .DS_Store
+yarn-error.log
