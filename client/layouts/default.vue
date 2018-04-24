@@ -24,11 +24,12 @@
             <nuxt />
         </v-content>
         <v-navigation-drawer temporary right v-model="rightDrawer" fixed floating width="600">
-            Planner?
+            <Planner @close="rightDrawer=false" />
         </v-navigation-drawer>
     </v-app>
 </template>
 <script>
+import Planner from '../components/Planner'
 export default {
     data() {
         return {
@@ -46,6 +47,9 @@ export default {
             rightDrawer: false,
             title: 'USF Course Selector'
         }
+    },
+    components:{
+        Planner
     }
 }
 </script>

@@ -20,15 +20,13 @@
                         <h2 class="title mb-1">Filters</h2>
                     </div>
                     <v-layout justify-center column class="px-4">
-                        <v-flex xs12>
-                            <template v-for="(filter,i) in filters">
+                        <v-flex xs12 v-for="(filter,i) in filters">
                                 <v-select :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete color="light-blue" v-if="filter.possibles.length">
                                     <template slot="item" slot-scope="data">
                                         <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
                                     </template>
                                 </v-select>
                                 <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
-                            </template>
                         </v-flex>
                     </v-layout>
                 </v-expansion-panel-content>

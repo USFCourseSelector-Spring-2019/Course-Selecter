@@ -1,24 +1,6 @@
 import Vue from 'vue'
 import {
-  Vuetify,
-  VApp,
-  VCard,
-  VNavigationDrawer,
-  VFooter,
-  VList,
-  VBtn,
-  VIcon,
-  VGrid,
-  VToolbar,
-  VExpansionPanel,
-  VTextField,
-  VSelect,
-  VAlert,
-  VDataTable
-} from 'vuetify'
-
-Vue.use(Vuetify, {
-  components: {
+    Vuetify,
     VApp,
     VCard,
     VNavigationDrawer,
@@ -32,6 +14,26 @@ Vue.use(Vuetify, {
     VTextField,
     VSelect,
     VAlert,
-    VDataTable
-  }
+    VDataTable,
+    VTabs
+} from 'vuetify'
+
+Vue.use(Vuetify, {
+    components: {
+        VApp,
+        VCard,
+        VNavigationDrawer,
+        VFooter,
+        VList,
+        VBtn,
+        VIcon,
+        VGrid,
+        VToolbar,
+        VExpansionPanel,
+        VTextField,
+        VSelect,
+        VAlert,
+        VDataTable,
+        VTabs
+    }
 })

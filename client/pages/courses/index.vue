@@ -4,8 +4,8 @@
             <v-flex>All Subjects</v-flex>
         </v-layout>
         <v-expansion-panel>
-            <v-expansion-panel-content v-for="category in categories">
-                <div slot="header" v-text="category.subject" :key="category.shortcode"></div>
+            <v-expansion-panel-content v-for="category in categories" :key="category.shortcode">
+                <div slot="header" v-text="category.subject"></div>
                 <v-expansion-panel>
                     <v-expansion-panel-content v-for="course in category.courses" :key="course.id" :to="`/courses/${category.shortcode}/${course.id}`">
                         <h3 slot="header">{{category.shortcode}} {{course.id}} - {{course.title}}</h3>

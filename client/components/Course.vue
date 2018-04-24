@@ -4,7 +4,7 @@
             <h1 v-text="course.title"></h1>
             <v-spacer></v-spacer>
             <h2 class="mr-3" v-text="course.shortcode+' '+course.id"></h2>
-            <v-btn icon @click="close">
+            <v-btn icon @click="$emit('close')">
                 <v-icon>close</v-icon>
             </v-btn>
         </v-card-title>
@@ -23,6 +23,6 @@ export default {
     data() {
             return {}
         },
-        props: ['course', 'close', 'isAdded']
+        props: ['course', 'isAdded']
 }
 </script>

@@ -7,7 +7,7 @@
         </v-card-title>
         <v-data-table :headers="headers" :items="items" hide-actions item-key="index">
             <template slot="items" slot-scope="props">
-                <tr @click="props.item.available&&(props.expanded = !props.expanded)" :class="{disabled:!props.item.available,'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="props.item.index">
+                <tr @click="(props.expanded = !props.expanded)" :class="{disabled:!props.item.available,'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="props.item.index">
                     <td>{{ props.item.title }}</td>
                     <td class="text-xs-center">{{ props.item.shortcode }} {{props.item.id}}</td>
                     <td class="text-xs-center">{{ props.item.days.join('') }}</td>
@@ -19,7 +19,10 @@
                 </tr>
             </template>
             <template slot="expand" slot-scope="props">
-                <Course :course="props.item" :close="(()=>props.expanded=false)" :is-added="false" />
+                <Course :course="props.item" @close="props.expanded=false" :is-added="false" v-if="props.item.available" />
+                    <v-alert :value="props.item.available===false" color="error" icon="warning" v-else>
+                    Sorry {{props.item.title}} on {{props.item.days.join('')}} with {{props.item.instructor}} at {{props.item.times.join(" - ")}} is closed. Even the wait list is full or closed off.
+                    </v-alert>
             </template>
             <v-alert slot="no-results" :value="true" color="error" icon="warning">
                 Your search found no results.
