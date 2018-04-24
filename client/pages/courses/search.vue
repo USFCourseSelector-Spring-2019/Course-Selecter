@@ -20,19 +20,19 @@
                         <h2 class="title mb-1">Filters</h2>
                     </div>
                     <v-layout justify-center column class="px-4">
-                        <v-flex xs12 v-for="(filter,i) in filters">
-                                <v-select :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete color="light-blue" v-if="filter.possibles.length">
-                                    <template slot="item" slot-scope="data">
-                                        <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
-                                    </template>
-                                </v-select>
-                                <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
+                        <v-flex xs12 v-for="(filter,i) in filters" :key="i">
+                            <v-select :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete color="light-blue" v-if="filter.possibles.length">
+                                <template slot="item" slot-scope="data">
+                                    <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
+                                </template>
+                            </v-select>
+                            <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
                         </v-flex>
                     </v-layout>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-flex>
-        <v-flex xl10 offset-xl2 md9 offset-md3 sm12 offset-sm0 :class="{'pa-3':$vuetify.breakpoint.mdAndUp}">
+        <v-flex xl10 offset-xl2 md9 offset-md3 sm12 offset-sm0 :class="{'pa-3':$vuetify.breakpoint.mdAndUp,box:true}">
             <v-layout>
                 <h1 class="pl-2">Results</h1>
             </v-layout>
@@ -42,9 +42,78 @@
 </template>
 <script>
 import Subject from '../../components/Subject'
-let PouchDB
-if (process.browser) {
-    PouchDB = require('pouchdb').default
+import PouchDB from 'pouchdb'
+const reference = doc => {
+    const mapDays = {
+        M: 'Monday',
+        T: 'Tuesday',
+        W: 'Wednesday',
+        R: 'Thurdsday',
+        F: 'Friday',
+        S: 'Saturday',
+        U: 'Sunday'
+    }
+    const stringify = arr => arr.map(cur => {
+        cur.label = cur.map(dayCode => mapDays[dayCode]).join(', ')
+        cur.key = cur.join('')
+        cur.toString = () => cur.key
+        return cur
+    })
+    const ret = Object.assign({
+        filters: [{
+            title: 'Campus',
+            key: 'campus',
+            possibles: [],
+            selected: null
+        }, {
+            title: 'Subject',
+            key: 'shortcode',
+            possibles: [],
+            selected: null
+        }, {
+            title: 'Course ID',
+            key: 'id',
+            possibles: [],
+            selected: null
+        }, {
+            title: 'Days',
+            key: 'days',
+            possibles: stringify([
+                ['M', 'W', 'F'],
+                ['T', 'R'],
+                ['M', 'W'],
+                ['W', 'F'],
+                ['M'],
+                ['T'],
+                ['W'],
+                ['R'],
+                ['F'],
+                ['S', 'U'],
+                ['S'],
+                ['U']
+            ]),
+            selected: null
+        }]
+    }, doc)
+    const campusFilter = ret.filters[0]
+    const possibles = doc.campuses.filter(a => a.length)
+    possibles[0] = {
+        key: 'M',
+        label: 'Mountain top',
+        toString: () => 'Mountain top'
+    }
+    campusFilter.possibles = possibles
+    campusFilter.selected = possibles[0]
+    const subjectFilter = ret.filters[1]
+    subjectFilter.possibles = doc.categories.map(({
+        shortcode,
+        subject
+    }) => ({
+        key: shortcode,
+        label: subject,
+        toString: () => subject
+    }))
+    return ret
 }
 export default {
     data() {
@@ -63,81 +132,44 @@ export default {
                 cur.toString = () => cur.key
                 return cur
             })
+
             return {
                 query: '',
-                categories: [],
-                filters: [{
-                    title: 'Campus',
-                    key: 'campus',
-                    possibles: [],
-                    selected: null
-                }, {
-                    title: 'Subject',
-                    key: 'shortcode',
-                    possibles: [],
-                    selected: null
-                }, {
-                    title: 'Course ID',
-                    key: 'id',
-                    possibles: [],
-                    selected: null
-                }, {
-                    title: 'Days',
-                    key: 'days',
-                    possibles: stringify([
-                        ['M', 'W', 'F'],
-                        ['T', 'R'],
-                        ['M', 'W'],
-                        ['W', 'F'],
-                        ['M'],
-                        ['T'],
-                        ['W'],
-                        ['R'],
-                        ['F'],
-                        ['S', 'U'],
-                        ['S'],
-                        ['U']
-                    ]),
-                    selected: null
-                }]
+                categories: []
+
             }
         },
         mounted() {
-            const coursesDB = new PouchDB('http://localhost:5984/usf')
-            coursesDB.query('courses/latest', {
-                limit: 1
-            }).then(({
-                rows: [{
-                    value: doc
-                }],
-                total_rows
-            }) => {
-                console.log(doc)
-                Object.entries(doc).forEach(([key, value]) => {
-                    this[key] = value
-                })
-                const campusFilter = this.filters[0]
-                const possibles = doc.campuses.filter(a => a.length)
-                possibles[0] = {
-                    key: 'M',
-                    label: 'Mountain top',
-                    toString: () => 'Mountain top'
-                }
-                campusFilter.possibles = possibles
-                campusFilter.selected = possibles[0]
-                const subjectFilter = this.filters[1]
-                subjectFilter.possibles = doc.categories.map(({
-                    shortcode,
-                    subject
-                }) => ({
-                    key: shortcode,
-                    label: subject,
-                    toString: () => subject
-                }))
-
-            }).catch(err => {
-                console.error(err)
+            const {
+                campuses,
+                categories
+            } = this
+            const obj = reference({
+                campuses,
+                categories
             })
+            console.log(obj)
+            this.filters = obj.filters
+        },
+        asyncData(context) {
+            if (process.server) {
+                const coursesDB = new PouchDB( /*context.isDev*/ true ? 'http://localhost:5984/usf' : 'http://db.courseselector.com/usf')
+                return coursesDB.query('courses/latest', {
+                    limit: 1
+                }).then(({
+                    rows: [{
+                        value: doc
+                    }],
+                    total_rows
+                }) => {
+
+
+                    return reference(doc)
+
+                }).catch(err => {
+                    console.error(err)
+                })
+            }
         },
         watch: {
             filters: {
