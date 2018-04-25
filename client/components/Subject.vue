@@ -1,13 +1,13 @@
 <template>
     <v-card raised class="ma-2">
         <v-card-title>
-            <h3 v-text="subject.subject"></h3>
+            <h3 v-text="subject.subject" class="display-1"></h3>
             <v-spacer></v-spacer>
-            <h3 v-text="subject.shortcode"></h3>
+            <h3 v-text="subject.shortcode" class="title"></h3>
         </v-card-title>
-        <v-data-table :headers="headers" :items="items" hide-actions item-key="index">
+        <v-data-table :headers="headers" :items="items" hide-actions item-key="index" expand>
             <template slot="items" slot-scope="props">
-                <tr @click="(props.expanded = !props.expanded)" :class="{disabled:!props.item.available,'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="props.item.index">
+                <tr @click="(props.expanded = !props.expanded)" :class="{disabled:!props.item.available,'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="expand(props).item.index">
                     <td>{{ props.item.title }}</td>
                     <td class="text-xs-center">{{ props.item.shortcode }} {{props.item.id}}</td>
                     <td class="text-xs-center">{{ props.item.days.join('') }}</td>
@@ -19,7 +19,7 @@
                 </tr>
             </template>
             <template slot="expand" slot-scope="props">
-                <Course :course="props.item" @close="props.expanded=false" :is-added="false" v-if="props.item.available" />
+                <Course :course="props.item" @close="props.expanded=false" :show-added="true" v-if="props.item.available" />
                 <v-alert :value="props.item.available===false" color="error" icon="warning" v-else>
                     Sorry {{props.item.title}} on {{props.item.days.join('')}} with {{props.item.instructor}} at {{props.item.times.join(" - ")}} is closed. Even the wait list is full or closed off.
                 </v-alert>
@@ -91,6 +91,14 @@ export default {
         },
         components: {
             Course
+        },
+        methods: {
+            expand(props) {
+                if (this.items.length === 1) {
+                    props.expanded = true
+                }
+                return props
+            }
         }
 }
 </script>

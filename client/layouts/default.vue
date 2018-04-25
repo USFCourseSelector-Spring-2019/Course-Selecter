@@ -16,40 +16,47 @@
             <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
             <v-toolbar-title v-text="title"></v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-                <v-icon>menu</v-icon>
+            <v-btn icon @click.stop="togglePlanner">
+                <v-icon>view_list</v-icon>
             </v-btn>
         </v-toolbar>
         <v-content>
             <nuxt />
         </v-content>
-        <v-navigation-drawer temporary right v-model="rightDrawer" fixed floating width="600">
-            <Planner @close="rightDrawer=false" />
+        <v-navigation-drawer temporary right v-model="planner.visible" fixed floating width="600">
+            <Planner @close="hidePlanner" />
         </v-navigation-drawer>
+        <!--<v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
+            <Planner @close="hidePlanner" />
+        </v-dialog>-->
     </v-app>
 </template>
 <script>
 import Planner from '../components/Planner'
 export default {
     data() {
-        return {
-            drawer: false,
-            fixed: false,
-            items: [{
-                icon: 'apps',
-                title: 'Home',
-                to: '/'
-            }, {
-                icon: 'bubble_chart',
-                title: 'All Courses',
-                to: '/courses'
-            }],
-            rightDrawer: false,
-            title: 'USF Course Selector'
+            return {
+                drawer: false,
+                fixed: false,
+                items: [{
+                    icon: 'apps',
+                    title: 'Home',
+                    to: '/'
+                }, {
+                    icon: 'bubble_chart',
+                    title: 'All Courses',
+                    to: '/courses'
+                }],
+                title: 'USF Course Selector'
+            }
+        },
+        computed: {
+            dialog() {
+                return this.planner.visible && this.$vuetify.breakpoint.smAndDown
+            }
+        },
+        components: {
+            Planner
         }
-    },
-    components:{
-        Planner
-    }
 }
 </script>

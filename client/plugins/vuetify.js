@@ -15,7 +15,9 @@ import {
     VSelect,
     VAlert,
     VDataTable,
-    VTabs
+    VTabs,
+    VDialog,
+    VSubheader
 } from 'vuetify'
 
 Vue.use(Vuetify, {
@@ -34,6 +36,7 @@ Vue.use(Vuetify, {
         VSelect,
         VAlert,
         VDataTable,
-        VTabs
+        VTabs,
+        VDialog,VSubheader
     }
 })

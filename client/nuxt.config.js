@@ -17,7 +17,7 @@ module.exports = {
       { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' }
     ]
   },
-  plugins: ['~/plugins/vuetify.js'],
+  plugins: ['~/plugins/vuetify.js','~/plugins/cart.js'],
   css: [
     '~/assets/style/app.styl'
   ],
@@ -40,7 +40,8 @@ module.exports = {
       ]
     },
     vendor: [
-      '~/plugins/vuetify.js'
+      '~/plugins/vuetify.js',
+      'pouchdb',
     ],
     extractCSS: true,
     /*

@@ -1,6 +1,6 @@
 <template>
     <v-layout row wrap>
-        <v-flex xl2 md3 sm12 :class="{'px-3':true, 'py-3':true, fixed:$vuetify.breakpoint.mdAndUp}">
+        <v-flex xl2 md3 sm12 :class="['px-3', 'py-3', 'fixed-md-and-up' ,'full-width']">
             <h1 class="text-xs-center">Search Courses</h1>
             <v-text-field v-model.trim="query" label="Search" append-icon="search" clearable solo class="mb-2"></v-text-field>
             <div class="hidden-sm-and-down">
@@ -14,8 +14,10 @@
                     <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
                 </template>
             </div>
-            <v-expansion-panel expand class="hidden-md-and-up">
-                <v-expansion-panel-content>
+        </v-flex>
+        <v-flex sm12 class="hidden-md-and-up px-3 pb-3">
+            <v-expansion-panel>
+                <v-expansion-panel-content :value="true">
                     <div slot="header">
                         <h2 class="title mb-1">Filters</h2>
                     </div>
@@ -33,9 +35,7 @@
             </v-expansion-panel>
         </v-flex>
         <v-flex xl10 offset-xl2 md9 offset-md3 sm12 offset-sm0 :class="{'pa-3':$vuetify.breakpoint.mdAndUp,box:true}">
-            <v-layout>
-                <h1 class="pl-2">Results</h1>
-            </v-layout>
+            <h1 class="pl-2 text-md-left text-xs-center">Results</h1>
             <Subject v-for="category in categories_results" :key="category.shortcode" v-bind:subject="category" />
         </v-flex>
     </v-layout>
@@ -43,7 +43,7 @@
 <script>
 import Subject from '../../components/Subject'
 import PouchDB from 'pouchdb'
-const reference = doc => {
+const hydrate = doc => {
     const mapDays = {
         M: 'Monday',
         T: 'Tuesday',
@@ -135,41 +135,39 @@ export default {
 
             return {
                 query: '',
-                categories: []
+                categories: [],
+                filters: []
 
             }
         },
-        mounted() {
+        created() {
             const {
                 campuses,
                 categories
             } = this
-            const obj = reference({
+            const obj = hydrate({
                 campuses,
                 categories
             })
-            console.log(obj)
             this.filters = obj.filters
         },
         asyncData(context) {
-            if (process.server) {
-                const coursesDB = new PouchDB( /*context.isDev*/ true ? 'http://localhost:5984/usf' : 'http://db.courseselector.com/usf')
-                return coursesDB.query('courses/latest', {
-                    limit: 1
-                }).then(({
-                    rows: [{
-                        value: doc
-                    }],
-                    total_rows
-                }) => {
+            const coursesDB = new PouchDB( /*context.isDev*/ true ? 'http://localhost:5984/usf' : 'http://db.courseselector.com/usf')
+            return coursesDB.query('courses/latest', {
+                limit: 1
+            }).then(({
+                rows: [{
+                    value: doc
+                }],
+                total_rows
+            }) => {
 
 
-                    return reference(doc)
+                return doc
 
-                }).catch(err => {
-                    console.error(err)
-                })
-            }
+            }).catch(err => {
+                console.error(err)
+            })
         },
         watch: {
             filters: {
@@ -280,7 +278,13 @@ export default {
 }
 </script>
 <style>
-.fixed {
-    position: fixed;
+@media(min-width: 960px) {
+    .fixed-md-and-up {
+        position: fixed;
+    }
+}
+
+.full-width {
+    width: 100%;
 }
 </style>
