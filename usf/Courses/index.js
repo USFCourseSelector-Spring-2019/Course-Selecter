@@ -40,7 +40,7 @@ function scraper(doTheThing) {
             const currentCat = criteria.categories[criteria.categories.length - 1]
             const currentCourse = currentCat.courses[currentCat.courses.length - 1]
             const transformer = {
-                CRN: val => ['id', val],
+                CRN: val => ['crn', val],
                 Crse: val => {
 
                     const subject = row[headers.indexOf('Subj')]
