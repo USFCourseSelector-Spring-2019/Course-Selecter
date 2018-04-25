@@ -1,6 +1,6 @@
 <template>
     <v-layout row wrap>
-        <v-flex xl2 md3 sm12 :class="['px-3', 'py-3', 'fixed-md-and-up' ,'full-width']">
+        <v-flex xl2 md3 sm12 :class="['px-3', 'py-4', 'fixed-md-and-up' ,'full-width']">
             <h1 class="text-xs-center">Search Courses</h1>
             <v-text-field v-model.trim="query" label="Search" append-icon="search" clearable solo class="mb-2"></v-text-field>
             <div class="hidden-sm-and-down">
