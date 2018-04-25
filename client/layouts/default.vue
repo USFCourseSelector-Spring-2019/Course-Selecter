@@ -12,7 +12,7 @@
                 </v-list-tile>
             </v-list>
         </v-navigation-drawer>
-        <v-toolbar fixed app>
+        <v-toolbar fixed app color="primary">
             <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
             <v-toolbar-title v-text="title"></v-toolbar-title>
             <v-spacer></v-spacer>
@@ -44,7 +44,7 @@ export default {
                     to: '/'
                 }, {
                     icon: 'bubble_chart',
-                    title: 'All Courses',
+                    title: 'Browse Courses',
                     to: '/courses'
                 }],
                 title: 'USF Course Selector'
