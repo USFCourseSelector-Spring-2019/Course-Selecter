@@ -31,7 +31,7 @@
                         <h1 class="text-xs-center display-1 mb-5">Welcome to your Planner!</h1>
                         <p class="text-xs-center">This is where all the courses that you plan to take will be displayed. To begin your plan, add some courses!</p>
                         <v-layout justify-center align-center>
-                            <v-btn to="/courses/search" class="text-xs-center" color="primary">
+                            <v-btn to="/courses" class="text-xs-center" color="primary">
                                 <v-icon left>add</v-icon>Add your first course !
                             </v-btn>
                         </v-layout>
