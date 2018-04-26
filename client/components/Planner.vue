@@ -47,7 +47,7 @@
                         <v-btn :flat="tr" @click="mode='TR'" depressed>TR</v-btn>
                         <v-btn :flat="su" @click="mode='SU'" depressed>SU</v-btn>
                     </v-layout>
-                    <Schedule :classes="courses" :days="mode" />
+                    <Schedule :classes="courses" :days="mode" v-if="courses.length" />
                 </v-card>
             </v-tab-item>
         </v-tabs-items>
@@ -80,15 +80,6 @@ export default {
     data() {
             return {
                 showSettings: false,
-                mapDays: {
-                    M: 'Monday',
-                    T: 'Tuesday',
-                    W: 'Wednesday',
-                    R: 'Thurdsday',
-                    F: 'Friday',
-                    S: 'Saturday',
-                    U: 'Sunday'
-                },
                 schedule: {
                     mode: 'MTWRF'
                 }
