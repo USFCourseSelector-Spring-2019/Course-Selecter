@@ -3,3 +3,5 @@ usf/courses.json
 usf/creds.js
 .DS_Store
 yarn-error.log
+courses.json
+/usf/Courses/courses.json
