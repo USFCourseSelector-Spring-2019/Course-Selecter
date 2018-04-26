@@ -1,19 +1,43 @@
 <template>
-    <div>
-        {{classes}}
-        {{getDays}}
-    </div>
+    <v-card>
+        <v-layout>
+            <v-btn @click="previousWeek" icon :disabled="previousWeekDisabled">
+                <v-icon>chevron_left</v-icon>
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn @click="nextWeek" icon :disabled="nextWeekDisabled">
+                <v-icon>chevron_right</v-icon>
+            </v-btn>
+        </v-layout>
+        <v-layout>
+            <v-flex v-for="(day,i) in getDays" :key="i">
+                <v-card class="fill-height">
+                    <v-card-title class="layout column elevation-1">
+                        <h1 class="title" v-text="mapDays[mapNum[day.day()]]"></h1>
+                        <h2 class="title" v-text="day.date()"></h2>
+                    </v-card-title>
+                    <v-card-text style="height:1000px">
+                        <div v-for="course in classesInDay[day.day()]" :key="course.index">
+                            {{course.times}}
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-flex>
+        </v-layout>
+    </v-card>
 </template>
 <script>
 import Moment from 'moment';
-import { extendMoment } from 'moment-range';
- 
+import {
+    extendMoment
+} from 'moment-range';
+
 const moment = extendMoment(Moment);
 export default {
     data() {
-    	return {
-            	mapDay:{
-            		U: 7,
+            return {
+                mapDay: {
+                    U: 7,
                     M: 1,
                     T: 2,
                     W: 3,
@@ -21,7 +45,8 @@ export default {
                     F: 5,
                     S: 6
                 },
-            	mapDays: {
+                mapNum: ['U', 'M', 'T', 'W', 'R', 'F', 'S', 'U'],
+                mapDays: {
                     M: 'Monday',
                     T: 'Tuesday',
                     W: 'Wednesday',
@@ -29,47 +54,91 @@ export default {
                     F: 'Friday',
                     S: 'Saturday',
                     U: 'Sunday'
+                },
+                range: {
+                    by: () => []
                 }
-            }  
+            }
         },
-        computed:{
-        	firstAndLastDayOfClass(){
-        		return [
-        		moment.min(this.classes.map(({dates:[lowestDate]})=>lowestDate+'/'+(moment().year()))),
-        		moment.max(this.classes.map(({dates:[lowestDate,highestDate]})=>highestDate+'/'+(moment().year())))
-        		]
-        	},
-        	firstDayOfClass(){
-        		return this.firstAndLastDayOfClass[0]
-        	},
-        	lastDayOfClass(){
-        		return this.firstAndLastDayOfClass[1]
-        	},
-        	range(){
-        		const days=this.dayNumbers,
-        		startRange = moment(this.firstDayOfClass).day(days[0]),
-        		endRange=startRange.clone().day(days.slice(-1))
-        		return moment.range(startRange,endRange)
-        	},
-        	rangeOfDaysOfClass(){
-        		return moment.range(this.firstAndLastDayOfClass)
-        	},
-        	getDays(){
-        		const range = this.range
-        		console.log(this.range)
-        		return Array.from(range.by('days',{step:this.distance}))
-        	},
-        	dayNumbers(){
-        		console.log(this.days.split('').map(day=>this.mapDay[day]))
-        		return this.days.split('').map(day=>this.mapDay[day])
-        	},
-        	distance(){
-        		if(this.dayNumbers[0]==6){
-        			return 1
-        		}
-        		return this.dayNumbers[1]-this.dayNumbers[0]
-        	}
+        created() {
+            const days = this.dayNumbers,
+                startRange = moment(this.firstDayOfClass).day(days[0]),
+                endRange = startRange.clone().day(days.slice(-1))
+            this.range = moment.range(startRange, endRange)
         },
-        props: ['classes','days']
+        computed: {
+            firstAndLastDayOfClass() {
+                return [
+                    moment.min(this.classes.map(({
+                        dates: [lowestDate]
+                    }) => lowestDate + '/' + (moment().year()))),
+                    moment.max(this.classes.map(({
+                        dates: [lowestDate, highestDate]
+                    }) => highestDate + '/' + (moment().year())))
+                ]
+            },
+            nextWeekDisabled() {
+                return !this.rangeOfDaysOfClass.contains(this.range.end.clone().add(1, 'weeks'))
+            },
+            previousWeekDisabled() {
+                return !this.rangeOfDaysOfClass.contains(this.range.end.clone().subtract(1, 'weeks'))
+            },
+            firstDayOfClass() {
+                return this.firstAndLastDayOfClass[0]
+            },
+            lastDayOfClass() {
+                return this.firstAndLastDayOfClass[1]
+            },
+            rangeOfDaysOfClass() {
+                return moment.range(this.firstAndLastDayOfClass)
+            },
+            getDays() {
+                const range = this.range
+                console.log(this.range)
+                return Array.from(range.by('days', {
+                    step: this.distance
+                }))
+            },
+            dayNumbers() {
+                return this.days.split('').map(day => this.mapDay[day])
+            },
+            distance() {
+                if (this.dayNumbers[0] == 6) {
+                    return 1
+                }
+                return this.dayNumbers[1] - this.dayNumbers[0]
+            },
+            classesInDay() {
+                const mapDays = this.mapDays
+                return Object.keys(mapDays).map((day) => {
+                    return this.classes.filter(({
+                        days
+                    }) => days.includes(day))
+                })
+            }
+        },
+        props: ['classes', 'days'],
+        methods: {
+            nextWeek() {
+                const range = this.range
+                this.range = moment.range(range.start.add(1, 'weeks'), range.end.add(1, 'weeks'))
+
+            },
+            previousWeek() {
+                const range = this.range
+                this.range = moment.range(range.start.subtract(1, 'weeks'), range.end.subtract(1, 'weeks'))
+            }
+        },
+        watch: {
+            days(newDays) {
+                const days = this.days.split('').map(day => this.mapDay[day]),
+                    startRange = this.range.start.clone().day(days[0]),
+                    endRange = startRange.clone().day(days.slice(-1))
+
+                this.range = moment.range(startRange, endRange)
+            }
+        }
 }
 </script>
+<style>
+</style>
