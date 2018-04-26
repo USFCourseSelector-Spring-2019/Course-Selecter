@@ -1,7 +1,7 @@
 <template>
     <v-card flat>
         <v-toolbar color="primary darken-1">
-            <v-btn @click="showModal=true" icon>
+            <v-btn @click="showSettings=true" icon>
                 <v-icon>settings</v-icon>
             </v-btn>
             <v-toolbar-title class="white--text">My Planner - {{plan.title}}</v-toolbar-title>
@@ -24,14 +24,14 @@
                 <v-card flat>
                     <v-layout column v-if="courses.length">
                         <v-flex v-for="(course,i) in courses" :key="course.index">
-                            <Course :course="course" @close="cart.splice(i,1)" :show-added="false" />
+                            <Course :course="course" @close="courses.splice(i,1)" :show-added="false" />
                         </v-flex>
                     </v-layout>
                     <v-card-text v-else>
                         <h1 class="text-xs-center display-1 mb-5">Welcome to your Planner!</h1>
                         <p class="text-xs-center">This is where all the courses that you plan to take will be displayed. To begin your plan, add some courses!</p>
                         <v-layout justify-center align-center>
-                            <v-btn to="/courses" class="text-xs-center" color="primary">
+                            <v-btn class="text-xs-center" color="primary" @click="goToCourses">
                                 <v-icon left>add</v-icon>Add your first course !
                             </v-btn>
                         </v-layout>
@@ -40,23 +40,27 @@
             </v-tab-item>
             <v-tab-item key="schedule">
                 <v-card flat>
-                    <v-card-text v-if="cart.length">Schedule</v-card-text>
-                    <v-card-text v-else>
-                        <h1 class="text-xs-center">This will track your schedule with the classes added</h1>
-                    </v-card-text>
+                    <v-layout>
+                        <v-spacer></v-spacer>
+                        <v-btn :flat="week" @click="mode='MTWRF'" depressed>Week</v-btn>
+                        <v-btn :flat="mwf" @click="mode='MWF'" depressed>MWF</v-btn>
+                        <v-btn :flat="tr" @click="mode='TR'" depressed>TR</v-btn>
+                        <v-btn :flat="su" @click="mode='SU'" depressed>SU</v-btn>
+                    </v-layout>
+                    <Schedule :classes="courses" :days="mode" />
                 </v-card>
             </v-tab-item>
         </v-tabs-items>
-        <v-dialog v-model="showModal" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
+        <v-dialog v-model="showSettings" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
             <v-card tile>
                 <v-toolbar card dark color="primary">
-                    <v-btn icon @click.native="showModal = false" dark>
+                    <v-btn icon @click.native="showSettings = false" dark>
                         <v-icon>close</v-icon>
                     </v-btn>
                     <v-toolbar-title>My Planner - Settings</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
-                        <v-btn dark flat @click.native="(saveSettings(),showModal = false)">
+                        <v-btn dark flat @click.native="(saveSettings(),showSettings = false)">
                             <v-icon left>save</v-icon>Save</v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
@@ -70,22 +74,63 @@
 </template>
 <script>
 import Course from './Course'
+import Schedule from './Schedule'
+
 export default {
     data() {
             return {
-                showModal: false
+                showSettings: false,
+                mapDays: {
+                    M: 'Monday',
+                    T: 'Tuesday',
+                    W: 'Wednesday',
+                    R: 'Thurdsday',
+                    F: 'Friday',
+                    S: 'Saturday',
+                    U: 'Sunday'
+                },
+                schedule: {
+                    mode: 'MTWRF'
+                }
             }
         },
-        mounted() {
-            console.log(this.cart, this.$cart)
+        computed: {
+            mode: {
+                get() {
+                    return this.schedule.mode
+                },
+                set(value) {
+                    this.schedule.mode = value
+                }
+            },
+            week() {
+                return this.mode === 'MTWRF'
+            },
+            mwf() {
+                return this.mode === 'MWF'
+            },
+            tr() {
+                return this.mode === 'TR'
+            },
+            su() {
+                return this.mode === 'SU'
+            },
         },
         methods: {
             saveSettings() {
 
+            },
+            goToCourses() {
+                if (this.$router.currentRoute.path == '/courses') {
+                    this.planner.visible = false
+                } else {
+                    this.$router.push('/courses')
+                }
             }
         },
         components: {
-            Course
+            Course,
+            Schedule
         }
 }
 </script>

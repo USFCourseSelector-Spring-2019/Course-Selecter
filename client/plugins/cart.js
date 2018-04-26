@@ -7,8 +7,8 @@ const Cart = {
     }],
     cart: [],
     planner: {
-        visible: false,
-        curTab: '0',
+        visible: true,
+        curTab: '1',
         plan: 0
     },
     add(course) {

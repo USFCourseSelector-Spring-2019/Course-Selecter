@@ -45,108 +45,92 @@ import Subject from '../../components/Subject'
 import PouchDB from 'pouchdb'
 const hydrate = doc => {
     const mapDays = {
-        M: 'Monday',
-        T: 'Tuesday',
-        W: 'Wednesday',
-        R: 'Thurdsday',
-        F: 'Friday',
-        S: 'Saturday',
-        U: 'Sunday'
-    }
-    const stringify = arr => arr.map(cur => {
-        cur.label = cur.map(dayCode => mapDays[dayCode]).join(', ')
-        cur.key = cur.join('')
-        cur.toString = () => cur.key
-        return cur
-    })
-    const ret = Object.assign({
-        filters: [{
-            title: 'Campus',
-            key: 'campus',
-            possibles: [],
-            selected: null
-        }, {
-            title: 'Subject',
-            key: 'shortcode',
-            possibles: [],
-            selected: null
-        }, {
-            title: 'Course ID',
-            key: 'id',
-            possibles: [],
-            selected: null
-        }, {
-            title: 'Days',
-            key: 'days',
-            possibles: stringify([
-                ['M', 'W', 'F'],
-                ['T', 'R'],
-                ['M', 'W'],
-                ['W', 'F'],
-                ['M'],
-                ['T'],
-                ['W'],
-                ['R'],
-                ['F'],
-                ['S', 'U'],
-                ['S'],
-                ['U']
-            ]),
-            selected: null
-        }]
-    }, doc)
-    const campusFilter = ret.filters[0]
-    const possibles = doc.campuses.filter(a => a.length)
-    possibles[0] = {
-        key: 'M',
-        label: 'Mountain top',
-        toString: () => 'Mountain top'
-    }
-    campusFilter.possibles = possibles
-    campusFilter.selected = possibles[0]
-    const subjectFilter = ret.filters[1]
-    subjectFilter.possibles = doc.categories.map(({
-        shortcode,
-        subject
-    }) => ({
-        key: shortcode,
-        label: subject,
-        toString: () => subject
-    }))
+            M: 'Monday',
+            T: 'Tuesday',
+            W: 'Wednesday',
+            R: 'Thurdsday',
+            F: 'Friday',
+            S: 'Saturday',
+            U: 'Sunday'
+        },
+        stringify = arr => arr.map(cur => {
+            cur.label = cur.map(dayCode => mapDays[dayCode]).join(', ')
+            cur.key = cur.join('')
+            cur.toString = () => cur.key
+            return cur
+        }),
+        lm = {
+            key: 'M',
+            label: 'Mountain top',
+            toString: () => 'Mountain top'
+        },
+        ret = Object.assign({
+            filters: [{
+                title: 'Campus',
+                key: 'campus',
+                possibles: [lm, ...doc.campuses.filter(a => a.length).slice(1)],
+                selected: lm
+            }, {
+                title: 'Subject',
+                key: 'shortcode',
+                possibles: doc.categories.map(({
+                    shortcode,
+                    subject
+                }) => ({
+                    key: shortcode,
+                    label: subject,
+                    toString: () => subject
+                })),
+                selected: null
+            }, {
+                title: 'Course ID',
+                key: 'id',
+                possibles: [],
+                selected: null
+            }, {
+                title: 'Days',
+                key: 'days',
+                possibles: stringify([
+                    ['M', 'W', 'F'],
+                    ['T', 'R'],
+                    ['M', 'W'],
+                    ['W', 'F'],
+                    ['M'],
+                    ['T'],
+                    ['W'],
+                    ['R'],
+                    ['F'],
+                    ['S', 'U'],
+                    ['S'],
+                    ['U']
+                ]),
+                selected: null
+            }, {
+                title: 'Professors',
+                key: 'instructor',
+                possibles: doc.instructors.filter(a => a.length),
+                selected: null
+            }]
+        }, doc)
     return ret
 }
 export default {
     data() {
-            const mapDays = {
-                M: 'Monday',
-                T: 'Tuesday',
-                W: 'Wednesday',
-                R: 'Thurdsday',
-                F: 'Friday',
-                S: 'Saturday',
-                U: 'Sunday'
-            }
-            const stringify = arr => arr.map(cur => {
-                cur.label = cur.map(dayCode => mapDays[dayCode]).join(', ')
-                cur.key = cur.join('')
-                cur.toString = () => cur.key
-                return cur
-            })
-
             return {
                 query: '',
                 categories: [],
                 filters: []
-
             }
         },
         created() {
             const {
                 campuses,
+                instructors,
                 categories
             } = this
             const obj = hydrate({
                 campuses,
+                instructors,
                 categories
             })
             this.filters = obj.filters
