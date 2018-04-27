@@ -160,7 +160,7 @@ function scraper(doTheThing) {
         }
         console.log("Transformed Successfully!")
         return obj
-    }).then(results => write(path.resolve(__dirname, './courses.json'), results).then(() => console.log('Wrote Results to File')&&results)).catch((err) => { console.log("welp something went wrong", err) })
+    }).then(results => write(path.resolve(__dirname, './courses.json'), results).then(() => console.log('Wrote Results to File')||results)).catch((err) => { console.log("welp something went wrong", err) })
 }
 
 if (!module.parent) {
