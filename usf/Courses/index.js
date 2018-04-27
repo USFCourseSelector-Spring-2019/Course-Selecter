@@ -138,9 +138,13 @@ function scraper(doTheThing) {
                         }
                         return obj
                     }, {})
+                    if(!obj.crn || obj.crn===''){
+                        return arr
+                    }
                     obj.subject = criteria.categories[criteria.categories.length - 1].subject
                     obj.index=criteria.count++
                     currentCat.courses[currentCat.courses.length - 1].classes.push(obj)
+                    
                     return arr.concat(obj)
                 }
             }
@@ -156,7 +160,7 @@ function scraper(doTheThing) {
         }
         console.log("Transformed Successfully!")
         return obj
-    }).then(results => write(path.resolve(__dirname, './courses.json'), results).then(() => results)).catch((err) => { console.log("welp something went wrong", err) })
+    }).then(results => write(path.resolve(__dirname, './courses.json'), results).then(() => console.log('Wrote Results to File')&&results)).catch((err) => { console.log("welp something went wrong", err) })
 }
 
 if (!module.parent) {
