@@ -36,7 +36,6 @@
 import Planner from '../components/Planner'
 export default {
     data() {
-            console.log(this.$vuetify)
             return {
                 drawer: false,
                 fixed: false,

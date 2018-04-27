@@ -7,14 +7,14 @@
         </v-card-title>
         <v-data-table :headers="headers" :items="items" hide-actions item-key="index" expand>
             <template slot="headerCell" slot-scope="props">
-              <v-tooltip bottom :disabled="!props.header.description">
-                <span slot="activator">
+                <v-tooltip bottom :disabled="!props.header.description">
+                    <span slot="activator">
                   {{ props.header.text }}
                 </span>
-                <span>
+                    <span>
                   {{ props.header.description }}
                 </span>
-              </v-tooltip>
+                </v-tooltip>
             </template>
             <template slot="items" slot-scope="props">
                 <tr @click="(props.expanded = !props.expanded)" :class="{error:!props.item.available,'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="expand(props).item.index" :id="props.item.index">
@@ -50,59 +50,59 @@ export default {
                     text: 'Title',
                     value: 'title',
                     sortable: true,
-                    class:['secondary']
+                    class: ['secondary']
                 }, {
                     text: 'Course ID',
                     value: 'id',
                     align: 'center',
                     sortable: true,
-                    class:['secondary']
+                    class: ['secondary']
                 }, {
                     text: 'Instructor',
                     value: 'instructor',
                     align: 'left',
                     sortable: true,
-                    class:['secondary'],
-                    description:'Proffessor'
+                    class: ['secondary'],
+                    description: 'Proffessor'
                 }, {
                     text: 'Days',
                     value: 'days',
                     align: 'center',
                     sortable: false,
-                    class:['secondary']
+                    class: ['secondary']
                 }, {
                     text: 'Meeting Times',
                     value: 'times',
                     sortable: false,
-                    class:['secondary']
+                    class: ['secondary']
                 }, {
                     text: 'Cred',
                     value: 'credits',
                     align: 'center',
                     sortable: false,
-                    class:['secondary'],
-                    description:'Amount of credits the course is worth'
+                    class: ['secondary'],
+                    description: 'Amount of credits the course is worth'
                 }, {
                     text: '# Enrolled',
                     value: 'enrolled',
                     align: 'center',
                     sortable: false,
-                    class:['secondary'],
-                    description:'Number of people enrolled in the class'
+                    class: ['secondary'],
+                    description: 'Number of people enrolled in the class'
                 }, {
                     text: 'Spots Remaining',
                     value: 'remaining',
                     align: 'center',
                     sortable: false,
-                    class:['secondary'],
-                    description:'Number of spots left in the class'
+                    class: ['secondary'],
+                    description: 'Number of spots left in the class'
                 }, {
                     text: 'Spots (WL)',
                     value: 'wl_remaining',
                     align: 'center',
                     sortable: false,
-                    class:['secondary'],
-                    description:'Number of spots on the waitlist left'
+                    class: ['secondary'],
+                    description: 'Number of spots on the waitlist left'
                 }]
             }
         },
@@ -124,7 +124,7 @@ export default {
         },
         methods: {
             expand(props) {
-                if (this.items.length === 1 && !props.expanded==0) {
+                if (this.items.length === 1 && props.expanded !== 0) {
                     props.expanded = true
                 }
                 return props
