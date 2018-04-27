@@ -1,5 +1,5 @@
 <template>
-    <v-app dark>
+    <v-app>
         <v-navigation-drawer v-model="drawer" temporary app disable-resize-watcher>
             <v-list>
                 <v-list-tile router :to="item.to" :key="i" v-for="(item, i) in items" exact>
@@ -12,11 +12,12 @@
                 </v-list-tile>
             </v-list>
         </v-navigation-drawer>
-        <v-toolbar fixed app color="primary darken-1">
+        <v-toolbar fixed app color="primary" dark>
             <v-toolbar-side-icon @click="drawer = !drawer"></v-toolbar-side-icon>
+            <img src="/logo.png" height="50px" />
             <v-toolbar-title v-text="title"></v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon @click.stop="togglePlanner">
+            <v-btn icon @click.stop="togglePlanner" color="secondary" flat>
                 <v-icon>view_list</v-icon>
             </v-btn>
         </v-toolbar>
@@ -35,6 +36,7 @@
 import Planner from '../components/Planner'
 export default {
     data() {
+            console.log(this.$vuetify)
             return {
                 drawer: false,
                 fixed: false,

@@ -1,10 +1,10 @@
 <template>
-    <v-card flat>
-        <v-toolbar color="primary darken-1">
-            <v-btn @click="showSettings=true" icon>
+    <div>
+        <v-toolbar color="primary" dark>
+            <v-btn @click="showSettings=true" icon color="secondary" flat>
                 <v-icon>settings</v-icon>
             </v-btn>
-            <v-toolbar-title class="white--text">My Planner - {{plan.title}}</v-toolbar-title>
+            <v-toolbar-title>{{plan.title}}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn icon @click.native="$emit('close')">
                 <v-icon>close</v-icon>
@@ -57,10 +57,10 @@
                     <v-btn icon @click.native="showSettings = false" dark>
                         <v-icon>close</v-icon>
                     </v-btn>
-                    <v-toolbar-title>My Planner - Settings</v-toolbar-title>
+                    <v-toolbar-title>Planner Settings</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
-                        <v-btn dark flat @click.native="(saveSettings(),showSettings = false)">
+                        <v-btn dark flat @click.native="(saveSettings(),showSettings = false)" color="secondary">
                             <v-icon left>save</v-icon>Save</v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
@@ -70,7 +70,7 @@
                 <div style="flex: 1 1 auto;"></div>
             </v-card>
         </v-dialog>
-    </v-card>
+    </div>
 </template>
 <script>
 import Course from './Course'

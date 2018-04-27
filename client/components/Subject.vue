@@ -7,9 +7,10 @@
         </v-card-title>
         <v-data-table :headers="headers" :items="items" hide-actions item-key="index" expand>
             <template slot="items" slot-scope="props">
-                <tr @click="(props.expanded = !props.expanded)" :class="{disabled:!props.item.available,'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="expand(props).item.index">
+                <tr @click="(props.expanded = !props.expanded)" :class="{error:!props.item.available,'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="expand(props).item.index" :id="props.item.index">
                     <td>{{ props.item.title }}</td>
                     <td class="text-xs-center">{{ props.item.shortcode }} {{props.item.id}}</td>
+                    <td class="text-xs-center">{{ props.item.instructor }}</td>
                     <td class="text-xs-center">{{ props.item.days.join('') }}</td>
                     <td class="text-xs-left">{{ props.item.times.join(' - ') }}</td>
                     <td class="text-xs-center">{{ props.item.credits }}</td>
@@ -42,6 +43,11 @@ export default {
                 }, {
                     text: 'Course ID',
                     value: 'id',
+                    align: 'center',
+                    sortable: true
+                }, {
+                    text: 'Instructor',
+                    value: 'instructor',
                     align: 'center',
                     sortable: true
                 }, {
@@ -104,7 +110,7 @@ export default {
 </script>
 <style>
 tr.disabled {
-    background-color: #622;
+    background-color: #D44;
 }
 
 tr.enabled {

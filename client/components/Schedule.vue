@@ -16,8 +16,8 @@
                         <h1 class="title" v-text="mapDays[mapNum[day.day()]]"></h1>
                         <h2 class="title" v-text="day.date()"></h2>
                     </v-card-title>
-                    <v-card-text style="height:1000px">
-                        <div v-for="course in classesInDay[day.day()]" :key="course.index">
+                    <v-card-text :style="`height:${height}px`" class="time-container">
+                        <div v-for="course in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])};height:${distanceBetween(course.times)};`" class="time-block">
                             {{course.times}}
                         </div>
                     </v-card-text>
@@ -57,7 +57,8 @@ export default {
                 },
                 range: {
                     by: () => []
-                }
+                },
+                height: 1000
             }
         },
         created() {
@@ -71,10 +72,10 @@ export default {
                 return [
                     moment.min(this.classes.map(({
                         dates: [lowestDate]
-                    }) => lowestDate + '/' + (moment().year()))),
+                    }) => moment(lowestDate + '/' + (moment().year()), 'MM/DD/YYYY'))),
                     moment.max(this.classes.map(({
                         dates: [lowestDate, highestDate]
-                    }) => highestDate + '/' + (moment().year())))
+                    }) => moment(highestDate + '/' + (moment().year()), 'MM/DD/YYYY')))
                 ]
             },
             nextWeekDisabled() {
@@ -127,6 +128,11 @@ export default {
             previousWeek() {
                 const range = this.range
                 this.range = moment.range(range.start.subtract(1, 'weeks'), range.end.subtract(1, 'weeks'))
+            },
+            distanceBetween(between) {
+                const start = between.length === 1 ? '12:00 am' : between[0],
+                    end = between.length === 1 ? between[0] : between[1]
+                console.log(between, start, end)
             }
         },
         watch: {
@@ -141,4 +147,11 @@ export default {
 }
 </script>
 <style>
+.time-container {
+    position: relative;
+}
+
+.time-block {
+    position: absolute;
+}
 </style>

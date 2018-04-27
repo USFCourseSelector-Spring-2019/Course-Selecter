@@ -2,13 +2,13 @@ import Vue from 'vue'
 import PouchDB from 'pouchdb'
 const Cart = {
     plans: [{
-        title: 'My first choice',
+        title: 'My 1st Planner',
         courses: []
     }],
     cart: [],
     planner: {
-        visible: true,
-        curTab: '1',
+        visible: false,
+        curTab: '0',
         plan: 0
     },
     add(course) {

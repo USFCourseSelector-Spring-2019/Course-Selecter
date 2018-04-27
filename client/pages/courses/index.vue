@@ -1,43 +1,54 @@
 <template>
     <v-layout row wrap>
-        <v-flex xl2 md3 sm12 :class="['px-3', 'py-4', 'fixed-md-and-up' ,'full-width']">
-            <h1 class="text-xs-center">Search Courses</h1>
-            <v-text-field v-model.trim="query" label="Search" append-icon="search" clearable solo class="mb-2"></v-text-field>
+        <v-flex xl2 sm12 :class="['px-3', 'py-4', 'fixed-xl-and-up' ,'full-width']">
+            <h1 class="text-xs-center display-1">Search Courses</h1>
+            <v-layout class="my-4">
+                <v-text-field v-model.trim="query" label="Search" append-icon="search" clearable solo color="primary"></v-text-field>
+                <v-btn @click="bottomSheet=true" class="hidden-md-and-up" color="primary">
+                    <v-icon left>filter_list</v-icon>Filter By
+                </v-btn>
+            </v-layout>
             <div class="hidden-sm-and-down">
-                <h2 class="title mb-1 my-3">Filters</h2>
-                <template v-for="(filter,i) in filters">
-                    <v-select :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete color="light-blue" v-if="filter.possibles.length">
-                        <template slot="item" slot-scope="data">
-                            <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
-                        </template>
-                    </v-select>
-                    <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
-                </template>
+                <h2 class="headline mb-1 my-3 text-xs-center">Filter By</h2>
+                <v-layout wrap justify-center>
+                    <v-flex xl12 lg3 md4 sm6 v-for="(filter,i) in filters" :key="filter.key" :class="{'px-3':$vuetify.breakpoint.lgAndDown, 'py-3':true}">
+                        <v-select :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete color="primary" v-if="filter.possibles.length">
+                            <template slot="item" slot-scope="data">
+                                <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
+                            </template>
+                        </v-select>
+                        <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
+                    </v-flex>
+                </v-layout>
             </div>
         </v-flex>
-        <v-flex sm12 class="hidden-md-and-up px-3 pb-3">
-            <v-expansion-panel>
-                <v-expansion-panel-content :value="true">
-                    <div slot="header">
-                        <h2 class="title mb-1">Filters</h2>
-                    </div>
-                    <v-layout justify-center column class="px-4">
-                        <v-flex xs12 v-for="(filter,i) in filters" :key="i">
-                            <v-select :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete color="light-blue" v-if="filter.possibles.length">
-                                <template slot="item" slot-scope="data">
-                                    <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
-                                </template>
-                            </v-select>
-                            <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
-                        </v-flex>
-                    </v-layout>
-                </v-expansion-panel-content>
-            </v-expansion-panel>
-        </v-flex>
-        <v-flex xl10 offset-xl2 md9 offset-md3 sm12 offset-sm0 :class="{'pa-3':$vuetify.breakpoint.mdAndUp,box:true}">
-            <h1 class="pl-2 text-md-left text-xs-center">Results</h1>
+        <v-flex xl10 offset-xl2 xs12 :class="{'pa-3':$vuetify.breakpoint.mdAndUp,box:true}">
+            <h1 class="pl-2 text-xl-left text-xs-center display-1">Results</h1>
             <Subject v-for="category in categories_results" :key="category.shortcode" v-bind:subject="category" />
         </v-flex>
+        <v-bottom-sheet v-model="bottomSheet" inset>
+            <v-card>
+                <v-layout>
+                    <v-spacer></v-spacer>
+                    <v-btn icon @click="bottomSheet=false">
+                        <v-icon>close</v-icon>
+                    </v-btn>
+                </v-layout>
+                <v-card-text>
+                    <h2 class="headline mb-1 mb-3 text-xs-center">Filter By</h2>
+                </v-card-text>
+                <v-layout justify-center column class="pa-4">
+                    <v-flex xs12 v-for="(filter,i) in filters" :key="i">
+                        <v-select :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete color="light-blue" v-if="filter.possibles.length">
+                            <template slot="item" slot-scope="data">
+                                <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
+                            </template>
+                        </v-select>
+                        <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
+                    </v-flex>
+                </v-layout>
+            </v-card>
+        </v-bottom-sheet>
     </v-layout>
 </template>
 <script>
@@ -64,8 +75,22 @@ const hydrate = doc => {
             label: 'Mountain top',
             toString: () => 'Mountain top'
         },
+        av = {
+            key: true,
+            label: "Available Classes",
+            toString: () => 'Available Classes'
+        },
         ret = Object.assign({
             filters: [{
+                title: 'Availability',
+                key: 'available',
+                possibles: [av, {
+                    key: false,
+                    label: "Closed Classes",
+                    toString: () => 'All Classes'
+                }],
+                selected: av
+            }, {
                 title: 'Campus',
                 key: 'campus',
                 possibles: [lm, ...doc.campuses.filter(a => a.length).slice(1)],
@@ -119,7 +144,8 @@ export default {
             return {
                 query: '',
                 categories: [],
-                filters: []
+                filters: [],
+                bottomSheet: false
             }
         },
         created() {
@@ -133,6 +159,7 @@ export default {
                 instructors,
                 categories
             })
+            console.log(this)
             this.filters = obj.filters
         },
         asyncData(context) {
@@ -155,7 +182,7 @@ export default {
         },
         watch: {
             filters: {
-                handler: function([campusFilter, subjectFilter, courseFilter]) {
+                handler: function([availableFilter, campusFilter, subjectFilter, courseFilter]) {
                     if (subjectFilter.selected !== null) {
                         const possibles = this.categories.find(({
                             shortcode
@@ -179,10 +206,16 @@ export default {
         },
         methods: {
             filtered(category, query) {
-                const [campusFilter, subjectFilter, courseFilter] = this.filters
+                const [availableFilter, campusFilter, subjectFilter, courseFilter] = this.filters
                 const filters = this.filters.filter(({
                     selected
                 }) => selected !== null)
+
+                if (query && (category.subject.toLowerCase().includes(query) || category.shortcode.toLowerCase().includes(query))) {
+                    return {
+                        ...category
+                    }
+                }
                 const courses = category.courses.map((course, i) => {
                     const classes = course.classes.reduce((arr, classy) => {
                         if (filters.every(({
@@ -245,7 +278,7 @@ export default {
         },
         computed: {
             categories_results() {
-                const query = this.query.trim().toLowerCase()
+                const query = (this.query || '').trim().toLowerCase()
                 return this.categories.reduce((arr, category, index) => {
                     const resp = this.filtered(category, query)
                     if (resp !== false) {
@@ -262,8 +295,8 @@ export default {
 }
 </script>
 <style>
-@media(min-width: 960px) {
-    .fixed-md-and-up {
+@media(min-width: 1920px) {
+    .fixed-xl-and-up {
         position: fixed;
     }
 }
