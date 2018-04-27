@@ -1,9 +1,14 @@
 <template>
-    <v-card>
+    <v-card flat>
         <v-layout>
             <v-btn @click="previousWeek" icon :disabled="previousWeekDisabled">
                 <v-icon>chevron_left</v-icon>
             </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn :flat="week" @click="days='MTWRF'" depressed>Week</v-btn>
+                        <v-btn :flat="mwf" @click="days='MWF'" depressed>MWF</v-btn>
+                        <v-btn :flat="tr" @click="days='TR'" depressed>TR</v-btn>
+                        <v-btn :flat="su" @click="days='SU'" depressed>SU</v-btn>
             <v-spacer></v-spacer>
             <v-btn @click="nextWeek" icon :disabled="nextWeekDisabled">
                 <v-icon>chevron_right</v-icon>
@@ -58,7 +63,8 @@ export default {
                 range: {
                     by: () => []
                 },
-                height: 1000
+                height: 1000,
+                days:'MTWRF'
             }
         },
         created() {
@@ -116,9 +122,21 @@ export default {
                         days
                     }) => days.includes(day))
                 })
-            }
+            },
+            week() {
+                return this.days === 'MTWRF'
+            },
+            mwf() {
+                return this.days === 'MWF'
+            },
+            tr() {
+                return this.days === 'TR'
+            },
+            su() {
+                return this.days === 'SU'
+            },
         },
-        props: ['classes', 'days'],
+        props: ['classes'],
         methods: {
             nextWeek() {
                 const range = this.range

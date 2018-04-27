@@ -17,7 +17,9 @@ import {
     VDataTable,
     VTabs,
     VDialog,
-    VSubheader,VBottomSheet
+    VSubheader,
+    VBottomSheet,
+    VTooltip
 } from 'vuetify'
 
 Vue.use(Vuetify, {
@@ -37,10 +39,13 @@ Vue.use(Vuetify, {
         VAlert,
         VDataTable,
         VTabs,
-        VDialog,VSubheader,VBottomSheet
+        VDialog,
+        VSubheader,
+        VBottomSheet,
+        VTooltip
     },
-    theme:{
-        primary:'#00543C',
-        secondary:'#fcba30'
+    theme: {
+        primary: '#00543C',
+        secondary: '#fcba30'
     }
 })

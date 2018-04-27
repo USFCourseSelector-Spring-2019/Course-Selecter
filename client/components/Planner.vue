@@ -15,7 +15,7 @@
                     Course Descriptions
                 </v-tab>
                 <v-tab>
-                    Schedule
+                    Calendar
                 </v-tab>
             </v-tabs>
         </v-toolbar>
@@ -38,16 +38,9 @@
                     </v-card-text>
                 </v-card>
             </v-tab-item>
-            <v-tab-item key="schedule">
+            <v-tab-item key="calendar">
                 <v-card flat>
-                    <v-layout>
-                        <v-spacer></v-spacer>
-                        <v-btn :flat="week" @click="mode='MTWRF'" depressed>Week</v-btn>
-                        <v-btn :flat="mwf" @click="mode='MWF'" depressed>MWF</v-btn>
-                        <v-btn :flat="tr" @click="mode='TR'" depressed>TR</v-btn>
-                        <v-btn :flat="su" @click="mode='SU'" depressed>SU</v-btn>
-                    </v-layout>
-                    <Schedule :classes="courses" :days="mode" v-if="courses.length" />
+                    <Calendar :classes="courses" />
                 </v-card>
             </v-tab-item>
         </v-tabs-items>
@@ -74,38 +67,15 @@
 </template>
 <script>
 import Course from './Course'
-import Schedule from './Schedule'
+import Calendar from './Calendar'
 
 export default {
     data() {
             return {
                 showSettings: false,
-                schedule: {
-                    mode: 'MTWRF'
-                }
             }
         },
         computed: {
-            mode: {
-                get() {
-                    return this.schedule.mode
-                },
-                set(value) {
-                    this.schedule.mode = value
-                }
-            },
-            week() {
-                return this.mode === 'MTWRF'
-            },
-            mwf() {
-                return this.mode === 'MWF'
-            },
-            tr() {
-                return this.mode === 'TR'
-            },
-            su() {
-                return this.mode === 'SU'
-            },
         },
         methods: {
             saveSettings() {
@@ -121,7 +91,7 @@ export default {
         },
         components: {
             Course,
-            Schedule
+            Calendar
         }
 }
 </script>

@@ -1,16 +1,26 @@
 <template>
-    <v-card raised class="ma-2">
-        <v-card-title>
+    <v-card raised class="mx-1 my-3">
+        <v-card-title class="white--text primary">
             <h3 v-text="subject.subject" class="display-1"></h3>
             <v-spacer></v-spacer>
             <h3 v-text="subject.shortcode" class="title"></h3>
         </v-card-title>
         <v-data-table :headers="headers" :items="items" hide-actions item-key="index" expand>
+            <template slot="headerCell" slot-scope="props">
+              <v-tooltip bottom :disabled="!props.header.description">
+                <span slot="activator">
+                  {{ props.header.text }}
+                </span>
+                <span>
+                  {{ props.header.description }}
+                </span>
+              </v-tooltip>
+            </template>
             <template slot="items" slot-scope="props">
                 <tr @click="(props.expanded = !props.expanded)" :class="{error:!props.item.available,'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="expand(props).item.index" :id="props.item.index">
                     <td>{{ props.item.title }}</td>
                     <td class="text-xs-center">{{ props.item.shortcode }} {{props.item.id}}</td>
-                    <td class="text-xs-center">{{ props.item.instructor }}</td>
+                    <td class="text-xs-left">{{ props.item.instructor }}</td>
                     <td class="text-xs-center">{{ props.item.days.join('') }}</td>
                     <td class="text-xs-left">{{ props.item.times.join(' - ') }}</td>
                     <td class="text-xs-center">{{ props.item.credits }}</td>
@@ -20,7 +30,7 @@
                 </tr>
             </template>
             <template slot="expand" slot-scope="props">
-                <Course :course="props.item" @close="props.expanded=false" :show-added="true" v-if="props.item.available" />
+                <Course :course="props.item" @close="props.expanded=0" :show-added="true" v-if="props.item.available" />
                 <v-alert :value="props.item.available===false" color="error" icon="warning" v-else>
                     Sorry {{props.item.title}} on {{props.item.days.join('')}} with {{props.item.instructor}} at {{props.item.times.join(" - ")}} is closed. Even the wait list is full or closed off.
                 </v-alert>
@@ -39,46 +49,60 @@ export default {
                 headers: [{
                     text: 'Title',
                     value: 'title',
-                    sortable: true
+                    sortable: true,
+                    class:['secondary']
                 }, {
                     text: 'Course ID',
                     value: 'id',
                     align: 'center',
-                    sortable: true
+                    sortable: true,
+                    class:['secondary']
                 }, {
                     text: 'Instructor',
                     value: 'instructor',
-                    align: 'center',
-                    sortable: true
+                    align: 'left',
+                    sortable: true,
+                    class:['secondary'],
+                    description:'Proffessor'
                 }, {
                     text: 'Days',
                     value: 'days',
                     align: 'center',
-                    sortable: false
+                    sortable: false,
+                    class:['secondary']
                 }, {
                     text: 'Meeting Times',
                     value: 'times',
-                    sortable: false
+                    sortable: false,
+                    class:['secondary']
                 }, {
                     text: 'Cred',
                     value: 'credits',
                     align: 'center',
-                    sortable: false
+                    sortable: false,
+                    class:['secondary'],
+                    description:'Amount of credits the course is worth'
                 }, {
                     text: '# Enrolled',
                     value: 'enrolled',
                     align: 'center',
-                    sortable: false
+                    sortable: false,
+                    class:['secondary'],
+                    description:'Number of people enrolled in the class'
                 }, {
                     text: 'Spots Remaining',
                     value: 'remaining',
                     align: 'center',
-                    sortable: false
+                    sortable: false,
+                    class:['secondary'],
+                    description:'Number of spots left in the class'
                 }, {
                     text: 'Spots (WL)',
                     value: 'wl_remaining',
                     align: 'center',
-                    sortable: false
+                    sortable: false,
+                    class:['secondary'],
+                    description:'Number of spots on the waitlist left'
                 }]
             }
         },
@@ -100,7 +124,7 @@ export default {
         },
         methods: {
             expand(props) {
-                if (this.items.length === 1) {
+                if (this.items.length === 1 && !props.expanded==0) {
                     props.expanded = true
                 }
                 return props

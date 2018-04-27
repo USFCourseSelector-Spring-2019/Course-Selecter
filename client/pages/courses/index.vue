@@ -159,7 +159,6 @@ export default {
                 instructors,
                 categories
             })
-            console.log(this)
             this.filters = obj.filters
         },
         asyncData(context) {
