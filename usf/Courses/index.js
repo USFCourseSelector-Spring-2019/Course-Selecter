@@ -69,7 +69,7 @@ function scraper(doTheThing) {
                     return ['title', val]
                 },
                 Instructor: (val) => {
-                    val = val.split(" ").filter(a => a.length).join(" ")
+                    val = val.split(" ").filter(a => a.length&&a!=='(P)').join(" ")
                     if (!criteria.instructors.includes(val)) {
                         if (val && val !== "TBA" && val.length) {
                             criteria.instructors.push(val)
