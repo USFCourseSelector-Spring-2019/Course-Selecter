@@ -6,7 +6,7 @@ if (!module.parent) {
     Promise.promisifyAll(mydb);
     const getAndUse = dbName => Promise.promisifyAll(mydb.use(dbName))
     scraper().then(data => {
-        data._id = data.accessDate
+        data._id = 'courses'
         getAndUse('usf').insertAsync({ ...data }).then((body) => {
             console.log(body)
             console.log('Successfully put all USF Data!')
