@@ -126,8 +126,7 @@ export default {
                 return this.dayNumbers[1] - this.dayNumbers[0]
             },
             classesInDay() {
-                const mapDays = this.mapDays
-                return Object.keys(mapDays).map((day) => {
+                return this.mapNum.slice(0, -1).map((day) => {
                     return this.classes.filter(({
                         days
                     }) => days.includes(day))
