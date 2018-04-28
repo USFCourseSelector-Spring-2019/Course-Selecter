@@ -11,10 +11,10 @@
             </v-btn>
             <v-tabs slot="extension" centered v-model="planner.curTab" slider-color="white" color="transparent" grow>
                 <v-tabs-slider color="white"></v-tabs-slider>
-                <v-tab>
+                <v-tab ripple>
                     Course Descriptions
                 </v-tab>
-                <v-tab>
+                <v-tab ripple>
                     Calendar
                 </v-tab>
             </v-tabs>
@@ -75,8 +75,7 @@ export default {
                 showSettings: false,
             }
         },
-        computed: {
-        },
+        computed: {},
         methods: {
             saveSettings() {
 

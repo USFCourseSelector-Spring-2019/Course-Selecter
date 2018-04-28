@@ -5,16 +5,27 @@
                 <v-icon>chevron_left</v-icon>
             </v-btn>
             <v-spacer></v-spacer>
-            <v-btn :flat="week" @click="days='MTWRF'" depressed>Week</v-btn>
-                        <v-btn :flat="mwf" @click="days='MWF'" depressed>MWF</v-btn>
-                        <v-btn :flat="tr" @click="days='TR'" depressed>TR</v-btn>
-                        <v-btn :flat="su" @click="days='SU'" depressed>SU</v-btn>
+            <v-btn :flat="week" @click="days='MTWRF'" depressed color="primary">Weekdays</v-btn>
+            <v-btn :flat="mwf" @click="days='MWF'" depressed color="primary">MWF</v-btn>
+            <v-btn :flat="tr" @click="days='TR'" depressed color="primary">TR</v-btn>
+            <v-btn :flat="su" @click="days='SU'" depressed color="primary">Weekend</v-btn>
             <v-spacer></v-spacer>
             <v-btn @click="nextWeek" icon :disabled="nextWeekDisabled">
                 <v-icon>chevron_right</v-icon>
             </v-btn>
         </v-layout>
         <v-layout>
+            <div class="fill-height">
+                <div class="times-block elevation-1">
+                    <div style="height:72px">
+                    </div>
+                    <v-layout column :style="`height:${height}px`">
+                        <v-flex xs12 v-for="time in times" :key="time.hour()" class="time-labels">
+                            {{formatTime(time)}}
+                        </v-flex>
+                    </v-layout>
+                </div>
+            </div>
             <v-flex v-for="(day,i) in getDays" :key="i">
                 <v-card class="fill-height">
                     <v-card-title class="layout column elevation-1">
@@ -64,7 +75,7 @@ export default {
                     by: () => []
                 },
                 height: 1000,
-                days:'MTWRF'
+                days: 'MTWRF'
             }
         },
         created() {
@@ -123,6 +134,29 @@ export default {
                     }) => days.includes(day))
                 })
             },
+            getHighestAndLowestTime() {
+                return [
+                    moment.min(this.classes.map(({
+                        times: [lowestTime]
+                    }) => moment(lowestTime, 'hh:mm a'))),
+                    moment.max(this.classes.map(({
+                        times: [lowestTime, highestTime]
+                    }) => moment(highestTime, 'hh:mm a')))
+                ]
+            },
+            lowestTime() {
+                return this.getHighestAndLowestTime[0]
+            },
+            highestTime() {
+                return this.getHighestAndLowestTime[1]
+            },
+            rangeOfTimes() {
+                const [lowestTime, highestTime] = this.getHighestAndLowestTime
+                return moment.range(lowestTime.clone().minutes(0), highestTime.clone().minutes(60))
+            },
+            times() {
+                return Array.from(this.rangeOfTimes.by('hours'))
+            },
             week() {
                 return this.days === 'MTWRF'
             },
@@ -148,9 +182,13 @@ export default {
                 this.range = moment.range(range.start.subtract(1, 'weeks'), range.end.subtract(1, 'weeks'))
             },
             distanceBetween(between) {
-                const start = between.length === 1 ? '12:00 am' : between[0],
-                    end = between.length === 1 ? between[0] : between[1]
-                console.log(between, start, end)
+                const rangeOfTimes = this.rangeOfTimes,
+                    start = moment(between.length === 1 ? this.formatTime(rangeOfTimes.start) : between[0], 'hh:mm a'),
+                    end = moment(between.length === 1 ? between[0] : between[1], 'hh:mm a')
+                return start.hour()
+            },
+            formatTime(time) {
+                return `${(time.hour()>12?time.hour()-12:time.hour()).toString().padStart(2,'0')}:${time.minute().toString().padStart(2,'0')} ${time.hour()>12?'pm':'am'}`
             }
         },
         watch: {
@@ -171,5 +209,20 @@ export default {
 
 .time-block {
     position: absolute;
+}
+
+.times-block {
+    z-index: 1;
+    left: 0;
+    right: 0;
+    position: absolute;
+}
+
+.time-labels {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.navigation-drawer {
+    padding: 0px;
 }
 </style>
