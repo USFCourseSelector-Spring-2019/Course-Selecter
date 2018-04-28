@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-toolbar color="primary" dark>
+        <v-toolbar color="primary" class="primary-fg--text">
             <v-btn @click="showSettings=true" icon color="secondary" flat>
                 <v-icon>settings</v-icon>
             </v-btn>
@@ -10,11 +10,11 @@
                 <v-icon>close</v-icon>
             </v-btn>
             <v-tabs slot="extension" centered v-model="planner.curTab" slider-color="white" color="transparent" grow>
-                <v-tabs-slider color="white"></v-tabs-slider>
-                <v-tab ripple>
+                <v-tabs-slider color="primary-fg"></v-tabs-slider>
+                <v-tab ripple class="primary-fg--text">
                     Course Descriptions
                 </v-tab>
-                <v-tab ripple>
+                <v-tab ripple class="primary-fg--text">
                     Calendar
                 </v-tab>
             </v-tabs>
@@ -31,7 +31,7 @@
                         <h1 class="text-xs-center display-1 mb-5">Welcome to your Planner!</h1>
                         <p class="text-xs-center">This is where all the courses that you plan to take will be displayed. To begin your plan, add some courses!</p>
                         <v-layout justify-center align-center>
-                            <v-btn class="text-xs-center" color="primary" @click="goToCourses">
+                            <v-btn class="text-xs-center primary-fg--text" color="primary" @click="goToCourses">
                                 <v-icon left>add</v-icon>Add your first course !
                             </v-btn>
                         </v-layout>

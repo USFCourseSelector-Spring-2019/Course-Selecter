@@ -16,7 +16,7 @@
             <p>This will be where you can add this course to your course cart and probably show info on the Proffessor, Course Description and any other relevant info on this course</p>
         </v-card-text>
         <v-card-actions class="pb-3 px-3">
-            <v-btn :color="adding?'success':'primary'" v-if="showAdded" @click="added?(showPlanner()):addCourse()" :loading="adding">
+            <v-btn :color="adding?'success':'primary'" v-if="showAdded" @click="added?(showPlanner()):addCourse()" :loading="adding" class="primary-fg--text">
                 <v-icon left>{{added?'view_list':'add'}}</v-icon><span v-text="added?'Show in Planner':'Add to Planner'"></span>
             </v-btn>
         </v-card-actions>

@@ -1,6 +1,6 @@
 <template>
     <v-card raised class="mx-1 my-3">
-        <v-card-title class="white--text primary">
+        <v-card-title class="primary-fg--text primary">
             <h3 v-text="subject.subject" class="display-1"></h3>
             <v-spacer></v-spacer>
             <h3 v-text="subject.shortcode" class="title"></h3>
@@ -8,7 +8,7 @@
         <v-data-table :headers="headers" :items="items" hide-actions item-key="index" expand>
             <template slot="headerCell" slot-scope="props">
                 <v-tooltip bottom :disabled="!props.header.description">
-                    <span slot="activator">
+                    <span slot="activator" class="secondary-fg--text">
                   {{ props.header.text }}
                 </span>
                     <span>

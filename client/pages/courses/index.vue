@@ -163,19 +163,7 @@ export default {
         },
         asyncData(context) {
             const coursesDB = new PouchDB( /*context.isDev*/ true ? 'http://localhost:5984/usf' : 'http://db.courseselector.com/usf')
-            return coursesDB.query('courses/latest', {
-                limit: 1
-            }).then(({
-                rows: [{
-                    value: doc
-                }],
-                total_rows
-            }) => {
-
-
-                return doc
-
-            }).catch(err => {
+            return coursesDB.get('courses').catch(err => {
                 console.error(err)
             })
         },
