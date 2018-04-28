@@ -237,7 +237,7 @@ export default {
 }
 
 .time-labels {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.5);
 }
 
 .navigation-drawer {
