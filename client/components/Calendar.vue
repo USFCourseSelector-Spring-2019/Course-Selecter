@@ -32,11 +32,11 @@
                         <h1 class="title" v-text="mapDays[mapNum[day.day()]]"></h1>
                         <h2 class="title" v-text="day.date()"></h2>
                     </v-card-title>
-                    <v-card-text :style="`height:${height}px`" class="time-container">
-                        <div v-for="course in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])};height:${distanceBetween(course.times)};`" class="time-block">
+                    <div :style="`height:${height}px`" class="time-container">
+                        <div v-for="course in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])}px;height:${distanceBetween(course.times)}px;`" :class="['time-block',getColor(course.index),i==0?'is-blocking-times':'']">
                             {{course.times}}
                         </div>
-                    </v-card-text>
+                    </div>
                 </v-card>
             </v-flex>
         </v-layout>
@@ -112,7 +112,6 @@ export default {
             },
             getDays() {
                 const range = this.range
-                console.log(this.range)
                 return Array.from(range.by('days', {
                     step: this.distance
                 }))
@@ -184,11 +183,22 @@ export default {
             distanceBetween(between) {
                 const rangeOfTimes = this.rangeOfTimes,
                     start = moment(between.length === 1 ? this.formatTime(rangeOfTimes.start) : between[0], 'hh:mm a'),
-                    end = moment(between.length === 1 ? between[0] : between[1], 'hh:mm a')
-                return start.hour()
+                    end = moment(between.length === 1 ? between[0] : between[1], 'hh:mm a'),
+                    startMinutes = this.getMinutes(start),
+                    endMinutes = this.getMinutes(end),
+                    difference = endMinutes - startMinutes,
+                    calendarMinuteHeight = (this.height) / (this.getMinutes(rangeOfTimes.end.clone().add(1, 'hours')) - this.getMinutes(rangeOfTimes.start))
+                return difference * calendarMinuteHeight
+
+            },
+            getMinutes(time) {
+                return time.hour() * 60 + time.minutes()
             },
             formatTime(time) {
                 return `${(time.hour()>12?time.hour()-12:time.hour()).toString().padStart(2,'0')}:${time.minute().toString().padStart(2,'0')} ${time.hour()>12?'pm':'am'}`
+            },
+            getColor(index) {
+                return 'secondary'
             }
         },
         watch: {
@@ -209,6 +219,10 @@ export default {
 
 .time-block {
     position: absolute;
+    z-index: 2;
+    width: 97%;
+    margin: 0 1.5%;
+    box-sizing: border-box;
 }
 
 .times-block {
@@ -216,6 +230,11 @@ export default {
     left: 0;
     right: 0;
     position: absolute;
+}
+
+.is-blocking-times {
+    width: 64%;
+    right: 3px;
 }
 
 .time-labels {
