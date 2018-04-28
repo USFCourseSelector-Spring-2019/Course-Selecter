@@ -34,7 +34,7 @@
                     </v-card-title>
                     <div :style="`height:${height}px`" class="time-container">
                         <div v-for="course in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])}px;height:${distanceBetween(course.times)}px;`" :class="['time-block',getColor(course.index),i==0?'is-blocking-times':'']">
-                            {{course.times}}
+                            <Calendar-Item :course="course" />
                         </div>
                     </div>
                 </v-card>
@@ -44,6 +44,7 @@
 </template>
 <script>
 import Moment from 'moment';
+import CalendarItem from './Calendar-Item';
 import {
     extendMoment
 } from 'moment-range';
@@ -208,6 +209,9 @@ export default {
 
                 this.range = moment.range(startRange, endRange)
             }
+        },
+        components: {
+            'Calendar-Item': CalendarItem
         }
 }
 </script>
