@@ -43,8 +43,8 @@
     </v-card>
 </template>
 <script>
-import Moment from 'moment';
 import CalendarItem from './Calendar-Item';
+import Moment from 'moment';
 import {
     extendMoment
 } from 'moment-range';
@@ -133,24 +133,17 @@ export default {
                     }) => days.includes(day))
                 })
             },
-            getHighestAndLowestTime() {
-                return [
-                    moment.min(this.classes.map(({
-                        times: [lowestTime]
-                    }) => moment(lowestTime, 'hh:mm a'))),
-                    moment.max(this.classes.map(({
-                        times: [lowestTime, highestTime]
-                    }) => moment(highestTime, 'hh:mm a')))
-                ]
+            highestAndLowestTime() {
+                return this.getHighestAndLowestTime(this.classes)
             },
             lowestTime() {
-                return this.getHighestAndLowestTime[0]
+                return this.highestAndLowestTime[0]
             },
             highestTime() {
-                return this.getHighestAndLowestTime[1]
+                return this.highestAndLowestTime[1]
             },
             rangeOfTimes() {
-                const [lowestTime, highestTime] = this.getHighestAndLowestTime
+                const [lowestTime, highestTime] = this.highestAndLowestTime
                 return moment.range(lowestTime.clone().minutes(0), highestTime.clone().minutes(60))
             },
             times() {

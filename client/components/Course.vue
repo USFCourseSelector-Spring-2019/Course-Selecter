@@ -13,7 +13,7 @@
             <h2>CRN: {{course.crn}}</h2>
             <h2>Proffessor: {{course.instructor}}</h2>
             <p>Proffessor Bio...</p>
-            <p>This will be where you can add this course to your course cart and probably show info on the Proffessor, Course Description and any other relevant info on this course</p>
+            <p>{{conflictsWith(course)}}This will be where you can add this course to your course cart and probably show info on the Proffessor, Course Description and any other relevant info on this course</p>
         </v-card-text>
         <v-card-actions class="pb-3 px-3">
             <v-btn :color="adding?'success':'primary'" v-if="showAdded" @click="added?(showPlanner()):addCourse()" :loading="adding" class="primary-fg--text">
