@@ -1,5 +1,10 @@
 import Vue from 'vue'
 import PouchDB from 'pouchdb'
+import Moment from 'moment';
+import {
+    extendMoment
+} from 'moment-range';
+const moment = extendMoment(Moment);
 const Cart = {
     plans: [{
         title: 'My 1st Planner',
@@ -67,6 +72,30 @@ const Cart = {
                     } else {
                         console.error('unhandled switching of plan was supplied:', planIndex)
                     }
+                },
+                getHighestAndLowestTime(classes) {
+                    if (!Array.isArray(classes)) {
+                        classes = [classes]
+                    }
+                    return [
+                        moment.min(classes.map(({
+                            times: [lowestTime]
+                        }) => moment(lowestTime, 'hh:mm a'))),
+                        moment.max(classes.map(({
+                            times: [lowestTime, highestTime]
+                        }) => moment(highestTime, 'hh:mm a')))
+                    ]
+                },
+                conflictsWith(course) {
+                    const rangeToTest = moment.range.apply(moment.range, this.getHighestAndLowestTime(course))
+                    return this.plan.courses.map(planCourse => {
+                        const range = moment.range.apply(moment.range, this.getHighestAndLowestTime(planCourse))
+
+                        return ((rangeToTest.start.within(range) || rangeToTest.end.within(range))) ? planCourse : false
+                    }).filter(a => a)
+                },
+                canAddToPlanner(course) {
+                    return !!this.conflictsWith(course).length
                 }
             },
             watch: {

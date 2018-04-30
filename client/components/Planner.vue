@@ -6,7 +6,7 @@
             </v-btn>
             <v-toolbar-title>{{plan.title}}</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon @click.native="$emit('close')">
+            <v-btn icon @click.native="$emit('close')" color="primary-fg" flat>
                 <v-icon>close</v-icon>
             </v-btn>
             <v-tabs slot="extension" centered v-model="planner.curTab" slider-color="white" color="transparent" grow>
