@@ -53,7 +53,7 @@
                     <v-toolbar-title>Planner Settings</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
-                        <v-btn dark flat @click.native="(saveSettings(),showSettings = false)" color="secondary">
+                        <v-btn dark flat @click.native="(saveSettings(),showSettings = false)" color="primary-fg">
                             <v-icon left>save</v-icon>Save</v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
