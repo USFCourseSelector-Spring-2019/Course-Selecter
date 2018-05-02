@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-toolbar color="primary" class="primary-fg--text">
-            <v-btn @click="showSettings=true" icon color="secondary" flat>
+            <v-btn @click="planner.curTab='2'" icon color="secondary" flat>
                 <v-icon>settings</v-icon>
             </v-btn>
             <v-toolbar-title>{{plan.title}}</v-toolbar-title>
@@ -16,6 +16,9 @@
                 </v-tab>
                 <v-tab ripple class="primary-fg--text">
                     Calendar
+                </v-tab>
+                <v-tab ripple class="primary-fg--text">
+                    Settings
                 </v-tab>
             </v-tabs>
         </v-toolbar>
@@ -43,35 +46,34 @@
                     <Calendar :classes="courses" />
                 </v-card>
             </v-tab-item>
-        </v-tabs-items>
-        <v-dialog v-model="showSettings" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
-            <v-card tile>
-                <v-toolbar card dark color="primary">
-                    <v-btn icon @click.native="showSettings = false" dark>
-                        <v-icon>close</v-icon>
-                    </v-btn>
-                    <v-toolbar-title>Planner Settings</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-toolbar-items>
-                        <v-btn dark flat @click.native="(saveSettings(),showSettings = false)" color="primary-fg">
-                            <v-icon left>save</v-icon>Save</v-btn>
-                    </v-toolbar-items>
-                </v-toolbar>
-                <v-card-text>
-                    <v-layout column>
-                        <v-layout v-for="(curPlan,i) in plans" :key="i">
-                            <v-text-field v-model="curPlan.title" :label="`Plan #${i+1} Title`"></v-text-field>
-                            <v-btn @click.native.stop="planner.plan=i" :disabled="planner.plan===i">{{planner.plan===i?'Is Current Plan':'Set as Current Plan'}}</v-btn>
+            <v-tab-item key="settings">
+                <v-card tile>
+                    <v-card-title class="title">Plans</v-card-title>
+                    <v-card-text>
+                        <v-layout column>
+                            <v-layout v-for="(curPlan,i) in plans" :key="i">
+                                <v-text-field v-model="curPlan.title" :label="`Plan #${i+1} Title`"></v-text-field>
+                                <v-btn @click.native.stop="planner.plan=i" :disabled="planner.plan===i" color="primary">{{planner.plan===i?'Is Current Plan':'Set as Current Plan'}}</v-btn>
+                                <v-tooltip bottom>
+                                    <v-btn @click.native.stop="plans.splice(i,1)" icon flat slot="activator">
+                                        <v-icon>close</v-icon>
+                                    </v-btn>
+                                    <span>Delete {{curPlan.title}}</span>
+                                </v-tooltip>
+                            </v-layout>
                         </v-layout>
-                    </v-layout>
-                    <v-btn @click.native.stop="plans.push({title: `Plan #${plans.length+1}`,courses: []})" color="primary">
-                        <v-icon left>add</v-icon>
-                        Add A Plan
-                    </v-btn>
-                </v-card-text>
-                <div style="flex: 1 1 auto;"></div>
-            </v-card>
-        </v-dialog>
+                        <v-tooltip top>
+                            <v-btn @click.native.stop="plans.push({title: `Plan #${plans.length+1}`,courses: []})" color="primary" slot="activator">
+                                <v-icon left>add</v-icon>
+                                Add A Plan
+                            </v-btn>
+                            <span>Adds a clean possible plan to your list of plans</span>
+                        </v-tooltip>
+                    </v-card-text>
+                    <div style="flex: 1 1 auto;"></div>
+                </v-card>
+            </v-tab-item>
+        </v-tabs-items>
     </div>
 </template>
 <script>

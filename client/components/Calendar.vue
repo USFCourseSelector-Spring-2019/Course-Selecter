@@ -16,13 +16,13 @@
         </v-layout>
         <v-layout>
             <div class="fill-height times-block elevation-1">
-                    <div style="height:72px">
-                    </div>
-                    <v-layout column :style="`height:${height}px`">
-                        <v-flex xs12 v-for="time in times" :key="time.hour()" class="time-labels">
-                            {{formatTime(time)}}
-                        </v-flex>
-                    </v-layout>
+                <div style="height:72px">
+                </div>
+                <v-layout column :style="`height:${height}px`">
+                    <v-flex xs12 v-for="time in times" :key="time.hour()" class="time-labels">
+                        {{formatTime(time)}}
+                    </v-flex>
+                </v-layout>
             </div>
             <v-flex v-for="(day,i) in getDays" :key="i">
                 <v-card class="fill-height time-card">
@@ -107,7 +107,7 @@ export default {
                 return this.firstAndLastDayOfClass[1]
             },
             rangeOfDaysOfClass() {
-                return moment.range(this.firstAndLastDayOfClass)
+                return moment.range.apply(moment.range, this.firstAndLastDayOfClass)
             },
             getDays() {
                 const range = this.range
@@ -193,7 +193,7 @@ export default {
             }
         },
         watch: {
-            days(newDays) {
+            classes(newClasses) {
                 const days = this.days.split('').map(day => this.mapDay[day]),
                     startRange = this.range.start.clone().day(days[0]),
                     endRange = startRange.clone().day(days.slice(-1))
@@ -234,7 +234,8 @@ export default {
 .time-labels {
     border-bottom: 1px dashed rgba(0, 0, 0, 0.5);
 }
-.time-card .card__title{
+
+.time-card .card__title {
     padding: 16px 0px;
 }
 
