@@ -53,11 +53,21 @@
                     <v-toolbar-title>Planner Settings</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
-                        <v-btn dark flat @click.native="(saveSettings(),showSettings = false)" color="secondary">
+                        <v-btn dark flat @click.native="(saveSettings(),showSettings = false)" color="primary-fg">
                             <v-icon left>save</v-icon>Save</v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
                 <v-card-text>
+                    <v-layout column>
+                        <v-layout v-for="(curPlan,i) in plans" :key="i">
+                            <v-text-field v-model="curPlan.title" :label="`Plan #${i+1} Title`"></v-text-field>
+                            <v-btn @click.native.stop="planner.plan=i" :disabled="planner.plan===i">{{planner.plan===i?'Is Current Plan':'Set as Current Plan'}}</v-btn>
+                        </v-layout>
+                    </v-layout>
+                    <v-btn @click.native.stop="plans.push({title: `Plan #${plans.length+1}`,courses: []})" color="primary">
+                        <v-icon left>add</v-icon>
+                        Add A Plan
+                    </v-btn>
                 </v-card-text>
                 <div style="flex: 1 1 auto;"></div>
             </v-card>

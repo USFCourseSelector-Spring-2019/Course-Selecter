@@ -15,8 +15,7 @@
             </v-btn>
         </v-layout>
         <v-layout>
-            <div class="fill-height">
-                <div class="times-block elevation-1">
+            <div class="fill-height times-block elevation-1">
                     <div style="height:72px">
                     </div>
                     <v-layout column :style="`height:${height}px`">
@@ -24,10 +23,9 @@
                             {{formatTime(time)}}
                         </v-flex>
                     </v-layout>
-                </div>
             </div>
             <v-flex v-for="(day,i) in getDays" :key="i">
-                <v-card class="fill-height">
+                <v-card class="fill-height time-card">
                     <v-card-title class="layout column elevation-1">
                         <h1 class="title" v-text="mapDays[mapNum[day.day()]]"></h1>
                         <h2 class="title" v-text="day.date()"></h2>
@@ -100,7 +98,7 @@ export default {
                 return !this.rangeOfDaysOfClass.contains(this.range.end.clone().add(1, 'weeks'))
             },
             previousWeekDisabled() {
-                return !this.rangeOfDaysOfClass.contains(this.range.end.clone().subtract(1, 'weeks'))
+                return !this.rangeOfDaysOfClass.contains(this.range.start.clone().subtract(1, 'weeks'))
             },
             firstDayOfClass() {
                 return this.firstAndLastDayOfClass[0]
@@ -235,6 +233,9 @@ export default {
 
 .time-labels {
     border-bottom: 1px dashed rgba(0, 0, 0, 0.5);
+}
+.time-card .card__title{
+    padding: 16px 0px;
 }
 
 .navigation-drawer {

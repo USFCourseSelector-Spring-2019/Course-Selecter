@@ -1,7 +1,8 @@
 <template>
-    <v-layout column justify-center align-center class="fill-height">
-        <v-flex v-text="course.shortcode + course.id"></v-flex>
-        <v-flex v-text="course.times.map(time=>time.slice(1)).join(' - ')"></v-flex>
+    <v-layout column justify-space-around align-center class="fill-height">
+        <span v-text="course.shortcode + course.id"></span>
+        <span v-text="course.times.map(time=>time.slice(time[0]==='1'?0:1)).join(' - ')"></span>
+        <span v-text="course.instructor"></span>
     </v-layout>
 </template>
 <script>

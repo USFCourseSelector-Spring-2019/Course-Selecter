@@ -9,11 +9,26 @@
             </v-btn>
         </v-card-title>
         <v-card-text>
-            <h2>Course ID: {{course.shortcode}} {{course.id}}</h2>
-            <h2>CRN: {{course.crn}}</h2>
-            <h2>Proffessor: {{course.instructor}}</h2>
-            <p>Proffessor Bio...</p>
-            <p>{{conflictsWith(course)}}This will be where you can add this course to your course cart and probably show info on the Proffessor, Course Description and any other relevant info on this course</p>
+            <v-layout row>
+                <v-layout sm6 class="flex" column justify-space-around>
+                    <h2>ID: {{course.shortcode}} {{course.id}}</h2>
+                    <h2>CRN: {{course.crn}}</h2>
+                    <h2>Proffessor: {{course.instructor}}</h2>
+                    <h2>Days: {{course.days.join('')}}</h2>
+                    <h2>Times: {{course.times.join(' - ')}}</h2>
+                </v-layout>
+                <v-flex sm6 class="avatar">
+                    <img src="https://image.shutterstock.com/mosaic_250/0/0/518740741.jpg" class="elevation-1 proffessor-img" />
+                </v-flex>
+            </v-layout>
+            <p>Proffessor Bio... and Proffessor images</p>
+            <p>Course Description and any other relevant info on this course...</p>
+            <v-alert :value="canAddToPlanner(course) && conflictsWith(course)[0].index!==course.index" color="error" icon="warning">
+                The course times of this course conflicts with {{conflictsWith(course).length===1?'this course:':'these courses:'}}
+                <span v-for="(conflict,i) in conflictsWith(course)" :key="conflict.index">
+                    {{i>1?',':' '}}{{conflict.title}} - {{conflict.shortcode}} {{course.id}} with {{course.instructor}}
+                </span>
+            </v-alert>
         </v-card-text>
         <v-card-actions class="pb-3 px-3">
             <v-btn :color="adding?'success':'primary'" v-if="showAdded" @click="added?(showPlanner()):addCourse()" :loading="adding" class="primary-fg--text">
@@ -53,3 +68,9 @@ export default {
         }
 }
 </script>
+<style>
+    .avatar img.proffessor-img{
+        width:33%;
+        border:1px solid white;
+    }
+</style>

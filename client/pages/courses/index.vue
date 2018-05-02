@@ -135,6 +135,12 @@ const hydrate = doc => {
                 key: 'instructor',
                 possibles: doc.instructors.filter(a => a.length),
                 selected: null
+            },{
+                title: 'Attributes',
+                key: 'attributes',
+                possibles: doc.attributes.filter(a=>a.length),
+                selected: null,
+                every: false
             }]
         }, doc)
     return ret
@@ -152,12 +158,14 @@ export default {
             const {
                 campuses,
                 instructors,
-                categories
+                categories,
+                attributes
             } = this
             const obj = hydrate({
                 campuses,
                 instructors,
-                categories
+                categories,
+                attributes
             })
             this.filters = obj.filters
         },
@@ -209,15 +217,21 @@ export default {
                     const classes = course.classes.reduce((arr, classy) => {
                         if (filters.every(({
                                 selected,
-                                key
+                                key,
+                                every = true
                             }) => {
-                                let compareTo;
+                                let compareTo,comparator;
                                 if (!Array.isArray(classy[key])) {
                                     compareTo = [classy[key]]
                                 } else {
                                     compareTo = classy[key]
                                 }
-                                return (Array.isArray(selected) ? selected : compareTo).every((value, i) => {
+                                if(every){
+                                    comparator='every'
+                                }{
+                                    comparator='some'
+                                }
+                                return (Array.isArray(selected) ? selected : compareTo)[comparator]((value, i) => {
                                     if (typeof selected == 'string' || selected === null) {
                                         return value === selected
                                     }
