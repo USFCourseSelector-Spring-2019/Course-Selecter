@@ -32,18 +32,18 @@ let scrape = async() => {
             } catch (e) {
                 return false
             }
-        }).filter(a => a))))
+        }))))
 
         const linkToNextPage = await page.evaluate(() => (document.querySelector('div.panel-pane.pane-views-panes.pane-in-content-faculty-panel-pane-1 > div > div > ul > li.pager-next > a') || {}).href)
         await page.close()
         if (linkToNextPage && false) {
             //const itsProffesors = await (await handlePage(linkToNextPage))
             //itsProffesors Array<Promise<OBJ>>
-            return Promise.resolve((await Promise.all(await proffesors)).concat(await (await handlePage(linkToNextPage))).filter(a=>a))
+            return Promise.resolve((await Promise.all(await proffesors)).concat(await (await handlePage(linkToNextPage))))
         }
         return proffesors
 
-    })).then(async(allProffessors) => (await Promise.all(allProffessors.map(proffesors => Promise.all(proffesors)))).reduce((prev, curr) => prev.concat(curr), [])));
+    })).then(async(allProffessors) => (await Promise.all(allProffessors.map(proffesors => Promise.all(proffesors)))).reduce((prev, curr) => prev.concat(curr).filter(a=>a), [])));
     console.log("Scraped All Successfully!")
     browser.close();
     return AllProfessors
