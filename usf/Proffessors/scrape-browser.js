@@ -9,35 +9,44 @@ const puppeteer = require('puppeteer'),
         })
     }),
     getLinks = require('./parser'),
-    scrapeProffesor = (a, b) => b,
-    write = require('write-json-file');
+    scrapeProfesor = require('./scrapeProfessor'),
+    write = require('write-json-file'),
+    wait = time => (new Promise(resolve => setTimeout(resolve, time)));
 
 let scrape = async() => {
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({ headless: true });
     console.log("Scraping with the browser...")
-    const AllProffesors = await (Promise.all(pagesToScrape.slice(0, 1).map(async function handlePage(pageToScrape) {
+    //handlePage Promise<Promise<Array<Promise<OBJ>>>>
+    const AllProfessors = await (Promise.all(pagesToScrape.slice(0).map(async function handlePage(pageToScrape) {
         const page = await browser.newPage();
         await page.goto(pageToScrape);
 
+        //proffesors Promise<Array<Promise<OBJ>>>
         const proffesors = (getLinks(page.evaluate(() => document.body.innerHTML)).then(links => (links.map(async(link) => {
-            const newPage = await browser.newPage();
-            await newPage.goto(link);
-            let newBodyHTML = await newPage.evaluate(() => document.body.innerHTML)
-            await newPage.close()
-            return scrapeProffesor(newBodyHTML, link)
-        }))))
+            try {
+                const newPage = await browser.newPage();
+                await newPage.goto(link);
+                let newBodyHTML = await newPage.evaluate(() => document.body.innerHTML)
+                await newPage.close()
+                return scrapeProfesor(Promise.resolve(newBodyHTML), link)
+            } catch (e) {
+                return false
+            }
+        }).filter(a => a))))
+
         const linkToNextPage = await page.evaluate(() => (document.querySelector('div.panel-pane.pane-views-panes.pane-in-content-faculty-panel-pane-1 > div > div > ul > li.pager-next > a') || {}).href)
         await page.close()
-        if (linkToNextPage) {
-            const itsProffesors = await handlePage(linkToNextPage)
-            return itsProffesors.concat(await Promise.all(await proffesors))
+        if (linkToNextPage && false) {
+            //const itsProffesors = await (await handlePage(linkToNextPage))
+            //itsProffesors Array<Promise<OBJ>>
+            return Promise.resolve((await Promise.all(await proffesors)).concat(await (await handlePage(linkToNextPage))).filter(a=>a))
         }
-        return (await Promise.all(await proffesors))
+        return proffesors
 
-    })).then(allProffessors => allProffessors.reduce((prev, curr) => prev.concat(curr), [])))
-    console.log("Scraped Successfully!")
+    })).then(async(allProffessors) => (await Promise.all(allProffessors.map(proffesors => Promise.all(proffesors)))).reduce((prev, curr) => prev.concat(curr), [])));
+    console.log("Scraped All Successfully!")
     browser.close();
-    return AllProffessors
+    return AllProfessors
 }
 if (!module.parent) {
     scrape().then((value) => {
