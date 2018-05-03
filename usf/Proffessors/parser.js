@@ -37,7 +37,7 @@ function transformCredentials(key, val) {
 }
 
 function scrapeLinks(data) {
-    console.log('Started Scraping Professor Links...')
+    console.log('Scraping Professor Links...')
     return data.then(html => cheerio.load(html)).then($ => {
         const proffessors = Array.from($('article')).map((article, i) => {
             if (i > -1) {
@@ -55,7 +55,7 @@ function scrapeLinks(data) {
                     return ret
                 }, {})*/
                 //Images: biggest first smallest last
-                console.log('Scraped Professor Links Successfully!')
+                //console.log('Scraped Professor Links Successfully!')
                 return link && base + link
             }
         }).filter(a => a)

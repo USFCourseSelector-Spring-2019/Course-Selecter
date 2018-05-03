@@ -36,7 +36,7 @@ let scrape = async() => {
 
         const linkToNextPage = await page.evaluate(() => (document.querySelector('div.panel-pane.pane-views-panes.pane-in-content-faculty-panel-pane-1 > div > div > ul > li.pager-next > a') || {}).href)
         await page.close()
-        if (linkToNextPage && false) {
+        if (linkToNextPage) {
             //const itsProffesors = await (await handlePage(linkToNextPage))
             //itsProffesors Array<Promise<OBJ>>
             return Promise.resolve((await Promise.all(await proffesors)).concat(await (await handlePage(linkToNextPage))))
