@@ -18,10 +18,10 @@
                     <h2>Times: {{course.times.join(' - ')}}</h2>
                 </v-layout>
                 <v-flex sm6 class="avatar">
-                    <img src="https://image.shutterstock.com/mosaic_250/0/0/518740741.jpg" class="elevation-1 proffessor-img" />
+                    <img :src="image" class="elevation-1 proffessor-img" />
                 </v-flex>
             </v-layout>
-            <p>Proffessor Bio... and Proffessor images</p>
+            <p v-text="bio">Proffessor Bio... and Proffessor images</p>
             <p>Course Description and any other relevant info on this course...</p>
             <v-alert :value="canAddToPlanner(course) && conflictsWith(course)[0].index!==course.index" color="error" icon="warning">
                 The course times of this course conflicts with {{conflictsWith(course).length===1?'this course:':'these courses:'}}
@@ -38,11 +38,21 @@
     </v-card>
 </template>
 <script>
+import PouchDB from 'pouchdb'
 export default {
     data() {
+            const coursesDB = new PouchDB( /*context.isDev*/ true ? 'http://localhost:5984/usf' : 'http://db.courseselector.com/usf')
+            console.log(this.course.instructor)
+            coursesDB.get('Proffessor - ' + this.course.instructor).then(data => {
+                this.professor = data
+                console.log(data)
+            }).catch(err => {
+
+            })
             return {
                 adding: false,
-                added: this.isInCart(this.course)
+                added: this.isInCart(this.course),
+                professor: false
             }
         },
         props: ['course', 'showAdded'],
@@ -51,6 +61,21 @@ export default {
                 this.adding = true
                 this.$cart.add(this.course)
                 setTimeout(() => (this.added = true, this.adding = false), 500)
+            }
+        },
+        computed: {
+            image() {
+                const professor = this.professor
+                if (professor) {
+                    return professor.images[0]
+                }
+                return 'https://image.shutterstock.com/mosaic_250/0/0/518740741.jpg'
+            },
+            bio() {
+                const professor = this.professor
+                if (professor) {
+                    return professor.bio.join('\n')
+                }
             }
         },
         watch: {
@@ -69,8 +94,8 @@ export default {
 }
 </script>
 <style>
-    .avatar img.proffessor-img{
-        width:33%;
-        border:1px solid white;
-    }
+.avatar img.proffessor-img {
+    width: 33%;
+    border: 1px solid white;
+}
 </style>
