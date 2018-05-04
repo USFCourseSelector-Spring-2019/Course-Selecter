@@ -92,7 +92,9 @@ const Cart = {
                         const range = moment.range.apply(moment.range, this.getHighestAndLowestTime(planCourse))
 
                         return ((rangeToTest.start.within(range) || rangeToTest.end.within(range))) ? planCourse : false
-                    }).filter(a => a)
+                    }).filter(a => a).map(sametime=>{
+                        return course.days.some(day=>sametime.days.includes(day))?sametime:false
+                    }).filter(a=>a)
                 },
                 canAddToPlanner(course) {
                     return !!this.conflictsWith(course).length
