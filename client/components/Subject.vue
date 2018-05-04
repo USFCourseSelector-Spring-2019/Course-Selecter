@@ -30,7 +30,7 @@
                 </tr>
             </template>
             <template slot="expand" slot-scope="props">
-                <Course :course="props.item" @close="props.expanded=0" :show-added="true" v-if="props.item.available" />
+                <Course :course="props.item" @close="props.expanded=0" :show-added="true" v-if="props.item.available && props.expanded" />
                 <v-alert :value="props.item.available===false" color="error" icon="warning" v-else>
                     Sorry {{props.item.title}} on {{props.item.days.join('')}} with {{props.item.instructor}} at {{props.item.times.join(" - ")}} is closed. Even the wait list is full or closed off.
                 </v-alert>
