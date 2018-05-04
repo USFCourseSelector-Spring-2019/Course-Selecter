@@ -48,7 +48,8 @@
             </v-tab-item>
             <v-tab-item key="settings">
                 <v-card tile>
-                    <v-card-title class="title">Plans</v-card-title>
+                    <v-card-title class="title">All Plans</v-card-title>
+                    <v-subheader>This allows you to create multiple possible schedules</v-subheader>
                     <v-card-text>
                         <v-layout column>
                             <v-layout v-for="(curPlan,i) in plans" :key="i">

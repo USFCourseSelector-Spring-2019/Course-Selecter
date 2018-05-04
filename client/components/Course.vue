@@ -18,7 +18,7 @@
                     <h2>Times: {{course.times.join(' - ')}}</h2>
                 </v-layout>
                 <v-flex sm6 class="avatar">
-                    <img :src="image" class="elevation-1 proffessor-img" />
+                    <a :href="link" target="_blank"><img :src="image" class="elevation-1 proffessor-img" /></a>
                 </v-flex>
             </v-layout>
             <p v-text="bio">Proffessor Bio... and Proffessor images</p>
@@ -38,16 +38,11 @@
     </v-card>
 </template>
 <script>
-import PouchDB from 'pouchdb'
+import getProffessorData from '../assets/getProffessorData'
 export default {
     data() {
-            const coursesDB = new PouchDB( /*context.isDev*/ true ? 'http://localhost:5984/usf' : 'http://db.courseselector.com/usf')
-            console.log(this.course.instructor)
-            coursesDB.get('Proffessor - ' + this.course.instructor).then(data => {
-                this.professor = data
-                console.log(data)
-            }).catch(err => {
-
+            getProffessorData(this.course.instructor).then(professorData => {
+                this.professor = professorData
             })
             return {
                 adding: false,
@@ -75,6 +70,12 @@ export default {
                 const professor = this.professor
                 if (professor) {
                     return professor.bio.join('\n')
+                }
+            },
+            link() {
+                const professor = this.professor
+                if (professor) {
+                    return professor.link
                 }
             }
         },
