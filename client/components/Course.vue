@@ -38,10 +38,10 @@
     </v-card>
 </template>
 <script>
-import getProffessorData from '../assets/getProffessorData'
+import getProfessorData from '../assets/getProfessorData'
 export default {
     data() {
-            getProffessorData(this.course.instructor).then(professorData => {
+            getProfessorData(this.course.instructor).then(professorData => {
                 this.professor = professorData
             })
             return {

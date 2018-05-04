@@ -31,8 +31,8 @@
                         <h2 class="title" v-text="day.date()"></h2>
                     </v-card-title>
                     <div :style="`height:${height}px`" class="time-container">
-                        <div v-for="course in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])}px;height:${distanceBetween(course.times)}px;`" :class="['time-block',getColor(course.index),i==0?'is-blocking-times':'']">
-                            <Calendar-Item :course="course" />
+                        <div v-for="(course,ind) in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])}px;height:${distanceBetween(course.times)}px;`" :class="['time-block',i==0?'is-blocking-times':'']">
+                            <Calendar-Item :course="course" :color="getColor(ind)" />
                         </div>
                     </div>
                 </v-card>
@@ -142,7 +142,7 @@ export default {
             },
             rangeOfTimes() {
                 const [lowestTime, highestTime] = this.highestAndLowestTime
-                return moment.range(lowestTime.clone().minutes(0), highestTime.clone().minutes(60))
+                return moment.range(lowestTime.clone().minutes(0).subtract(1, 'hours'), highestTime.clone().minutes(60))
             },
             times() {
                 return Array.from(this.rangeOfTimes.by('hours'))
@@ -189,7 +189,8 @@ export default {
                 return `${(time.hour()>12?time.hour()-12:time.hour()).toString().padStart(2,'0')}:${time.minute().toString().padStart(2,'0')} ${time.hour()>12?'pm':'am'}`
             },
             getColor(index) {
-                return 'secondary'
+                const colors = ['secondary', 'blue', 'lime', 'amber', 'light-green', 'orange', 'light-blue', 'red', 'yellow']
+                return colors[index % colors.length]
             }
         },
         watch: {
