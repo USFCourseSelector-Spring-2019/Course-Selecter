@@ -53,7 +53,7 @@
 </template>
 <script>
 import Subject from '../../components/Subject'
-import PouchDB from 'pouchdb'
+import getCourseData from '../../getCourseData'
 const hydrate = doc => {
     const mapDays = {
             M: 'Monday',
@@ -170,9 +170,13 @@ export default {
             this.filters = obj.filters
         },
         asyncData(context) {
-                const coursesDB = new PouchDB( /*context.isDev*/ true ? 'http://localhost:5984/usf' : 'http://db.courseselector.com/usf')
-                return coursesDB.get('courses').catch(err => {
-                    console.error(err)
+                getCourseData()
+                coursesDB.changes({
+                    since:'now',
+                    live:true
+                },doc=>{
+                    console.log(doc)
+                    Object.entries(doc).forEach(([key,value])=>this[key]=value)
                 })
         },
         watch: {
