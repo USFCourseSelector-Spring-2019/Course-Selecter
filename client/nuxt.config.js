@@ -21,6 +21,9 @@ module.exports = {
   css: [
     '~/assets/style/app.styl'
   ],
+  modules: [
+        '@nuxtjs/pwa',
+    ],
   /*
   ** Customize the progress bar color
   */

@@ -52,8 +52,8 @@
     </v-layout>
 </template>
 <script>
-import Subject from '../../components/Subject'
-import getCourseData from '../../getCourseData'
+import Subject from '@/components/Subject'
+import getCourseData, {coursesDB} from '@/assets/getCourseData'
 const hydrate = doc => {
     const mapDays = {
             M: 'Monday',
@@ -167,10 +167,7 @@ export default {
                 categories,
                 attributes
             })
-            this.filters = obj.filters
-        },
-        asyncData(context) {
-                getCourseData()
+            
                 coursesDB.changes({
                     since:'now',
                     live:true
@@ -178,6 +175,11 @@ export default {
                     console.log(doc)
                     Object.entries(doc).forEach(([key,value])=>this[key]=value)
                 })
+            this.filters = obj.filters
+        },
+        asyncData(context) {
+                
+                return getCourseData()
         },
         watch: {
             filters: {

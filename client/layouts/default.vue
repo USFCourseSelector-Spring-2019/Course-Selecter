@@ -14,7 +14,7 @@
         </v-navigation-drawer>
         <v-toolbar fixed app color="primary" class="primary-fg--text">
             <v-toolbar-side-icon @click="drawer = !drawer" color="primary-fg" flat></v-toolbar-side-icon>
-            <img src="/logo.png" height="50px" />
+            <img src="/icon.png" height="50px" />
             <v-toolbar-title v-text="title"></v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn icon @click.stop="togglePlanner" color="secondary" flat>
