@@ -39,6 +39,17 @@
 </template>
 <script>
 import getProfessorData from '../assets/getProfessorData'
+
+function isInCartHandler() {
+    if (!this.isInCart(this.course)) {
+        if (this.added || this.adding) {
+            this.added = false
+            this.adding = false
+        }
+    } else {
+        this.added = true
+    }
+}
 export default {
     data() {
             getProfessorData(this.course.instructor).then(professorData => {
@@ -82,14 +93,11 @@ export default {
         watch: {
             cart: {
                 deep: true,
-                handler() {
-                    if (this.added || this.adding) {
-                        if (!this.isInCart(this.course)) {
-                            this.added = false
-                            this.adding = false
-                        }
-                    }
-                }
+                handler: isInCartHandler
+            },
+            'planner.plan': {
+                deep: true,
+                handler: isInCartHandler
             }
         }
 }

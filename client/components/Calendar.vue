@@ -32,7 +32,7 @@
                     </v-card-title>
                     <div :style="`height:${height}px`" class="time-container">
                         <div v-for="(course,ind) in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])}px;height:${distanceBetween(course.times)}px;`" :class="['time-block',i==0?'is-blocking-times':'']">
-                            <Calendar-Item :course="course" :color="getColor(ind)" />
+                            <calendar-item :course="course" :color="getColor(ind)"></calendar-item>
                         </div>
                     </div>
                 </v-card>
@@ -203,7 +203,7 @@ export default {
             }
         },
         components: {
-            'Calendar-Item': CalendarItem
+            'calendar-item': CalendarItem
         }
 }
 </script>
