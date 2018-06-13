@@ -17,7 +17,7 @@
             <img src="/icon.png" height="50px" />
             <v-toolbar-title v-text="title"></v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon @click.stop="togglePlanner" color="secondary" flat>
+            <v-btn icon @click.stop="togglePlanner" color="primary-fg" flat>
                 <v-icon>view_list</v-icon>
             </v-btn>
         </v-toolbar>

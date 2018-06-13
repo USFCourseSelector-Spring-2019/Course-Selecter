@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-toolbar color="primary" class="primary-fg--text">
-            <v-btn @click="planner.curTab='2'" icon color="secondary" flat>
+            <v-btn @click="planner.curTab='2'" icon color="primary-fg" flat>
                 <v-icon>settings</v-icon>
             </v-btn>
             <v-toolbar-title>{{plan.title}}</v-toolbar-title>
@@ -10,7 +10,7 @@
                 <v-icon>close</v-icon>
             </v-btn>
             <v-tabs slot="extension" centered v-model="planner.curTab" slider-color="white" color="transparent" grow>
-                <v-tabs-slider color="primary-fg"></v-tabs-slider>
+                <v-tabs-slider color="secondary"></v-tabs-slider>
                 <v-tab ripple class="primary-fg--text">
                     Course Descriptions
                 </v-tab>
