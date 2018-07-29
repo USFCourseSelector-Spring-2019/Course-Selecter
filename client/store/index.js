@@ -35,18 +35,22 @@ export const mutations = {
     setPlan(state, index) {
         state.planner.plan = index
     },
-    setTab(state,index){
-    	state.planner.curTab=index
+    setTab(state, index) {
+        state.planner.curTab = index
     }
 }
 
 export const actions = {
-	async showCourseView({commit}){
-		await commit('setTab',0)
-		await commit('showPlanner')
-	},
-	async showCalendarView({commit}){
-		await commit('setTab',1)
-		await commit('showPlanner')
-	},
+    async showCourseView({ commit }) {
+        await commit('setTab', 0)
+        await commit('showPlanner')
+    },
+    async showCalendarView({ commit }) {
+        await commit('setTab', 1)
+        await commit('showPlanner')
+    },
+    async saveSettings({store}){
+    	const {{plans, plan}} = store.planner
+    	//Store these settings to the user in the db and localstorage or just localstorage if not logged in
+    }
 }
