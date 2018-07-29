@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-toolbar color="primary" class="primary-fg--text">
+        <v-toolbar color="primary" class="primary-fg--text" tabs>
             <v-btn @click="planner.curTab='2'" icon color="primary-fg" flat>
                 <v-icon>settings</v-icon>
             </v-btn>

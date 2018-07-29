@@ -2,7 +2,7 @@
     <v-layout row wrap>
         <v-flex xl2 sm12 :class="['px-3', 'py-4', 'fixed-xl-and-up' ,'full-width']">
             <h1 class="text-xs-center display-1">Search Courses</h1>
-            <v-layout class="my-4">
+            <v-layout class="my-4" :column="$vuetify.breakpoint.xsOnly">
                 <v-text-field v-model.trim="query" label="Search" append-icon="search" clearable solo color="primary"></v-text-field>
                 <v-btn @click="bottomSheet=true" class="hidden-md-and-up" color="primary">
                     <v-icon left>filter_list</v-icon>Filter By
@@ -12,11 +12,11 @@
                 <h2 class="headline mb-1 my-3 text-xs-center">Filter By</h2>
                 <v-layout wrap justify-center>
                     <v-flex xl12 lg3 md4 sm6 v-for="(filter,i) in filters" :key="filter.key" :class="{'px-3':$vuetify.breakpoint.lgAndDown, 'py-3':true}">
-                        <v-select :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete color="primary" v-if="filter.possibles.length">
+                        <v-autocomplete :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable color="primary" v-if="filter.possibles.length">
                             <template slot="item" slot-scope="data">
                                 <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
                             </template>
-                        </v-select>
+                        </v-autocomplete>
                         <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
                     </v-flex>
                 </v-layout>
@@ -26,7 +26,7 @@
             <h1 class="pl-2 text-xl-left text-xs-center display-1">Results</h1>
             <Subject v-for="category in categories_results" :key="category.shortcode" v-bind:subject="category" />
         </v-flex>
-        <v-bottom-sheet v-model="bottomSheet" inset>
+        <v-bottom-sheet v-model="bottomSheet">
             <v-card>
                 <v-layout>
                     <v-spacer></v-spacer>
@@ -37,13 +37,13 @@
                 <v-card-text>
                     <h2 class="headline mb-1 mb-3 text-xs-center">Filter By</h2>
                 </v-card-text>
-                <v-layout justify-center column class="pa-4">
-                    <v-flex xs12 v-for="(filter,i) in filters" :key="i">
-                        <v-select :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable autocomplete color="light-blue" v-if="filter.possibles.length">
+                <v-layout justify-center row wrap>
+                    <v-flex sm6 xs12 v-for="(filter,i) in filters" :key="i" class="px-4">
+                        <v-autocomplete :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable color="light-blue" v-if="filter.possibles.length">
                             <template slot="item" slot-scope="data">
                                 <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
                             </template>
-                        </v-select>
+                        </v-autocomplete>
                         <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
                     </v-flex>
                 </v-layout>
@@ -53,7 +53,9 @@
 </template>
 <script>
 import Subject from '@/components/Subject'
-import getCourseData, {coursesDB} from '@/assets/getCourseData'
+import getCourseData, {
+    coursesDB
+} from '@/assets/getCourseData'
 const hydrate = doc => {
     const mapDays = {
             M: 'Monday',
@@ -135,10 +137,10 @@ const hydrate = doc => {
                 key: 'instructor',
                 possibles: doc.instructors.filter(a => a.length),
                 selected: null
-            },{
+            }, {
                 title: 'Attributes',
                 key: 'attributes',
-                possibles: doc.attributes.filter(a=>a.length),
+                possibles: doc.attributes.filter(a => a.length),
                 selected: null,
                 every: false
             }]
@@ -167,19 +169,19 @@ export default {
                 categories,
                 attributes
             })
-            
-                coursesDB.changes({
-                    since:'now',
-                    live:true
-                },doc=>{
-                    console.log(doc)
-                    Object.entries(doc).forEach(([key,value])=>this[key]=value)
-                })
+
+            coursesDB.changes({
+                since: 'now',
+                live: true
+            }, doc => {
+                console.log(doc)
+                Object.entries(doc).forEach(([key, value]) => this[key] = value)
+            })
             this.filters = obj.filters
         },
         asyncData(context) {
-                
-                return getCourseData()
+
+            return getCourseData()
         },
         watch: {
             filters: {
@@ -224,16 +226,16 @@ export default {
                                 key,
                                 every = true
                             }) => {
-                                let compareTo,comparator;
+                                let compareTo, comparator;
                                 if (!Array.isArray(classy[key])) {
                                     compareTo = [classy[key]]
                                 } else {
                                     compareTo = classy[key]
                                 }
-                                if(every){
-                                    comparator='every'
-                                }{
-                                    comparator='some'
+                                if (every) {
+                                    comparator = 'every'
+                                } {
+                                    comparator = 'some'
                                 }
                                 return (Array.isArray(selected) ? selected : compareTo)[comparator]((value, i) => {
                                     if (typeof selected == 'string' || selected === null) {

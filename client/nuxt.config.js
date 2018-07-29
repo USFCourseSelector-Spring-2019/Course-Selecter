@@ -42,12 +42,6 @@ module.exports = {
         }]
       ]
     },
-    vendor: [
-      '~/plugins/vuetify.js',
-      'pouchdb',
-      'moment',
-      'moment-range',
-    ],
     extractCSS: true,
     /*
     ** Run ESLint on save

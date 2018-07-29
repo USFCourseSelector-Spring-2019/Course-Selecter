@@ -1,5 +1,5 @@
 <template>
-    <v-card class="my-2" raised>
+    <v-card flat>
         <v-card-title class="layout">
             <v-flex>
                 <h1 v-text="course.title" class="display-1"></h1>

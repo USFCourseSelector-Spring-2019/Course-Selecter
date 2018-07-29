@@ -50,7 +50,7 @@ export const actions = {
         await commit('showPlanner')
     },
     async saveSettings({store}){
-    	const {{plans, plan}} = store.planner
+    	const {plans, plan} = store.planner
     	//Store these settings to the user in the db and localstorage or just localstorage if not logged in
     }
 }

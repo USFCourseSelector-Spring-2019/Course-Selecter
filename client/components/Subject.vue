@@ -1,6 +1,6 @@
 <template>
     <v-card raised class="mx-1 my-3">
-        <v-card-title class="primary-fg--text primary">
+        <v-card-title class="primary-fg--text primary layout row">
             <h3 v-text="subject.subject" class="display-1"></h3>
             <v-spacer></v-spacer>
             <h3 v-text="subject.shortcode" class="title"></h3>
