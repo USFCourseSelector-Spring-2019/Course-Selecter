@@ -31,8 +31,8 @@
             </v-alert>
         </v-card-text>
         <v-card-actions class="pb-3 px-3">
-            <v-btn :color="adding?'success':'primary'" v-if="showAdded" @click="added?(showPlanner()):addCourse()" :loading="adding" class="primary-fg--text">
-                <v-icon left>{{added?'view_list':'add'}}</v-icon><span v-text="added?'Show in Planner':'Add to Planner'"></span>
+            <v-btn :color="adding?'success':'primary'" v-if="showAdded" @click="inPlanner?showPlanner():addCourse()" :loading="adding" class="primary-fg--text">
+                <v-icon left>{{inPlanner?'view_list':'add'}}</v-icon><span v-text="inPlanner?'Show in Plan':'Add to Plan'"></span>
             </v-btn>
         </v-card-actions>
     </v-card>
@@ -40,16 +40,6 @@
 <script>
 import getProfessorData from '../assets/getProfessorData'
 
-function isInCartHandler() {
-    if (!this.isInCart(this.course)) {
-        if (this.added || this.adding) {
-            this.added = false
-            this.adding = false
-        }
-    } else {
-        this.added = true
-    }
-}
 export default {
     data() {
             getProfessorData(this.course.instructor).then(professorData => {
@@ -57,16 +47,21 @@ export default {
             })
             return {
                 adding: false,
-                added: this.isInCart(this.course),
                 professor: false
             }
         },
-        props: ['course', 'showAdded'],
+        props: {
+            course: Object,
+            showAdded: {
+                default: true,
+                type: Boolean
+            }
+        },
         methods: {
             addCourse() {
                 this.adding = true
-                this.$cart.add(this.course)
-                setTimeout(() => (this.added = true, this.adding = false), 500)
+                this.$store.commit('planner/addCourse', this.course)
+                setTimeout(() => (this.adding = false), 500)
             }
         },
         computed: {
@@ -88,18 +83,11 @@ export default {
                 if (professor) {
                     return professor.link
                 }
+            },
+            inPlanner() {
+                return this.$store.getters['planner/isInPlan'](this.course)
             }
         },
-        watch: {
-            cart: {
-                deep: true,
-                handler: isInCartHandler
-            },
-            'planner.plan': {
-                deep: true,
-                handler: isInCartHandler
-            }
-        }
 }
 </script>
 <style>

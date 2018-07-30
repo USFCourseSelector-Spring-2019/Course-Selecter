@@ -24,7 +24,7 @@
         <v-content>
             <nuxt />
         </v-content>
-        <v-navigation-drawer temporary right v-model="planner.visible" fixed floating width="600">
+        <v-navigation-drawer temporary right v-model="visibilePlanner" fixed floating width="600">
             <Planner @close="hidePlanner" />
         </v-navigation-drawer>
         <!--<v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
@@ -53,7 +53,15 @@ export default {
         },
         computed: {
             dialog() {
-                return this.planner.visible && this.$vuetify.breakpoint.smAndDown
+                return this.$store.getters['planner/plannerIsVisible'] && this.$vuetify.breakpoint.smAndDown
+            },
+            visibilePlanner: {
+                get() {
+                    return this.$store.getters['planner/plannerIsVisible']
+                },
+                set(val) {
+                    this.$store.commit('planner/' + (val ? 'showPlanner' : 'hidePlanner'))
+                }
             }
         },
         components: {

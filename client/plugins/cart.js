@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import {mapGetters} from 'vuex'
 import PouchDB from 'pouchdb'
 import Moment from 'moment';
 import {
@@ -6,69 +7,50 @@ import {
 } from 'moment-range';
 const moment = extendMoment(Moment);
 const Cart = {
-    plans: [{
-        title: 'My 1st Planner',
-        courses: []
-    }],
-    cart: [],
-    planner: {
-        visible: false,
-        curTab: '0',
-        plan: 0
-    },
-    add(course) {
-        console.log('added', course, this.plans)
-        this.plans[this.planner.plan].courses.push(course)
-    },
-    addPlan(plan) {
-        console.log('add plan', plan)
-        this.plans.push(plan)
-    },
-    isInCart({ index }) {
-        return this.plans[this.planner.plan].courses.some(course => course.index === index)
-    },
     install(Vue, options) {
-        Vue.prototype.$cart = this
+        Vue.prototype.$utils = this
 
         Vue.mixin({
             data() {
                 return {
-                    cart: Cart.cart,
-                    planner: Cart.planner,
-                    plans: Cart.plans,
-                    courses: Cart.plans[Cart.planner.plan].courses
                 }
             },
             computed: {
+                plans(){
+                    return this.$store.getters['planner/plans']
+                },
                 plan() {
-                    return this.plans[this.planner.plan]
+                    return this.$store.getters['planner/currentPlan']
+                },
+                courses(){
+                    return this.plan.courses
                 }
             },
             methods: {
-                isInCart(course) {
-                    return Cart.isInCart(course)
-                },
                 showCourses() {
-                    this.planner.curTab = '0'
+                    this.$store.dispatch('planner/showCourseView')
                 },
                 showSchedule() {
-                    this.planner.curTab = '1'
+                    this.$store.dispatch('planner/showCalendarView')
                 },
                 showPlanner(showCourses) {
-                    this.planner.visible = true
+                    if(this.$store.state.planner.curTab===2){
+                        return this.showCourses()
+                    }
+                    this.$store.commit('planner/showPlanner')
                 },
                 hidePlanner(showCourses) {
-                    this.planner.visible = false
+                    this.$store.commit('planner/hidePlanner')
                 },
                 togglePlanner(showCourses) {
-                    this.planner.visible = !this.planner.visible
+                    this.$store.commit('planner/togglePlanner')
                 },
                 addPlan(plan) {
-                    return Cart.addPlan(plan)
+                    this.$store.commit('planner/addPlan',plan)
                 },
                 switchPlan(planIndex) {
                     if (Number(planIndex) === planIndex) {
-                        this.planner.plan = planIndex
+                        this.$store.commit('planner/setCurPlan',planIndex)
                     } else {
                         console.error('unhandled switching of plan was supplied:', planIndex)
                     }
@@ -88,7 +70,7 @@ const Cart = {
                 },
                 conflictsWith(course) {
                     const rangeToTest = moment.range.apply(moment.range, this.getHighestAndLowestTime(course))
-                    return this.plan.courses.map(planCourse => {
+                    return this.courses.map(planCourse => {
                         const range = moment.range.apply(moment.range, this.getHighestAndLowestTime(planCourse))
 
                         return ((rangeToTest.start.within(range) || rangeToTest.end.within(range))) ? planCourse : false
@@ -98,14 +80,6 @@ const Cart = {
                 },
                 canAddToPlanner(course) {
                     return !!this.conflictsWith(course).length
-                }
-            },
-            watch: {
-                plans: {
-                    deep: true,
-                    handler(plans) {
-                        this.courses = plans[this.planner.plan].courses
-                    }
                 }
             }
         })

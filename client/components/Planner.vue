@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-toolbar color="primary" class="primary-fg--text" tabs>
-            <v-btn @click="planner.curTab='2'" icon color="primary-fg" flat>
+            <v-btn @click="$store.commit('planner/setTab',2)" icon color="primary-fg" flat>
                 <v-icon>settings</v-icon>
             </v-btn>
             <v-toolbar-title>{{plan.title}}</v-toolbar-title>
@@ -9,7 +9,7 @@
             <v-btn icon @click.native="$emit('close')" color="primary-fg" flat>
                 <v-icon>close</v-icon>
             </v-btn>
-            <v-tabs slot="extension" centered v-model="planner.curTab" slider-color="white" color="transparent" grow>
+            <v-tabs slot="extension" centered v-model="curTab" slider-color="white" color="transparent" grow>
                 <v-tabs-slider color="secondary"></v-tabs-slider>
                 <v-tab ripple class="primary-fg--text">
                     Course Descriptions
@@ -22,7 +22,7 @@
                 </v-tab>
             </v-tabs>
         </v-toolbar>
-        <v-tabs-items v-model="planner.curTab">
+        <v-tabs-items v-model="curTab">
             <v-tab-item key="course">
                 <v-card flat>
                     <v-layout column v-if="courses.length">
@@ -53,10 +53,10 @@
                     <v-card-text>
                         <v-layout column>
                             <v-layout v-for="(curPlan,i) in plans" :key="i">
-                                <v-text-field v-model="curPlan.title" :label="`Plan #${i+1} Title`"></v-text-field>
-                                <v-btn @click.native.stop="planner.plan=i" :disabled="planner.plan===i" color="primary">{{planner.plan===i?'Is Current Plan':'Set as Current Plan'}}</v-btn>
+                                <v-text-field :value="curPlan.title" :label="`Plan #${i+1} Title`" @change="title=>$store.commit('planner/setTitleOf',{title,index:i})"></v-text-field>
+                                <v-btn @click.native.stop="$store.commit('planner/setCurPlan',i)" :disabled="$store.getters['planner/currentPlan']===curPlan" color="primary">{{$store.getters['planner/currentPlan']===curPlan?'Is Current Plan':'Set as Current Plan'}}</v-btn>
                                 <v-tooltip bottom>
-                                    <v-btn @click.native.stop="plans.splice(i,1)" icon flat slot="activator">
+                                    <v-btn @click.native.stop="$store.commit('planner/removePlan',i)" icon flat slot="activator">
                                         <v-icon>close</v-icon>
                                     </v-btn>
                                     <span>Delete {{curPlan.title}}</span>
@@ -64,7 +64,7 @@
                             </v-layout>
                         </v-layout>
                         <v-tooltip top>
-                            <v-btn @click.native.stop="plans.push({title: `Plan #${plans.length+1}`,courses: []})" color="primary" slot="activator">
+                            <v-btn @click.native.stop="$store.commit('planner/addPlan',{title: `Plan #${plans.length+1}`,courses: []})" color="primary" slot="activator">
                                 <v-icon left>add</v-icon>
                                 Add A Plan
                             </v-btn>
@@ -87,14 +87,24 @@ export default {
                 showSettings: false,
             }
         },
-        computed: {},
+        computed: {
+            curTab: {
+                get() {
+                    return this.$store.state.planner.curTab
+                },
+                set(index) {
+                    console.log('setting tab to', index)
+                    this.$store.commit('planner/setTab', index)
+                }
+            }
+        },
         methods: {
             saveSettings() {
 
             },
             goToCourses() {
                 if (this.$router.currentRoute.path == '/courses') {
-                    this.planner.visible = false
+                    this.$store.commit('planner/hidePlanner')
                 } else {
                     this.$router.push('/courses')
                 }
