@@ -51,6 +51,9 @@ export default {
                 title: 'USF Course Selector'
             }
         },
+        mounted() {
+            this.$store.dispatch('planner/loadSettings')
+        },
         computed: {
             dialog() {
                 return this.$store.getters['planner/plannerIsVisible'] && this.$vuetify.breakpoint.smAndDown

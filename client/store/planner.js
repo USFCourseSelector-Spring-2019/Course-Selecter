@@ -1,12 +1,14 @@
+import ls from 'local-storage';
+
 export const state = () => ({
-        visible: false,
-        curTab: 0,
-        plan: 0,
-        plans: [{
-            title: 'My 1st Planner',
-            courses: []
-        }],
-    
+    visible: false,
+    curTab: 0,
+    plan: 0,
+    plans: [{
+        title: 'My 1st Planner',
+        courses: []
+    }],
+
 })
 
 export const getters = {
@@ -21,6 +23,9 @@ export const mutations = {
     addCourse(state, course) {
         console.log('added', course, this.plans)
         getters.currentPlan(state).courses.push(course)
+    },
+    setPlans(state, plans) {
+        state.plans = plans
     },
     addPlan(state, plan = { title: 'New Plan', courses: [] }) {
         state.plans.push(plan)
@@ -43,11 +48,11 @@ export const mutations = {
     setTab(state, index) {
         state.curTab = index
     },
-    setTitle(state,title){
-        getters.currentPlan(state).title=title
+    setTitle(state, title) {
+        getters.currentPlan(state).title = title
     },
-    setTitleOf(state,{title,index}){
-        state.plans[index].title=title
+    setTitleOf(state, { title, index }) {
+        state.plans[index].title = title
     }
 }
 
@@ -60,8 +65,17 @@ export const actions = {
         await commit('setTab', 1)
         await commit('showPlanner')
     },
-    async saveSettings({ store }) {
-        const { plans, plan } = store.planner
+    async saveSettings({ state, rootState }) {
+        const { plans, plan } = state
         //Store these settings to the user in the db and localstorage or just localstorage if not logged in
+        ls('plans', plans)
+        ls('plan', plan)
+    },
+    async loadSettings({ commit }) {
+        const plans = ls('plans')
+        if (plans) {
+            await commit('setPlans', plans)
+        }
+        await commit('setCurPlan', ls('plan') || 0)
     }
 }
