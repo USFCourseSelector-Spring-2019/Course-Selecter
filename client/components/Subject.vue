@@ -17,7 +17,7 @@
                 </v-tooltip>
             </template>
             <template slot="items" slot-scope="props">
-                <tr @click="(props.expanded = !props.expanded)" :class="{error:!props.item.available,'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="expand(props).item.index" :id="props.item.index">
+                <tr @click="props.expanded = !props.expanded, goTo($refs[`row-${props.item.index}`])" :ref="`row-${props.item.index}`" :class="{error:!props.item.available,'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="expand(props).item.index" :id="props.item.index">
                     <td>{{ props.item.title }}</td>
                     <td class="text-xs-center">{{ props.item.shortcode }} {{props.item.id}}</td>
                     <td class="text-xs-left">{{ props.item.instructor }}</td>
@@ -128,7 +128,14 @@ export default {
                     props.expanded = true
                 }
                 return props
-            }
+            },
+            goTo(where) {
+                setTimeout(() => {
+                    this.$vuetify.goTo(where, {
+                        offset: -70
+                    })
+                }, 250)
+            },
         }
 }
 </script>
