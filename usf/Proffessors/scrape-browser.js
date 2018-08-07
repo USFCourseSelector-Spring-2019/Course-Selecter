@@ -11,41 +11,49 @@ const puppeteer = require('puppeteer'),
     getLinks = require('./parser'),
     scrapeProfesor = require('./scrapeProfessor'),
     write = require('write-json-file'),
-    wait = time => (new Promise(resolve => setTimeout(resolve, time)));
+    wait = time => (new Promise(resolve => setTimeout(resolve, time))),
+    cheerio = require('cheerio'),
+    https = require('https');
+
+function getPage(link) {
+    return new Promise((resolve, reject) => {
+        https.get(link, resp => {
+            let data = '';
+            resp.on('data', (chunk) => data += chunk);
+            resp.on('end', () => resolve(data));
+            resp.on('error', reject)
+        })
+    })
+}
 
 let scrape = async() => {
-    const browser = await puppeteer.launch({ headless: true });
+    
     console.log("Scraping with the browser...")
     //handlePage Promise<Promise<Array<Promise<OBJ>>>>
     const AllProfessors = await (Promise.all(pagesToScrape.slice(0).map(async function handlePage(pageToScrape) {
-        const page = await browser.newPage();
-        await page.goto(pageToScrape);
-
+        const page = getPage(pageToScrape);
         //proffesors Promise<Array<Promise<OBJ>>>
-        const proffesors = (getLinks(page.evaluate(() => document.body.innerHTML)).then(links => (links.map(async(link) => {
+        const proffesors = (getLinks(page).then(links => (links.map(async function(link) {
             try {
-                const newPage = await browser.newPage();
-                await newPage.goto(link);
-                let newBodyHTML = await newPage.evaluate(() => document.body.innerHTML)
-                await newPage.close()
-                return scrapeProfesor(Promise.resolve(newBodyHTML), link)
+                return scrapeProfesor(getPage(link), link)
             } catch (e) {
                 return false
             }
         }))))
 
-        const linkToNextPage = await page.evaluate(() => (document.querySelector('div.panel-pane.pane-views-panes.pane-in-content-faculty-panel-pane-1 > div > div > ul > li.pager-next > a') || {}).href)
-        await page.close()
+        const linkToNextPage = await Promise.resolve(page.then(html => cheerio.load(html)).then($ => {
+            return $('div.panel-pane.pane-views-panes.pane-in-content-faculty-panel-pane-1 > div > div > ul > li.pager-next > a').attr('href')
+        }))
         if (linkToNextPage) {
             //const itsProffesors = await (await handlePage(linkToNextPage))
             //itsProffesors Array<Promise<OBJ>>
-            return Promise.resolve((await Promise.all(await proffesors)).concat(await (await handlePage(linkToNextPage))))
+            return Promise.resolve((await Promise.all(await proffesors)).concat(await (await handlePage("https://www.usfca.edu"+linkToNextPage))))
         }
         return proffesors
 
-    })).then(async(allProffessors) => (await Promise.all(allProffessors.map(proffesors => Promise.all(proffesors)))).reduce((prev, curr) => prev.concat(curr).filter(a=>a), [])));
-    console.log("Scraped All Successfully!")
-    browser.close();
+    })).then(async(allProffessors) => (await Promise.all(allProffessors.map(proffesors => Promise.all(proffesors)))).reduce((prev, curr) => prev.concat(curr).filter(a => a), [])));
+    console.log("Scraped All Successfully!");
+    
     return AllProfessors
 }
 if (!module.parent) {
