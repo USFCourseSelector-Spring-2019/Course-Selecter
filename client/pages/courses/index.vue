@@ -157,31 +157,21 @@ export default {
             }
         },
         created() {
-            const {
-                campuses,
-                instructors,
-                categories,
-                attributes
-            } = this
-            const obj = hydrate({
-                campuses,
-                instructors,
-                categories,
-                attributes
-            })
 
-            coursesDB.changes({
+
+            /*coursesDB.changes({
                 since: 'now',
                 live: true
             }, doc => {
                 console.log(doc)
                 Object.entries(doc).forEach(([key, value]) => this[key] = value)
-            })
-            this.filters = obj.filters
-        },
-        asyncData(context) {
+            })*/
 
-            return getCourseData()
+        },
+        async asyncData(context) {
+
+            const courseData = await getCourseData()
+            return hydrate(courseData)
         },
         watch: {
             filters: {

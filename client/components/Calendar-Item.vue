@@ -1,6 +1,6 @@
 <template>
     <v-tooltip left max-width="200">
-        <v-card class="fill-height calendar-item" :color="color" :to="`/add-course/${course.crn}`" ripple raised slot="activator" :data-start="course.times[0]" :data-end="course.times[1]">
+        <v-card class="fill-height calendar-item" :color="color" :to="`/courses/add/${course.crn}`" ripple raised slot="activator" :data-start="course.times[0]" :data-end="course.times[1]">
             <v-card-title class="text-xs-center px-0 py-2 ma-0 d-block black white--text" v-text="course.shortcode + course.id"></v-card-title>
             <div v-text="course.instructor" class="text-xs-center"></div>
             <div v-text="course.times.map(time=>time.slice(time[0]==='1'?0:1)).join(' - ')" class="text-xs-center"></div>

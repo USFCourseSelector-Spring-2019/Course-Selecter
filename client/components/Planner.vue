@@ -4,7 +4,7 @@
             <v-btn @click="$store.commit('planner/setTab',2)" icon color="primary-fg" flat>
                 <v-icon>settings</v-icon>
             </v-btn>
-            <v-toolbar-title>{{plan.title}}</v-toolbar-title>
+            <v-toolbar-title>Plan: {{plan.title}}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn icon @click.native="$emit('close')" color="primary-fg" flat>
                 <v-icon>close</v-icon>
@@ -53,7 +53,7 @@
                     <v-card-text>
                         <v-layout column>
                             <v-layout v-for="(curPlan,i) in plans" :key="i">
-                                <v-text-field :value="curPlan.title" :label="`Plan #${i+1} Title`" @change="title=>$store.commit('planner/setTitleOf',{title,index:i})"></v-text-field>
+                                <v-text-field :value="curPlan.title" :label="`Plan #${i+1}`" @change="title=>$store.commit('planner/setTitleOf',{title,index:i})"></v-text-field>
                                 <v-btn @click.native.stop="$store.commit('planner/setCurPlan',i)" :disabled="$store.getters['planner/currentPlan']===curPlan" color="primary">{{$store.getters['planner/currentPlan']===curPlan?'Is Current Plan':'Set as Current Plan'}}</v-btn>
                                 <v-tooltip bottom>
                                     <v-btn @click.native.stop="$store.commit('planner/removePlan',i)" icon flat slot="activator">
