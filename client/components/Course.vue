@@ -11,13 +11,13 @@
         <v-card-text>
             <v-layout row>
                 <v-layout sm6 class="flex" column justify-space-around>
-                    <h2>ID: {{course.shortcode}} {{course.id}}</h2>
-                    <h2>CRN: {{course.crn}}</h2>
-                    <h2>Proffessor: {{course.instructor}}</h2>
-                    <h2>Days: {{course.days.join('')}}</h2>
-                    <h2>Times: {{course.times.join(' - ')}}</h2>
+                    <h2 class="title">ID: {{course.shortcode}} {{course.id}}</h2>
+                    <h2 class="title">CRN: {{course.crn}}</h2>
+                    <h2 class="title">Days: {{course.days.join('')}}</h2>
+                    <h2 class="title">Times: {{course.times.join(' - ')}}</h2>
                 </v-layout>
                 <v-flex sm6 class="avatar">
+                    <h2 class="text-xs-center mb-3">Instructor: {{course.instructor}}</h2>
                     <a :href="link" target="_blank"><img :src="image" class="elevation-1 proffessor-img" /></a>
                     <p v-text="bio" class="mx-3 mt-4">Proffessor Bio... and Proffessor images</p>
                 </v-flex>

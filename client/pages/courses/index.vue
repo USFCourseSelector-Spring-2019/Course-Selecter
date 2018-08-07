@@ -3,7 +3,7 @@
         <v-flex xl2 sm12 :class="['px-3', 'py-4', 'fixed-xl-and-up' ,'full-width']">
             <h1 class="text-xs-center display-1">Search Courses</h1>
             <v-layout class="my-4" :column="$vuetify.breakpoint.xsOnly">
-                <v-text-field v-model.trim="query" label="Search" append-icon="search" clearable solo color="primary"></v-text-field>
+                <v-text-field v-model.trim="tempQuery" label="Search" append-icon="search" @click:append="search" v-on:keyup.enter="search" clearable solo color="primary"></v-text-field>
                 <v-btn @click="bottomSheet=true" class="hidden-md-and-up" color="primary">
                     <v-icon left>filter_list</v-icon>Filter By
                 </v-btn>
@@ -150,6 +150,7 @@ const hydrate = doc => {
 export default {
     data() {
             return {
+                tempQuery: '',
                 query: '',
                 categories: [],
                 filters: [],
@@ -274,6 +275,9 @@ export default {
                     }
                 })
             },
+            search() {
+                this.query = this.tempQuery
+            }
         },
         computed: {
             categories_results() {
