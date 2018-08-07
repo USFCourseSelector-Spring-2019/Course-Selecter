@@ -33,13 +33,13 @@ let scrape = async() => {
     const AllProfessors = await (Promise.all(pagesToScrape.slice(0).map(async function handlePage(pageToScrape) {
         const page = getPage(pageToScrape);
         //proffesors Promise<Array<Promise<OBJ>>>
-        const proffesors = (getLinks(page).then(links => (links.map(async function(link) {
+        const proffesors = getLinks(page).then(links => links.map(async function(link) {
             try {
                 return scrapeProfesor(getPage(link), link)
             } catch (e) {
                 return false
             }
-        }))))
+        }))
 
         const linkToNextPage = await Promise.resolve(page.then(html => cheerio.load(html)).then($ => {
             return $('div.panel-pane.pane-views-panes.pane-in-content-faculty-panel-pane-1 > div > div > ul > li.pager-next > a').attr('href')
