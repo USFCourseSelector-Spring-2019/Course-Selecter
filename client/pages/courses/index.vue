@@ -1,5 +1,5 @@
 <template>
-    <v-layout row wrap>
+    <v-layout row wrap style="height:100%">
         <v-flex xl2 sm12 :class="['px-3', 'py-4', 'fixed-xl-and-up' ,'full-width']">
             <h1 class="text-xs-center display-1">Search Courses</h1>
             <v-layout class="my-4" :column="$vuetify.breakpoint.xsOnly">
@@ -8,16 +8,16 @@
                     <v-icon left>filter_list</v-icon>Filter By
                 </v-btn>
             </v-layout>
-            <div class="hidden-sm-and-down">
+            <div class="hidden-sm-and-down" style="height:100%">
                 <h2 class="headline mb-1 my-3 text-xs-center">Filter By</h2>
-                <v-layout wrap justify-center>
-                    <v-flex xl12 lg3 md4 sm6 v-for="(filter,i) in filters" :key="filter.key" :class="{'px-3':$vuetify.breakpoint.lgAndDown, 'py-3':true}">
-                        <v-autocomplete :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable color="primary" item-text="label" return-object v-if="filter.possibles.length">
+                <v-layout column align-center style="height:65%">
+                    <v-flex v-for="(filter,i) in filters" :key="filter.key" :class="{'px-3':$vuetify.breakpoint.lgAndDown}" style="width:100%">
+                        <v-autocomplete :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable color="primary" item-text="label" return-object v-if="filter.possibles.length" hide-details>
                             <template slot="item" slot-scope="data">
                                 <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
                             </template>
                         </v-autocomplete>
-                        <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
+                        <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable hide-details v-else></v-text-field>
                     </v-flex>
                 </v-layout>
             </div>
