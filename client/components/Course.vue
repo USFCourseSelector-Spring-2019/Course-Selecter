@@ -19,10 +19,9 @@
                 </v-layout>
                 <v-flex sm6 class="avatar">
                     <a :href="link" target="_blank"><img :src="image" class="elevation-1 proffessor-img" /></a>
+                    <p v-text="bio" class="mx-3 mt-4">Proffessor Bio... and Proffessor images</p>
                 </v-flex>
             </v-layout>
-            <p v-text="bio">Proffessor Bio... and Proffessor images</p>
-            <p>Course Description and any other relevant info on this course...</p>
             <v-alert :value="canAddToPlanner(course) && conflictsWith(course)[0].index!==course.index" color="error" icon="warning">
                 The course times of this course conflicts with {{conflictsWith(course).length===1?'this course:':'these courses:'}}
                 <span v-for="(conflict,i) in conflictsWith(course)" :key="conflict.index">
@@ -93,6 +92,8 @@ export default {
 <style>
 .avatar img.proffessor-img {
     width: 33%;
-    border: 1px solid white;
+    border: 1px solid #DDD;
+    margin: 0 auto;
+    display: block;
 }
 </style>

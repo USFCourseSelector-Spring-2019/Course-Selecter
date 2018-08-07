@@ -12,7 +12,7 @@
                 <h2 class="headline mb-1 my-3 text-xs-center">Filter By</h2>
                 <v-layout wrap justify-center>
                     <v-flex xl12 lg3 md4 sm6 v-for="(filter,i) in filters" :key="filter.key" :class="{'px-3':$vuetify.breakpoint.lgAndDown, 'py-3':true}">
-                        <v-autocomplete :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable color="primary" v-if="filter.possibles.length">
+                        <v-autocomplete :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable color="primary" item-text="label" return-object v-if="filter.possibles.length">
                             <template slot="item" slot-scope="data">
                                 <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
                             </template>
