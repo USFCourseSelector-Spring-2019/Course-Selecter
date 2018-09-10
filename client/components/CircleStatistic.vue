@@ -18,7 +18,7 @@
         <v-divider></v-divider>
         <v-card-actions>
             <div class="headline mx-2">{{subTitle}}</div>
-            <div class="caption pl-1">{{caption}}</div>
+            <div class="body-1 pl-1">{{caption}}</div>
         </v-card-actions>
     </v-card>
 </template>

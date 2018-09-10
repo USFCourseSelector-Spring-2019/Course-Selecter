@@ -11,7 +11,7 @@
                     </mini-statistic>
                 </v-flex>
                 <v-flex lg3 sm6 xs12>
-                    <mini-statistic icon="near_me" :title="minor||'No'" sub-title="Minor" color="red">
+                    <mini-statistic icon="near_me" :title="minor||'No'" sub-title="Minor" color="red darken-2">
                     </mini-statistic>
                 </v-flex>
                 <v-flex lg3 sm6 xs12>
@@ -28,20 +28,28 @@
                     <circle-statistic :icon="major_credits_completion===100?'done':'trending_up'" title="Major Credits Completion" :sub-title="`${major_credits_applied} / ${major_credits_required}`" caption="Credits Completed" :value="major_credits_completion" color="indigo" />
                 </v-flex>
                 <v-flex md4 sm6 xs12 v-if="minor">
-                    <circle-statistic :icon="minor_credits_completion===100?'done':'trending_up'" title="Minor Credits Completion" :sub-title="`${minor_credits_applied} / ${minor_credits_required}`" caption="Credits Completed" :value="minor_credits_completion" color="indigo" />
+                    <circle-statistic :icon="minor_credits_completion===100?'done':'trending_up'" title="Minor Credits Completion" :sub-title="`${minor_credits_applied} / ${minor_credits_required}`" caption="Credits Completed" :value="minor_credits_completion" color="red darken-2" />
                 </v-flex>
                 <v-flex md4 sm6 xs12>
-                    <v-layout :column="$vuetify.breakpoint.smAndDown" wrap justify-center align-center fill-height>
+                    <v-layout row wrap fill-height class="ma-0">
                         <v-flex sm6 xs12>
-                            <v-card color="indigo white--text" class="text-xs-center">
+                            <v-card color="green white--text" class="text-xs-center fill-height layout column justify-center align-center ma-0">
+                                <div class="headline pt-4">{{ core_requirements_left }}</div>
+                                <v-card-text>
+                                    Core Requirements Needed
+                                </v-card-text>
+                            </v-card>
+                        </v-flex>
+                        <v-flex sm6 xs12>
+                            <v-card color="indigo white--text" class="text-xs-center fill-height layout column justify-center align-center ma-0">
                                 <div class="headline pt-4">{{ major_requirements_left }}</div>
                                 <v-card-text>
                                     Major Requirements Needed
                                 </v-card-text>
                             </v-card>
                         </v-flex>
-                        <v-flex sm6 xs12 v-if="minor">
-                            <v-card color="indigo white--text" class="text-xs-center">
+                        <v-flex sm6 xs12>
+                            <v-card color="red darken-2 white--text" class="text-xs-center fill-height layout column justify-center align-center ma-0">
                                 <div class="headline pt-4">{{ minor_requirements_left }}</div>
                                 <v-card-text>
                                     Minor Requirements Needed
@@ -49,14 +57,27 @@
                             </v-card>
                         </v-flex>
                         <v-flex sm6 xs12>
-                            <v-card color="indigo white--text" class="text-xs-center">
-                                <div class="headline pt-4">{{ core_requirements_left }}</div>
+                            <v-card color="yellow darken-4 white--text" class="text-xs-center fill-height layout column justify-center align-center ma-0">
+                                <div class="headline pt-4">{{ total_requirements_left }}</div>
                                 <v-card-text>
-                                    Core Requirements Needed
+                                    Total Requirements Needed
                                 </v-card-text>
                             </v-card>
                         </v-flex>
                     </v-layout>
+                </v-flex>
+                <v-flex lg4 sm12 xs12>
+                    <v-widget title="Missing Cores">
+                        <div slot="widget-content">
+                            <v-list>
+                                <v-list-tile avatar v-for="attribute in missing_attributes" :key="attribute">
+                                    <v-list-tile-content>
+                                        <v-list-tile-title v-text="attribute"></v-list-tile-title>
+                                    </v-list-tile-content>
+                                </v-list-tile>
+                            </v-list>
+                        </div>
+                    </v-widget>
                 </v-flex>
                 <v-flex lg8 sm12 xs12>
                     <v-widget title="Progress">
@@ -66,13 +87,6 @@
                         </v-btn>
                         <div slot="widget-content">
                             You are doin' friggin fantastic keep up the good work!
-                        </div>
-                    </v-widget>
-                </v-flex>
-                <v-flex lg4 sm12 xs12>
-                    <v-widget title="Status">
-                        <div slot="widget-content">
-                            {{level}} {{major_title}} {{minor_title}}
                         </div>
                     </v-widget>
                 </v-flex>
@@ -173,20 +187,20 @@ export default {
         },
         computed: {
             total_credits_completion() {
-                return Math.min((this.total_credits_applied / this.total_credits_required * 100).toFixed(1), 100)
+                return Math.min((this.total_credits_applied / this.total_credits_required * 100).toFixed(0), 100) || 0
             },
             core_credits_completion() {
-                return Math.min((this.core_credits_applied / this.core_credits_required * 100).toFixed(1), 100)
+                return Math.min((this.core_credits_applied / this.core_credits_required * 100).toFixed(0), 100) || 0
             },
             major_credits_completion() {
-                return Math.min((this.major_credits_applied / this.major_credits_required * 100).toFixed(1), 100)
+                return Math.min((this.major_credits_applied / this.major_credits_required * 100).toFixed(0), 100) || 0
             },
             minor_credits_completion() {
-                return Math.min((this.minor_credits_applied / this.minor_credits_required * 100).toFixed(1), 100)
+                return Math.min((this.minor_credits_applied / this.minor_credits_required * 100).toFixed(0), 100) || 0
             },
             core_requirements_completion() {
                 console.log(this.number_of_core_requirements, this.missing_attributes.length)
-                return Math.min(((this.number_of_core_requirements - this.missing_attributes.length) / this.number_of_core_requirements * 100).toFixed(1), 100)
+                return Math.min(((this.number_of_core_requirements - this.missing_attributes.length) / this.number_of_core_requirements * 100).toFixed(0), 100)
             },
             core_requirements_left() {
                 return this.missing_attributes.length
@@ -200,6 +214,9 @@ export default {
                 return this.minor_missing_reqs.reduce((sum, {
                     choose
                 }) => sum + choose, 0)
+            },
+            total_requirements_left() {
+                return this.minor_requirements_left + this.major_requirements_left + this.core_requirements_left
             }
         },
         components: {
