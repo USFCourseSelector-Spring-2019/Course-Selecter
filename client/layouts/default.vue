@@ -2,7 +2,7 @@
     <v-app>
         <v-navigation-drawer v-model="drawer" temporary app disable-resize-watcher>
             <v-list>
-                <v-list-tile router :to="item.to" :key="i" v-for="(item, i) in items" exact>
+                <v-list-tile router :to="item.to" :key="i" v-for="(item, i) in links" exact>
                     <v-list-tile-action>
                         <v-icon v-html="item.icon"></v-icon>
                     </v-list-tile-action>
@@ -17,6 +17,9 @@
             <img src="/icon.png" height="50px" />
             <v-toolbar-title v-text="title"></v-toolbar-title>
             <v-spacer></v-spacer>
+            <v-btn @click.stop="logout" v-if="$auth.loggedIn" color="primary-fg" flat>
+                Sign out
+            </v-btn>
             <v-btn icon @click.stop="togglePlanner" color="primary-fg" flat>
                 <v-icon>view_list</v-icon>
             </v-btn>
@@ -39,20 +42,16 @@ export default {
             return {
                 drawer: false,
                 fixed: false,
-                items: [{
-                    icon: 'apps',
-                    title: 'Home',
-                    to: '/'
-                }, {
-                    icon: 'bubble_chart',
-                    title: 'Browse Courses',
-                    to: '/courses'
-                }],
                 title: 'USF Course Selector'
             }
         },
         mounted() {
             this.$store.dispatch('planner/loadSettings')
+        },
+        methods: {
+            async logout() {
+                await this.$auth.logout()
+            },
         },
         computed: {
             dialog() {
@@ -65,6 +64,25 @@ export default {
                 set(val) {
                     this.$store.commit('planner/' + (val ? 'showPlanner' : 'hidePlanner'))
                 }
+            },
+            links() {
+                return [{
+                    icon: 'apps',
+                    title: 'Home',
+                    to: '/'
+                }, this.$auth.loggedIn ? {
+                    icon: 'apps',
+                    title: 'Dashboard',
+                    to: '/dashboard'
+                } : {
+                    icon: 'apps',
+                    title: 'Login for more features',
+                    to: '/login'
+                }, {
+                    icon: 'bubble_chart',
+                    title: 'Browse Courses',
+                    to: '/courses'
+                }]
             }
         },
         components: {

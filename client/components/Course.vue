@@ -37,11 +37,13 @@
     </v-card>
 </template>
 <script>
-import getProfessorData from '../assets/getProfessorData'
-
 export default {
     data() {
-            getProfessorData(this.course.instructor).then(professorData => {
+            this.$api.courses.getProfessorData({
+                params: {
+                    professor_name: this.course.instructor
+                }
+            }).then(professorData => {
                 this.professor = professorData
             })
             return {

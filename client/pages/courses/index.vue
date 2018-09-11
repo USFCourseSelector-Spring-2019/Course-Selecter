@@ -53,248 +53,147 @@
 </template>
 <script>
 import Subject from '@/components/Subject'
-import getCourseData, {
-    coursesDB
-} from '@/assets/getCourseData'
-const hydrate = doc => {
-    const mapDays = {
-            M: 'Monday',
-            T: 'Tuesday',
-            W: 'Wednesday',
-            R: 'Thurdsday',
-            F: 'Friday',
-            S: 'Saturday',
-            U: 'Sunday'
-        },
-        stringify = arr => arr.map(cur => {
-            cur.label = cur.map(dayCode => mapDays[dayCode]).join(', ')
-            cur.key = cur.join('')
-            cur.toString = () => cur.key
-            return cur
-        }),
-        lm = {
-            key: 'M',
-            label: 'Mountain top',
-            toString: () => 'Mountain top'
-        },
-        av = {
-            key: true,
-            label: "Available Classes",
-            toString: () => 'Available Classes'
-        },
-        ret = Object.assign({
-            filters: [{
-                title: 'Availability',
-                key: 'available',
-                possibles: [av, {
-                    key: false,
-                    label: "Closed Classes",
-                    toString: () => 'All Classes'
-                }],
-                selected: av
-            }, {
-                title: 'Campus',
-                key: 'campus',
-                possibles: [lm, ...doc.campuses.filter(a => a.length).slice(1)],
-                selected: lm
-            }, {
-                title: 'Subject',
-                key: 'shortcode',
-                possibles: doc.categories.map(({
-                    shortcode,
-                    subject
-                }) => ({
-                    key: shortcode,
-                    label: subject,
-                    toString: () => subject
-                })),
-                selected: null
-            }, {
-                title: 'Course ID',
-                key: 'id',
-                possibles: [],
-                selected: null
-            }, {
-                title: 'Days',
-                key: 'days',
-                possibles: stringify([
-                    ['M', 'W', 'F'],
-                    ['T', 'R'],
-                    ['M', 'W'],
-                    ['W', 'F'],
-                    ['M'],
-                    ['T'],
-                    ['W'],
-                    ['R'],
-                    ['F'],
-                    ['S', 'U'],
-                    ['S'],
-                    ['U']
-                ]),
-                selected: null
-            }, {
-                title: 'Professors',
-                key: 'instructor',
-                possibles: doc.instructors.filter(a => a.length),
-                selected: null
-            }, {
-                title: 'Attributes',
-                key: 'attributes',
-                possibles: doc.attributes.filter(a => a.length),
-                selected: null,
-                every: false
-            }]
-        }, doc)
-    return ret
-}
+
 export default {
+    auth: false,
     data() {
-            return {
-                tempQuery: '',
-                query: '',
-                categories: [],
-                filters: [],
-                bottomSheet: false
-            }
-        },
-        created() {
+        return {
+            tempQuery: '',
+            query: '',
+            categories: [],
+            filters: [],
+            bottomSheet: false
+        }
+    },
+    async asyncData({
+        app: {
+            $api
+        }
+    }) {
 
-
-            /*coursesDB.changes({
-                since: 'now',
-                live: true
-            }, doc => {
-                console.log(doc)
-                Object.entries(doc).forEach(([key, value]) => this[key] = value)
-            })*/
-
-        },
-        async asyncData(context) {
-
-            const courseData = await getCourseData()
-            return hydrate(courseData)
-        },
-        watch: {
-            filters: {
-                handler: function([availableFilter, campusFilter, subjectFilter, courseFilter]) {
-                    if (subjectFilter.selected !== null) {
-                        const possibles = this.categories.find(({
-                            shortcode
-                        }) => shortcode === subjectFilter.selected.key).courses.map(({
-                            id
-                        }) => id)
-                        if (courseFilter.possibles.toString() !== possibles.toString()) {
-                            courseFilter.possibles = possibles
-                        }
-                        if (!possibles.includes(courseFilter.selected)) {
-                            courseFilter.selected = null
-                        }
-                    } else {
-                        if (courseFilter.possibles.length) {
-                            courseFilter.possibles = []
-                        }
+        return $api.courses.getAllCourses()
+    },
+    watch: {
+        filters: {
+            handler: function([availableFilter, campusFilter, subjectFilter, courseFilter]) {
+                if (subjectFilter.selected !== null) {
+                    const possibles = this.categories.find(({
+                        shortcode
+                    }) => shortcode === subjectFilter.selected.key).courses.map(({
+                        id
+                    }) => id)
+                    if (courseFilter.possibles.toString() !== possibles.toString()) {
+                        courseFilter.possibles = possibles
                     }
-                },
-                deep: true
-            }
-        },
-        methods: {
-            filtered(category, query) {
-                const [availableFilter, campusFilter, subjectFilter, courseFilter] = this.filters
-                const filters = this.filters.filter(({
-                    selected
-                }) => selected !== null)
-
-                if (query && (category.subject.toLowerCase().includes(query) || category.shortcode.toLowerCase().includes(query))) {
-                    return {
-                        ...category
+                    if (!possibles.includes(courseFilter.selected)) {
+                        courseFilter.selected = null
                     }
-                }
-                const courses = category.courses.map((course, i) => {
-                    const classes = course.classes.reduce((arr, classy) => {
-                        if (filters.every(({
-                                selected,
-                                key,
-                                every = true
-                            }) => {
-                                let compareTo, comparator;
-                                if (!Array.isArray(classy[key])) {
-                                    compareTo = [classy[key]]
-                                } else {
-                                    compareTo = classy[key]
-                                }
-                                if (every) {
-                                    comparator = 'every'
-                                } {
-                                    comparator = 'some'
-                                }
-                                return (Array.isArray(selected) ? selected : compareTo)[comparator]((value, i) => {
-                                    if (typeof selected == 'string' || selected === null) {
-                                        return value === selected
-                                    }
-                                    if (Array.isArray(selected)) {
-                                        return selected.length === compareTo.length && value === compareTo[i]
-                                    }
-                                    return value === selected.key
-                                })
-
-                            }) && this.searchWithin(classy, query)) {
-                            arr.push(classy)
-                        }
-                        return arr
-                    }, [])
-                    return {...course,
-                        classes
+                } else {
+                    if (courseFilter.possibles.length) {
+                        courseFilter.possibles = []
                     }
-                }).filter(course => course.classes.length)
-                if (!courses.length) {
-                    return false
-                }
-                return {...category,
-                    courses
                 }
             },
-            searchWithin(course, str) {
-                if (!str.length) {
-                    return true
-                }
-                return Object.values(course).some(val => {
-                    if (Array.isArray(val)) {
-                        return this.searchWithin(val, str)
-                    }
-                    if (typeof val === 'number') {
-                        return val.toString().includes(str)
-                    }
-                    if (typeof val === 'boolean') {
-                        return false
-                    }
-                    if (typeof val === 'string') {
-                        return val.toLowerCase().includes(str)
-                    } else {
-                        return this.searchWithin(val, str)
-                    }
-                })
-            },
-            search() {
-                this.query = this.tempQuery
-            }
-        },
-        computed: {
-            categories_results() {
-                const query = (this.query || '').trim().toLowerCase()
-                return this.categories.reduce((arr, category, index) => {
-                    const resp = this.filtered(category, query)
-                    if (resp !== false) {
-                        arr.push(resp)
-                    }
+            deep: true
+        }
+    },
+    methods: {
+        filtered(category, query) {
+            const [availableFilter, campusFilter, subjectFilter, courseFilter] = this.filters
+            const filters = this.filters.filter(({
+                selected
+            }) => selected !== null)
 
+            if (query && (category.subject.toLowerCase().includes(query) || category.shortcode.toLowerCase().includes(query))) {
+                return {
+                    ...category
+                }
+            }
+            const courses = category.courses.map((course, i) => {
+                const classes = course.classes.reduce((arr, classy) => {
+                    if (filters.every(({
+                            selected,
+                            key,
+                            every = true
+                        }) => {
+                            let compareTo, comparator;
+                            if (!Array.isArray(classy[key])) {
+                                compareTo = [classy[key]]
+                            } else {
+                                compareTo = classy[key]
+                            }
+                            if (every) {
+                                comparator = 'every'
+                            } {
+                                comparator = 'some'
+                            }
+                            return (Array.isArray(selected) ? selected : compareTo)[comparator]((value, i) => {
+                                if (typeof selected == 'string' || selected === null) {
+                                    return value === selected
+                                }
+                                if (Array.isArray(selected)) {
+                                    return selected.length === compareTo.length && value === compareTo[i]
+                                }
+                                return value === selected.key
+                            })
+
+                        }) && this.searchWithin(classy, query)) {
+                        arr.push(classy)
+                    }
                     return arr
                 }, [])
+                return {...course,
+                    classes
+                }
+            }).filter(course => course.classes.length)
+            if (!courses.length) {
+                return false
+            }
+            return {...category,
+                courses
             }
         },
-        components: {
-            Subject
+        searchWithin(course, str) {
+            if (!str.length) {
+                return true
+            }
+            return Object.values(course).some(val => {
+                if (Array.isArray(val)) {
+                    return this.searchWithin(val, str)
+                }
+                if (typeof val === 'number') {
+                    return val.toString().includes(str)
+                }
+                if (typeof val === 'boolean') {
+                    return false
+                }
+                if (typeof val === 'string') {
+                    return val.toLowerCase().includes(str)
+                } else {
+                    return this.searchWithin(val, str)
+                }
+            })
+        },
+        search() {
+            this.query = this.tempQuery
         }
+    },
+    computed: {
+        categories_results() {
+            const query = (this.query || '').trim().toLowerCase()
+            return this.categories.reduce((arr, category, index) => {
+                const resp = this.filtered(category, query)
+                if (resp !== false) {
+                    arr.push(resp)
+                }
+
+                return arr
+            }, [])
+        }
+    },
+    components: {
+        Subject
+    }
 }
 </script>
 <style>

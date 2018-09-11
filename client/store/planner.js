@@ -71,7 +71,7 @@ export const actions = {
         ls('plans', plans)
         ls('plan', plan)
     },
-    async loadSettings({ commit }) {
+    async loadSettings({ commit, rootState }) {
         const plans = ls('plans')
         if (plans) {
             await commit('setPlans', plans)

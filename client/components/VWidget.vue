@@ -1,6 +1,6 @@
 <template>
-    <div id="v-widget">
-        <v-card>
+    <div id="v-widget" class="full-height">
+        <v-card class="full-height">
             <v-toolbar color="transparent" flat dense card v-if="enableHeader">
                 <v-toolbar-title>
                     <h3 class="headline">{{title}}</h3>

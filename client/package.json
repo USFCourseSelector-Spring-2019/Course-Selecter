@@ -5,19 +5,28 @@
   "author": "Nick Perez <nperez0111@gmail.com>",
   "private": true,
   "scripts": {
-    "dev": "nuxt",
+    "dev": "nodemon --watch api --watch api_helpers --exec \"nuxt\"",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
     "couch": "couchdb"
   },
   "dependencies": {
+    "@nuxtjs/auth": "^4.5.1",
+    "@nuxtjs/axios": "^5.3.1",
     "@nuxtjs/pwa": "^2.0.8",
+    "@nuxtjs/vuetify": "^0.4.2",
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
+    "express-jwt": "^5.3.1",
     "local-storage": "^1.4.2",
     "moment": "^2.22.2",
     "moment-range": "^4.0.1",
+    "node-sass": "^4.9.3",
     "nuxt": "npm:nuxt-edge",
+    "nuxt-neo": "^2.0.2",
     "pouchdb": "^6.4.3",
+    "sass-loader": "^7.1.0",
     "vuetify": "^1.0.19"
   },
   "devDependencies": {
@@ -31,6 +40,7 @@
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
+    "nodemon": "^1.18.4",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2"
   }

@@ -1,0 +1,43 @@
+.full-height{
+	height:100% !important;
+}
+.full-width{
+	width:100% !important;
+}
+.hide-overflow{
+	overflow: hidden;
+}
+.expander{ 
+	transform-origin: top;
+	transition: all 0.26s ease;
+	&.opened{ 
+		transform: scaleY(1);
+		height:100%;
+	} 
+	&.closed{
+		transform: scaleY(0);
+		height:0;
+	}
+}
+
+.page-enter-active, .page-leave-active{
+	transition: all 0.35s;
+}
+
+.page-enter, .page-leave-active{
+	opacity:0;
+}
+
+.settle-in{
+	animation: .7s ease-in-out 0s 1 slideInFromTop;
+}
+
+
+@keyframes slideInFromTop {
+  0% {
+    transform: translateY(-50px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}

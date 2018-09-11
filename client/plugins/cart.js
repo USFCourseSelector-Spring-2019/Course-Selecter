@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { mapGetters, mapActions, mapMutations } from 'vuex'
-import PouchDB from 'pouchdb'
+import expander from '@/components/Expander';
 import Moment from 'moment';
 import {
     extendMoment
@@ -79,3 +79,11 @@ const Cart = {
 }
 
 Vue.use(Cart, {})
+Vue.component('expander',expander)
+Vue.directive('focus', {
+    // When the bound element is inserted into the DOM...
+    inserted: function(el) {
+        // Focus the element
+        el.focus()
+    }
+})
