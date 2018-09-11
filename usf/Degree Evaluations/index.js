@@ -3,7 +3,7 @@ const cheerio = require('cheerio'),
     fs = require('fs'),
     path = require('path'),
     execa = require('execa'),
-    FILE_NAME = './bensu-degree-eval.pdf'
+    FILE_NAME = './degree-eval.pdf'
 
 function rmbr(line) {
     return line.replace('<br>', '')
@@ -11,6 +11,25 @@ function rmbr(line) {
 
 function loadFile(file) {
     return Promise.resolve(execa.stdout('pdftohtml', ['-stdout', '-q', file]))
+}
+
+function toCourseNames(line) {
+    const classes = []
+    const result = /([\d]+) (?:Class(?:es)?)? in ([A-Z]+) (\d+)(?:\*)?(?: and ([\d]+))*(?: or @ @ (ATTRIBUTE = (?:\w+)))*/.exec(line)
+    if (result === null) {
+        classes.push(line)
+    } else {
+        const [whole, numberOfClasses, subject_prefix, first_num, second_num, or_attribute] = result
+        if (numberOfClasses === '1') {
+            classes.push(subject_prefix + first_num)
+        } else if (numberOfClasses === '2') {
+            classes.push(subject_prefix + first_num + " & " + subject_prefix + second_num)
+        }
+        if (or_attribute) {
+            classes[classes.length - 1] += ' | ' + or_attribute
+        }
+    }
+    return classes
 }
 
 function scraper(doTheThing) {
@@ -34,18 +53,25 @@ function scraper(doTheThing) {
                 'Complete one of the following:'
             ],
             obj = {
-                missing_attributes: []
+                missing_attributes: [],
+                major_missing_reqs: [],
+                minor_missing_reqs: [],
+                minor:false
             },
-            isStillNeeded=line=>rmbr(line)==='Still Needed:',
-            major_minor_reqs = type => (line,i,lines)=>{
-                    if(isStillNeeded(lines[i+1])){
-                        const section_title = rmbr(lines[i+2]).slice(4,-8)
-                        console.log(`${section_title}`)
-                        searchFor[`${section_title}`]=(line,i,lines)=>{
-                            obj[`${type==='Major'?'major':'minor'}_credits_required`]=parseInt(rmbr(lines[i-1]))
-                            obj[`${type==='Major'?'major':'minor'}_credits_applied`]=parseInt(rmbr(lines[i+4]))
-                        }
+            isStillNeeded = line => rmbr(line) === 'Still Needed:',
+            major_minor_reqs = type => (line, i, lines) => {
+                if (isStillNeeded(lines[i + 1])) {
+                    const section_title = rmbr(lines[i + 2]).slice(4, -8)
+                    //console.log(`${section_title}`)
+                    obj[type==='Major'?'major_title':'minor_title']=section_title
+
+                    searchFor[`${section_title}`] = (line, i, lines) => {
+                        obj[`${type==='Major'?'major':'minor'}_credits_required`] = parseInt(rmbr(lines[i - 1]))
+                        obj[`${type==='Major'?'major':'minor'}_credits_applied`] = parseInt(rmbr(lines[i + 4]))
+                        return type
                     }
+
+                }
             },
             searchFor = {
                 'Student': (line, i, lines) => {
@@ -81,27 +107,65 @@ function scraper(doTheThing) {
 
 
                 },
-                'Major Requirements':major_minor_reqs('Major'),
-                'Minor Requirements':major_minor_reqs('Minor'),
+                'Major Requirements': major_minor_reqs('Major'),
+                'Minor Requirements': major_minor_reqs('Minor'),
             }
         core_attributes.forEach(attribute => {
             searchFor[attribute] = (line, i, lines) => {
                 const courseThatSatifiesRequirement = lines[i + 1]
                 if (isStillNeeded(courseThatSatifiesRequirement)) {
                     const missingAttribute = rmbr(attribute)
-                    if(!obj.missing_attributes.includes(missingAttribute)){
+                    if (!obj.missing_attributes.includes(missingAttribute)) {
                         obj.missing_attributes.push(missingAttribute)
                     }
                 }
             }
         })
+        const lines = text.split('\n')
+        let startAt = -1,
+            choosingNumberOf = false;
+        for (let i = 0; i < lines.length; i++) {
+            const line = rmbr(lines[i]),
+                type_of_missing_reqs = `${startAt==='Major'?'major':'minor'}_missing_reqs`
 
-        text.split('\n').forEach((line, i, lines) => {
-            //console.log(i, line)
-            if (rmbr(line) in searchFor) {
-                searchFor[rmbr(line)](line, i, lines)
+            console.log(i, line)
+            if (startAt === -1 || line === 'Major Requirements' || line === 'Minor Requirements') {
+                if (line in searchFor) {
+                    const shouldBreakAt = searchFor[line](line, i, lines)
+                    if (shouldBreakAt) {
+                        startAt = shouldBreakAt
+                        console.log("BROKE AT:", shouldBreakAt)
+                    }
+                }
+            } else {
+                if (isStillNeeded(line)) {
+                    const classNeeeded = rmbr(lines[i + 1])
+                    if (choosingNumberOf) {
+                        const classesToChooseFrom = obj[type_of_missing_reqs].slice(-1)[0].classes
+
+                        classesToChooseFrom.push.apply(classesToChooseFrom, toCourseNames(classNeeeded))
+
+                        if (!classNeeeded.endsWith("or")) {
+                            choosingNumberOf = false
+                        }
+                    } else {
+                        if (/Choose from ([\d]+) of the following:/.test(classNeeeded)) {
+                            const [whole, numberOf] = /Choose from ([\d]+) of the following:/.exec(classNeeeded)
+                            choosingNumberOf = parseInt(numberOf)
+                            obj[type_of_missing_reqs].push({
+                                classes: [],
+                                choose: choosingNumberOf
+                            })
+                        } else {
+                            obj[type_of_missing_reqs].push({
+                                classes: toCourseNames(classNeeeded),
+                                choose: 1
+                            })
+                        }
+                    }
+                }
             }
-        })
+        }
 
         return obj
     }).then(results => write(path.resolve(__dirname, './degree-eval.json'), results).then(() => results)).catch((err) => { console.log("welp something went wrong", err) })
@@ -111,6 +175,6 @@ if (!module.parent) {
     //scraper(()=>loadFile('./all-classes.html'))
     scraper(() => loadFile(path.resolve(__dirname, FILE_NAME)))
 }
-module.exports = () => scraper(() => getHTML())
+module.exports = (file) => scraper(() => loadFile(path.resolve(__dirname, file)))
 module.exports.scraper = scraper
 module.exports.loadFile = () => scraper(() => loadFile(path.resolve(__dirname, FILE_NAME)))
