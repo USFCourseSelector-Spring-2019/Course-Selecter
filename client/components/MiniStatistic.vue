@@ -4,7 +4,7 @@
             <v-flex xs6 class="layout column ma-0 justify-center align-center">
                 <v-icon size="56px" :color="color">{{icon}}</v-icon>
             </v-flex>
-            <v-flex xs6 :class="`layout column ma-0 px-0 justify-center align-center text-sm-center white--text ${color}`">
+            <v-flex xs6 :class="`layout column ma-0 px-1 justify-center align-center text-sm-center white--text ${color}`">
                 <div class="headline">{{ title }}</div>
                 <span class="caption">{{ subTitle }}</span>
             </v-flex>

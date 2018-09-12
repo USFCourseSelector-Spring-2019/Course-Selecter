@@ -46,7 +46,9 @@ export default {
             }
         },
         mounted() {
-            this.$store.dispatch('planner/loadSettings')
+            this.$store.dispatch('planner/loadSettings', {
+                $api: this.$api
+            })
         },
         methods: {
             async logout() {

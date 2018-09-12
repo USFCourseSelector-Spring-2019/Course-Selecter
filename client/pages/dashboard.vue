@@ -22,7 +22,7 @@
                     <circle-statistic :icon="total_credits_completion===100?'done':'trending_up'" title="Total Credits Completion" :sub-title="`${total_credits_applied} / ${total_credits_required}`" caption="Credits Completed" :value="total_credits_completion" color="yellow darken-4" />
                 </v-flex>
                 <v-flex md4 sm6 xs12>
-                    <circle-statistic :icon="core_credits_completion===100?'done':'trending_up'" title="Core Requirements Completion" :sub-title="`${number_of_core_requirements-missing_attributes.length} of ${number_of_core_requirements}`" caption="Requirements Completed" :value="core_requirements_completion" color="green" />
+                    <circle-statistic :icon="core_requirements_completion===100?'done':'trending_up'" title="Core Requirements Completion" :sub-title="`${number_of_core_requirements-missing_attributes.length} of ${number_of_core_requirements}`" caption="Requirements Completed" :value="core_requirements_completion" color="green" />
                 </v-flex>
                 <v-flex md4 sm6 xs12>
                     <circle-statistic :icon="major_credits_completion===100?'done':'trending_up'" title="Major Credits Completion" :sub-title="`${major_credits_applied} / ${major_credits_required}`" caption="Credits Completed" :value="major_credits_completion" color="indigo" />
@@ -79,7 +79,35 @@
                         </div>
                     </v-widget>
                 </v-flex>
-                <v-flex md6 sm12 xs12>
+                <v-flex md4 sm12 xs12>
+                    <v-widget title="Missing Major Requirements">
+                        <div slot="widget-content">
+                            <div v-for="(reqs,i) in major_missing_reqs" :key="reqs.classes[0]">
+                                <v-subheader class="pl-0">Requirement #{{i+1}}{{`${reqs.choose>1||reqs.classes.length>1?' - Choose '+reqs.choose:''}`}}</v-subheader>
+                                <v-layout row wrap>
+                                    <v-flex v-for="req in reqs.classes" :key="req" md4 xs6>
+                                        {{req}}
+                                    </v-flex>
+                                </v-layout>
+                            </div>
+                        </div>
+                    </v-widget>
+                </v-flex>
+                <v-flex md4 sm12 xs12 v-if="minor_missing_reqs.length">
+                    <v-widget title="Missing Minor Requirements">
+                        <div slot="widget-content">
+                            <v-list v-for="(reqs,i) in minor_missing_reqs" :key="reqs.classes[0]">
+                                <v-subheader>Requirement #{{i+1}}{{`${reqs.choose>1?'Choose '+reqs.choose:''}`}}</v-subheader>
+                                <v-list-tile v-for="req in reqs.classes" :key="req">
+                                    <v-list-tile-content>
+                                        <v-list-tile-title v-text="req"></v-list-tile-title>
+                                    </v-list-tile-content>
+                                </v-list-tile>
+                            </v-list>
+                        </div>
+                    </v-widget>
+                </v-flex>
+                <v-flex md4 sm12 xs12>
                     <v-widget title="Progress">
                         <v-btn slot="widget-header-action" flat>
                             <span>Update Info</span>

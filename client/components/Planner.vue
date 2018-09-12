@@ -53,10 +53,10 @@
                     <v-card-text>
                         <v-layout column>
                             <v-layout v-for="(curPlan,i) in plans" :key="i">
-                                <v-text-field :value="curPlan.title" :label="`Plan #${i+1}`" @change="title=>$store.commit('planner/setTitleOf',{title,index:i})"></v-text-field>
-                                <v-btn @click.native.stop="$store.commit('planner/setCurPlan',i)" :disabled="$store.getters['planner/currentPlan']===curPlan" color="primary">{{$store.getters['planner/currentPlan']===curPlan?'Is Current Plan':'Set as Current Plan'}}</v-btn>
+                                <v-text-field :value="curPlan.title" :label="`Plan #${i+1}`" @change="title=>$store.dispatch('planner/setTitleOf',{payload:{title,index:i},$api})"></v-text-field>
+                                <v-btn @click.native.stop="$store.dispatch('planner/setCurPlan',{payload:i,$api})" :disabled="$store.getters['planner/currentPlan']===curPlan" color="primary">{{$store.getters['planner/currentPlan']===curPlan?'Is Current Plan':'Set as Current Plan'}}</v-btn>
                                 <v-tooltip bottom>
-                                    <v-btn @click.native.stop="$store.commit('planner/removePlan',i)" icon flat slot="activator">
+                                    <v-btn @click.native.stop="$store.dispatch('planner/removePlan',{payload:i,$api})" icon flat slot="activator">
                                         <v-icon>close</v-icon>
                                     </v-btn>
                                     <span>Delete {{curPlan.title}}</span>
@@ -64,7 +64,7 @@
                             </v-layout>
                         </v-layout>
                         <v-tooltip top>
-                            <v-btn @click.native.stop="$store.commit('planner/addPlan',{title: `Plan #${plans.length+1}`,courses: []})" color="primary" slot="activator">
+                            <v-btn @click.native.stop="$store.dispatch('planner/addPlan',{payload:{title: `Plan #${plans.length+1}`,courses: []},$api})" color="primary" slot="activator">
                                 <v-icon left>add</v-icon>
                                 Add A Plan
                             </v-btn>

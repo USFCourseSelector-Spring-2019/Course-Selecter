@@ -1,11 +1,12 @@
-import PouchDB from 'pouchdb'
+import nano from 'nano'
 //is firing a lot?
 const { getUser, constants } = require('../api_helpers')
 class CoursesController {
     constructor(request) {
         this.request = request
         this.user = getUser(request)
-        this.coursesDB = new PouchDB( /*context.isDev*/ true ? 'http://localhost:5984/usf' : 'http://db.courseselector.com/usf')
+        this.nano = new nano( /*context.isDev*/ true ? 'http://localhost:5984/' : 'http://db.courseselector.com/')
+        this.coursesDB = this.nano.use('usf')
     }
     async getAllCourses() {
         const doc = await this.coursesDB.get('courses'),
@@ -99,7 +100,7 @@ class CoursesController {
             }, doc)
         return ret
     }
-    async getProfessorData({params:{professor_name}}) {
+    async getProfessorData({ params: { professor_name } }) {
         try {
             return await this.coursesDB.get('Proffessor - ' + professor_name)
         } catch (e) {
@@ -113,9 +114,9 @@ CoursesController.ROUTES = {
         path: '/all-courses',
         verb: 'GET'
     },
-    getProfessorData:{
+    getProfessorData: {
         path: '/:professor_name/info',
-        verb:'GET'
+        verb: 'GET'
     }
 }
 

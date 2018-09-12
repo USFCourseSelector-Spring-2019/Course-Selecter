@@ -27,12 +27,10 @@ const Cart = {
                 ...mapActions('planner', {
                     showCourses: 'showCourseView',
                     showSchedule: 'showCalendarView',
-
                 }),
                 ...mapMutations('planner', {
                     hidePlanner: 'hidePlanner',
                     togglePlanner: 'togglePlanner',
-                    addPlan: 'addPlan'
                 }),
                 showPlanner(showCourses) {
                     if (this.$store.state.planner.curTab === 2) {

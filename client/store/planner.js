@@ -65,17 +65,53 @@ export const actions = {
         await commit('setTab', 1)
         await commit('showPlanner')
     },
-    async saveSettings({ state, rootState }) {
+    async saveSettings({ state, rootState: { auth: { loggedIn, user } } }, { $api }) {
         const { plans, plan } = state
         //Store these settings to the user in the db and localstorage or just localstorage if not logged in
-        ls('plans', plans)
-        ls('plan', plan)
-    },
-    async loadSettings({ commit, rootState }) {
-        const plans = ls('plans')
-        if (plans) {
-            await commit('setPlans', plans)
+        if (loggedIn) {
+            try {
+                console.log($api)
+                await $api.auth.savePlans({ body: { plans, plan } })
+            } catch (e) {
+                console.log('Failed to save plans with error:', e)
+            }
+        } else {
+            ls('plans', plans)
+            ls('plan', plan)
         }
-        await commit('setCurPlan', ls('plan') || 0)
+    },
+    async addPlan({ commit, dispatch }, { payload, $api }) {
+        await commit('addPlan', payload)
+        await dispatch('saveSettings', { $api })
+    },
+    async setTitleOf({ commit, dispatch }, { payload, $api }) {
+        await commit('setTitleOf', payload)
+        await dispatch('saveSettings', { $api })
+    },
+    async setCurPlan({ commit, dispatch }, { payload, $api }) {
+        await commit('setCurPlan', payload)
+        await dispatch('saveSettings', { $api })
+    },
+    async removePlan({ commit, dispatch }, { payload, $api }) {
+        await commit('removePlan', payload)
+        await dispatch('saveSettings', { $api })
+    },
+    async loadSettings({
+        commit,
+        rootState: { auth: { loggedIn, user } }
+    }, { $api }) {
+        if (loggedIn) {
+            const { plans, plan } = await $api.auth.getPlans()
+            if (plans && plans.length) {
+                await commit('setPlans', plans)
+            }
+            await commit('setCurPlan', plan || 0)
+        } else {
+            const plans = ls('plans')
+            if (plans) {
+                await commit('setPlans', plans)
+            }
+            await commit('setCurPlan', ls('plan') || 0)
+        }
     }
 }
