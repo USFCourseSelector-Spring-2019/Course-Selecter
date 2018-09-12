@@ -1,8 +1,8 @@
-const puppeteer = require('puppeteer');
+  const puppeteer = require('puppeteer');
 const CREDS = require('../creds')
 
 let scrape = async() => {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     console.log("Scraping with the browser...")
     await page.goto('https://usfcas.usfca.edu/cas/login?service=https%3A%2F%2Faphrodite01.usfca.edu%3A8010%2Fssomanager%2Fc%2FSSB%3Fpkg%3Dhttps%3A%2F%2Fhebe.usfca.edu%2Fprod%2Ftwbkwbis.P_GenMenu%3Fname%3Dbmenu.P_StuMainMnu');
@@ -11,7 +11,7 @@ let scrape = async() => {
     await page.click('#password');
     await page.keyboard.type(CREDS.password);
     await Promise.all([
-        page.click('#fm1 > div.row.btn-row > input.btn-submit'),
+        page.click('button.sign-in-submit-btn'),
         page.waitForNavigation()
     ])
     await Promise.all([

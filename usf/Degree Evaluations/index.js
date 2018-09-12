@@ -3,7 +3,7 @@ const cheerio = require('cheerio'),
     fs = require('fs'),
     path = require('path'),
     execa = require('execa'),
-    FILE_NAME = './degree-eval.pdf'
+    FILE_NAME = './bensu-degree-eval.pdf'
 
 function rmbr(line) {
     return line.replace('<br>', '')
@@ -13,7 +13,7 @@ function loadFile(file) {
     return Promise.resolve(execa.stdout('pdftohtml', ['-stdout', '-q', file]))
 }
 
-function toCourseNames(line) {
+function toCourseNames(line, i, lines) {
     const classes = []
     const result = /([\d]+) (?:Class(?:es)?)? in ([A-Z]+) (\d+)(?:\*)?(?: and ([\d]+))*(?: or @ @ (ATTRIBUTE = (?:\w+)))*/.exec(line)
     if (result === null) {
@@ -21,12 +21,21 @@ function toCourseNames(line) {
     } else {
         const [whole, numberOfClasses, subject_prefix, first_num, second_num, or_attribute] = result
         if (numberOfClasses === '1') {
-            classes.push(subject_prefix + first_num)
+            classes.push({
+                CRN: subject_prefix + first_num,
+                name: rmbr(lines[i - 1])
+            })
         } else if (numberOfClasses === '2') {
-            classes.push(subject_prefix + first_num + " & " + subject_prefix + second_num)
+            classes.push({
+                CRN: [subject_prefix + first_num, subject_prefix + second_num],
+                name: rmbr(lines[i - 1])
+            })
         }
         if (or_attribute) {
-            classes[classes.length - 1] += ' | ' + or_attribute
+            classes.push({
+                Attribute: or_attribute,
+                name: lines[i - 1]
+            })
         }
     }
     return classes
@@ -56,14 +65,14 @@ function scraper(doTheThing) {
                 missing_attributes: [],
                 major_missing_reqs: [],
                 minor_missing_reqs: [],
-                minor:false
+                minor: false
             },
             isStillNeeded = line => rmbr(line) === 'Still Needed:',
             major_minor_reqs = type => (line, i, lines) => {
                 if (isStillNeeded(lines[i + 1])) {
                     const section_title = rmbr(lines[i + 2]).slice(4, -8)
                     //console.log(`${section_title}`)
-                    obj[type==='Major'?'major_title':'minor_title']=section_title
+                    obj[type === 'Major' ? 'major_title' : 'minor_title'] = section_title
 
                     searchFor[`${section_title}`] = (line, i, lines) => {
                         obj[`${type==='Major'?'major':'minor'}_credits_required`] = parseInt(rmbr(lines[i - 1]))
@@ -143,7 +152,7 @@ function scraper(doTheThing) {
                     if (choosingNumberOf) {
                         const classesToChooseFrom = obj[type_of_missing_reqs].slice(-1)[0].classes
 
-                        classesToChooseFrom.push.apply(classesToChooseFrom, toCourseNames(classNeeeded))
+                        classesToChooseFrom.push.apply(classesToChooseFrom, toCourseNames(classNeeeded, i, lines))
 
                         if (!classNeeeded.endsWith("or")) {
                             choosingNumberOf = false
@@ -158,7 +167,7 @@ function scraper(doTheThing) {
                             })
                         } else {
                             obj[type_of_missing_reqs].push({
-                                classes: toCourseNames(classNeeeded),
+                                classes: toCourseNames(classNeeeded, i, lines),
                                 choose: 1
                             })
                         }

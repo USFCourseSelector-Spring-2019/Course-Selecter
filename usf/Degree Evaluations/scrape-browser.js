@@ -10,7 +10,7 @@ const waitForLoad = (page) => new Promise((resolve) => {
 })
 
 let scrape = async() => {
-    const browser = await puppeteer.launch({ headless: true,ignoreHTTPSErrors:true });
+    const browser = await puppeteer.launch({ headless: false,ignoreHTTPSErrors:true });
     const page = await browser.newPage();
     console.log("Scraping with the browser...")
     await page.goto('https://usfcas.usfca.edu/cas/login?service=https%3A%2F%2Faphrodite01.usfca.edu%3A8010%2Fssomanager%2Fc%2FSSB%3Fpkg%3Dhttps%3A%2F%2Fhebe.usfca.edu%2Fprod%2Ftwbkwbis.P_GenMenu%3Fname%3Dbmenu.P_StuMainMnu');
