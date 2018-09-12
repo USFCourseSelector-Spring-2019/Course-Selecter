@@ -15,7 +15,7 @@ function loadFile(file) {
 
 function toCourseNames(line, i, lines) {
     const classes = []
-    const result = /([\d]+) (?:Class(?:es)?)? in ([A-Z]+) (\d+)(?:\*)?(?: and ([\d]+))*(?: or @ @ (ATTRIBUTE = (?:\w+)))*/.exec(line)
+    const result = /([\d]+) (?:Class(?:es)?)? in ([A-Z]+) (\d+)(?:\*)?(?: and ([\d]+))*(?: or @ @ (?:ATTRIBUTE = (\w+)))*/.exec(line)
     if (result === null) {
         classes.push(line)
     } else {
@@ -33,8 +33,9 @@ function toCourseNames(line, i, lines) {
         }
         if (or_attribute) {
             classes.push({
-                Attribute: or_attribute,
-                name: lines[i - 1]
+                attribute: true,
+                CRN: or_attribute,
+                name: `Course with attribute: ${or_attribute}`
             })
         }
     }

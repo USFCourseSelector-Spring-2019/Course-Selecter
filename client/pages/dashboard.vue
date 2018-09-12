@@ -85,8 +85,8 @@
                             <div v-for="(reqs,i) in major_missing_reqs" :key="reqs.classes[0]">
                                 <v-subheader class="pl-0">Requirement #{{i+1}}{{`${reqs.choose>1||reqs.classes.length>1?' - Choose '+reqs.choose:''}`}}</v-subheader>
                                 <v-layout row wrap>
-                                    <v-flex v-for="req in reqs.classes" :key="req" md4 xs6>
-                                        {{req}}
+                                    <v-flex v-for="req in reqs.classes" :key="req.CRN" md4 xs6>
+                                        {{req.name}}
                                     </v-flex>
                                 </v-layout>
                             </div>

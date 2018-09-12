@@ -238,8 +238,9 @@
 					"name": "Seminar in Biology"
 				},
 				{
-					"Attribute": "ATTRIBUTE = BIST",
-					"name": "Seminar in Biology<br>"
+					"attribute": true,
+					"CRN": "BIST",
+					"name": "Course with attribute: BIST"
 				}
 			],
 			"choose": 1
