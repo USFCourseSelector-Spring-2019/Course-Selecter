@@ -9,7 +9,8 @@ class CoursesController {
         this.coursesDB = this.nano.use('usf')
     }
     async getAllCourses() {
-        const doc = await this.coursesDB.get('courses'),
+        const { current_semester } = await this.coursesDB.get('courses')
+        const doc = await this.coursesDB.get(current_semester),
             mapDays = {
                 M: 'Monday',
                 T: 'Tuesday',
@@ -40,7 +41,7 @@ class CoursesController {
                     possibles: [av, {
                         key: false,
                         label: "Closed Classes",
-                        string:'All Classes'
+                        string: 'All Classes'
                     }],
                     selected: null
                 }, {
