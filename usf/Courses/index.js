@@ -33,7 +33,7 @@ function scraper(doTheThing) {
                 subjects: [],
                 campuses: [],
                 categories: [],
-                count:-1
+                count: -1
             }
 
         function transformVal(val, key, index, row, headers) {
@@ -69,7 +69,7 @@ function scraper(doTheThing) {
                     return ['title', val]
                 },
                 Instructor: (val) => {
-                    val = val.split(" ").filter(a => a.length&&a!=='(P)').join(" ")
+                    val = val.split(" ").filter(a => a.length && a !== '(P)').join(" ")
                     if (!criteria.instructors.includes(val)) {
                         if (val && val !== "TBA" && val.length) {
                             criteria.instructors.push(val)
@@ -78,7 +78,7 @@ function scraper(doTheThing) {
                     return ['instructor', val]
                 },
                 Attribute: (val) => {
-                    return ['attributes',val.split(" and ").map(attr => {
+                    return ['attributes', val.split(" and ").map(attr => {
                         if (!criteria.attributes.includes(attr) && attr.length) {
                             criteria.attributes.push(attr)
                         }
@@ -138,13 +138,13 @@ function scraper(doTheThing) {
                         }
                         return obj
                     }, {})
-                    if(!obj.crn || obj.crn===''){
+                    if (!obj.crn || obj.crn === '') {
                         return arr
                     }
-                    obj.subject = criteria.categories[criteria.categories.length - 1].subject
-                    obj.index=criteria.count++
+                    obj.subject = criteria.categories[criteria.categories.length - 1].subject;
+                    obj.index = criteria.count++;
                     currentCat.courses[currentCat.courses.length - 1].classes.push(obj)
-                    
+
                     return arr.concat(obj)
                 }
             }
@@ -160,12 +160,12 @@ function scraper(doTheThing) {
         }
         console.log("Transformed Successfully!")
         return obj
-    }).then(results => write(path.resolve(__dirname, './courses.json'), results).then(() => console.log('Wrote Results to File')||results)).catch((err) => { console.log("welp something went wrong", err) })
+    })
 }
 
 if (!module.parent) {
     //scraper(()=>loadFile('./all-classes.html'))
-    scraper(() => loadFile(path.resolve(__dirname, './all-classes.html')))
+    scraper(() => loadFile(path.resolve(__dirname, './all-classes.html'))).then(results => write(path.resolve(__dirname, './courses.json'), results).then(() => console.log('Wrote Results to File') || results)).catch((err) => { console.log("welp something went wrong", err) })
 }
 module.exports = () => scraper(() => getHTML())
 module.exports.scraper = scraper
