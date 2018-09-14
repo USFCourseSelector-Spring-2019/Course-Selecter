@@ -27,13 +27,11 @@ class CoursesController {
             }),
             lm = {
                 key: 'M',
-                label: 'Mountain top',
-                toString: () => 'Mountain top'
+                label: 'Mountain top'
             },
             av = {
                 key: true,
-                label: "Available Classes",
-                toString: () => 'Available Classes'
+                label: "Available Classes"
             },
             ret = Object.assign({
                 filters: [{
@@ -42,9 +40,9 @@ class CoursesController {
                     possibles: [av, {
                         key: false,
                         label: "Closed Classes",
-                        toString: () => 'All Classes'
+                        string:'All Classes'
                     }],
-                    selected: av
+                    selected: null
                 }, {
                     title: 'Campus',
                     key: 'campus',
@@ -58,8 +56,7 @@ class CoursesController {
                         subject
                     }) => ({
                         key: shortcode,
-                        label: subject,
-                        toString: () => subject
+                        label: subject
                     })),
                     selected: null
                 }, {

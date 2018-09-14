@@ -25,6 +25,10 @@
         <v-flex xl10 offset-xl2 xs12 :class="{'pa-3':$vuetify.breakpoint.mdAndUp,box:true}">
             <h1 class="pl-2 text-xl-left text-xs-center display-1">Results</h1>
             <Subject v-for="category in categories_results" :key="category.shortcode" v-bind:subject="category" />
+            <v-layout v-if="!categories_results.length">
+                <h2>No Courses found:</h2> You should check your filters
+                <v-btn>Clear Filters</v-btn>
+            </v-layout>
         </v-flex>
         <v-bottom-sheet v-model="bottomSheet">
             <v-card>
@@ -71,7 +75,20 @@ export default {
         }
     }) {
 
-        return $api.courses.getAllCourses()
+        const courseData = await $api.courses.getAllCourses()
+        const filters = courseData.filters.map(({
+            possibles,
+            ...obj
+        }) => ({
+            ...obj,
+            possibles: possibles.map((possible) => typeof possible === 'string' ? possible : ({
+                ...possible,
+                toString: () => possible.string || possible.label
+            }))
+        }))
+        return {...courseData,
+            filters
+        }
     },
     watch: {
         filters: {
@@ -128,7 +145,7 @@ export default {
                                 comparator = 'some'
                             }
                             return (Array.isArray(selected) ? selected : compareTo)[comparator]((value, i) => {
-                                if (typeof selected == 'string' || selected === null) {
+                                if (typeof selected == 'string' || selected === null || selected === undefined) {
                                     return value === selected
                                 }
                                 if (Array.isArray(selected)) {

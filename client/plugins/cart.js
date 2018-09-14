@@ -40,7 +40,7 @@ const Cart = {
                 },
                 switchPlan(planIndex) {
                     if (Number(planIndex) === planIndex) {
-                        this.$store.commit('planner/setCurPlan', planIndex)
+                        this.$store.dispatch('planner/setCurPlan', { $api: this.$api, payload: planIndex })
                     } else {
                         console.error('unhandled switching of plan was supplied:', planIndex)
                     }
@@ -77,10 +77,10 @@ const Cart = {
 }
 
 Vue.use(Cart, {})
-Vue.component('expander',expander)
+Vue.component('expander', expander)
 Vue.directive('focus', {
     // When the bound element is inserted into the DOM...
-    inserted: function(el) {
+    inserted: function (el) {
         // Focus the element
         el.focus()
     }

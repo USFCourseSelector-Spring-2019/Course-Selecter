@@ -5,7 +5,7 @@
   "author": "Nick Perez <nperez0111@gmail.com>",
   "private": true,
   "scripts": {
-    "dev": "nodemon --watch api --watch api_helpers --exec \"nuxt\"",
+    "dev": "couchdb & nodemon --watch api --watch api_helpers --exec \"nuxt\"",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",

@@ -9,16 +9,43 @@
             </v-btn>
         </v-card-title>
         <v-card-text>
-            <v-layout row>
-                <v-layout sm6 class="flex" column justify-space-around>
-                    <h2 class="title">ID: {{course.shortcode}} {{course.id}}</h2>
-                    <h2 class="title">CRN: {{course.crn}}</h2>
-                    <h2 class="title">Days: {{course.days.join('')}}</h2>
-                    <h2 class="title">Times: {{course.times.join(' - ')}}</h2>
+            <v-layout row wrap>
+                <v-layout xl5 lg6 xs12 class="flex" column>
+                    <h2 class="headline font-weight-regular py-2">ID: {{course.shortcode}} {{course.id}}</h2>
+                    <h3 class="title font-weight-regular py-2">Identifier (CRN):{{course.crn}}</h3>
+                    <h4 class="subheading font-weight-regular py-2">{{course.days.join('')}} {{course.times.join(' - ')}}</h4>
+                    <v-flex class="my-1"></v-flex>
+                    <v-layout row wrap class="no-grow">
+                        <v-flex xs3 class="pr-1">
+                            <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                <div class="headline">{{Number(course.credits).toFixed(0)}}</div>
+                                <span class="subheader">Credits</span>
+                            </v-card>
+                        </v-flex>
+                        <v-flex xs3 class="pr-1">
+                            <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                <div class="headline">{{course.enrolled}}</div>
+                                <span class="subheader">Enrolled</span>
+                            </v-card>
+                        </v-flex>
+                        <v-flex xs3 class="px-0">
+                            <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                <div class="headline">{{course.remaining}}</div>
+                                <span class="subheader">Remaining</span>
+                            </v-card>
+                        </v-flex>
+                        <v-flex xs3 class="pl-1">
+                            <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                <div class="headline">{{course.wl_remaining}}</div>
+                                <span class="subheader">Waitlist</span>
+                            </v-card>
+                        </v-flex>
+                    </v-layout>
                 </v-layout>
-                <v-flex sm6 class="avatar">
-                    <h2 class="text-xs-center mb-3">Instructor: {{course.instructor}}</h2>
-                    <a :href="link" target="_blank"><img :src="image" class="elevation-1 proffessor-img" /></a>
+                <v-flex xl7 lg6 xs12 class="avatar">
+                    <h2 class="text-xs-center headline">{{course.instructor}}</h2>
+                    <h3 class="text-xs-center caption">Instructor</h3>
+                    <a :href="link" target="_blank"><img :src="image" class="elevation-1 proffessor-img mt-3" /></a>
                     <p v-text="bio" class="mx-3 mt-4">Proffessor Bio... and Proffessor images</p>
                 </v-flex>
             </v-layout>
@@ -39,17 +66,21 @@
 <script>
 export default {
     data() {
+            return {
+                adding: false,
+                professor: false
+            }
+        },
+        mounted() {
             this.$api.courses.getProfessorData({
                 params: {
                     professor_name: this.course.instructor
                 }
             }).then(professorData => {
                 this.professor = professorData
+            }).catch(err => {
+                this.professor = false
             })
-            return {
-                adding: false,
-                professor: false
-            }
         },
         props: {
             course: Object,
@@ -97,5 +128,9 @@ export default {
     border: 1px solid #DDD;
     margin: 0 auto;
     display: block;
+}
+
+.no-grow {
+    flex-grow: 0 !important;
 }
 </style>

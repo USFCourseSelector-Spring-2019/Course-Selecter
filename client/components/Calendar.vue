@@ -32,7 +32,7 @@
                     </v-card-title>
                     <div :style="`height:${height}px`" class="time-container">
                         <div v-for="(course,ind) in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])}px;height:${distanceBetween(course.times)}px;`" :class="['time-block',i==0?'is-blocking-times':'']">
-                            <calendar-item :course="course" :color="getColor(ind)"></calendar-item>
+                            <calendar-item :course="course" :color="getColor(classes.indexOf(course))"></calendar-item>
                         </div>
                     </div>
                 </v-card>
@@ -189,7 +189,7 @@ export default {
                 return `${(time.hour()>12?time.hour()-12:time.hour()).toString().padStart(2,'0')}:${time.minute().toString().padStart(2,'0')} ${time.hour()>12?'pm':'am'}`
             },
             getColor(index) {
-                const colors = ['secondary', 'blue', 'lime', 'amber', 'light-green', 'orange', 'light-blue', 'red', 'yellow']
+                const colors = ['secondary', 'light-blue', 'lime', 'amber', 'light-green', 'orange', 'light-blue', 'red', 'yellow']
                 return colors[index % colors.length]
             }
         },
