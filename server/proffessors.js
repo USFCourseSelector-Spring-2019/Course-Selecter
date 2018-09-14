@@ -2,10 +2,10 @@ const scraper = require('../usf/Proffessors/scrape-browser'),
     Promise = require('bluebird'),
     mydb = require('nano')('http://localhost:5984')
 
-if (!module.parent) {
+function store() {
     Promise.promisifyAll(mydb);
     const getAndUse = dbName => Promise.promisifyAll(mydb.use(dbName))
-    scraper().then(professors => {
+    return scraper().then(professors => {
         const usf = getAndUse('usf'),
             names = professors.map(p => p.instructor),
             documents = professors.map((professor, i) => {
@@ -15,11 +15,18 @@ if (!module.parent) {
                 }
                 return professor
             }).filter(a => a)
-        usf.bulkAsync({ docs: documents }).then((body) => {
+        return usf.bulkAsync({ docs: documents }).then((body) => {
             console.log(body)
             console.log('Successfully put all USF Data!')
+            return body
         }).catch((err) => {
             console.log(err)
         })
     })
 }
+
+if(!module.parent){
+    store()
+}
+
+module.exports = store
