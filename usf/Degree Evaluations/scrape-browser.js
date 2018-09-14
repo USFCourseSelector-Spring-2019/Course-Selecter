@@ -1,4 +1,4 @@
-pdfsconst puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer');
 const CREDS = require('../creds')
 const waitForLoad = (page) => new Promise((resolve) => {
     page.on('rquest', (req) => {
