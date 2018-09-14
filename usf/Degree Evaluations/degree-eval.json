@@ -227,7 +227,30 @@
 		},
 		{
 			"classes": [
-				"4 Credits in BIOL 300:499 or 598 or 599* or ENVS 410*"
+				{
+					"CRN": {
+						"from": "BIOL300",
+						"to": "BIOL499",
+						"subject": "BIOL",
+						"start": "300",
+						"end": "499",
+						"credits": "4"
+					},
+					"name": "4 credits of Upper Division electives",
+					"credits": "4"
+				},
+				{
+					"CRN": "BIOL598",
+					"name": "BIOL598"
+				},
+				{
+					"CRN": "BIOL599",
+					"name": "BIOL599"
+				},
+				{
+					"CRN": "ENVS410",
+					"name": "ENVS410"
+				}
 			],
 			"choose": 1
 		},
