@@ -1,7 +1,7 @@
   const puppeteer = require('puppeteer');
 const CREDS = require('../creds')
 
-let scrape = async() => {
+let scrape = async(offset=0) => {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     console.log("Scraping with the browser...")
@@ -24,9 +24,9 @@ let scrape = async() => {
         page.waitForNavigation()
     ])
     //await page.waitForNavigation();
-    await page.evaluate(() => {
-        document.querySelector('select option:nth-child(2)').selected = true
-    })
+    await page.evaluate((offset) => {
+        document.querySelector(`select option:nth-child(${offset+2})`).selected = true
+    },offset)
     await Promise.all([
         page.click('body > div.pagebodydiv > form > input[type="submit"]:nth-child(5)'),
         page.waitForNavigation()
