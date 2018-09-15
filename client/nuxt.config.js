@@ -23,7 +23,7 @@ module.exports = Object.assign({
             { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' }
         ]
     },
-    plugins: ['~/plugins/cart.js'],
+    plugins: ['~/plugins/cart.js',{ src: '~/plugins/client-side.js', ssr:false}],
     css: [
         '~/assets/style/app.styl',
         '~/assets/style/app.scss'

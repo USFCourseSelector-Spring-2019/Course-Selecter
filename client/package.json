@@ -28,6 +28,7 @@
     "nuxt-neo": "^2.0.2",
     "pouchdb": "^6.4.3",
     "sass-loader": "^7.1.0",
+    "vue-infinite-scroll": "^2.0.2",
     "vuetify": "^1.0.19"
   },
   "devDependencies": {

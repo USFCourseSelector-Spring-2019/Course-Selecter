@@ -94,7 +94,8 @@ class CoursesController {
                     possibles: doc.attributes.filter(a => a.length),
                     selected: null,
                     every: false
-                }]
+                }],
+                current_semester
             }, doc)
         return ret
     }

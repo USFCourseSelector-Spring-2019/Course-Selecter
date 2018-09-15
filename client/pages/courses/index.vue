@@ -23,8 +23,10 @@
             </div>
         </v-flex>
         <v-flex xl10 offset-xl2 xs12 :class="{'pa-3':$vuetify.breakpoint.mdAndUp,box:true}">
-            <h1 class="pl-2 text-xl-left text-xs-center display-1">Results</h1>
-            <Subject v-for="category in categories_results" :key="category.shortcode" v-bind:subject="category" />
+            <h1 class="pl-2 py-2 text-xl-left text-xs-center display-1">{{semester}} Results</h1>
+            <Subject v-for="category in categories_results.slice(0, amountToShow)" :key="category.shortcode" v-bind:subject="category" />
+            <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="1000" :infinite-scroll-immediate-check="false">
+            </div>
             <v-layout v-if="!categories_results.length">
                 <h2>No Courses found:</h2> You should check your filters
                 <v-btn>Clear Filters</v-btn>
@@ -66,7 +68,9 @@ export default {
             query: '',
             categories: [],
             filters: [],
-            bottomSheet: false
+            bottomSheet: false,
+            amountToShow: 10,
+            busy: false
         }
     },
     async asyncData({
@@ -115,11 +119,15 @@ export default {
         }
     },
     methods: {
+        loadMore() {
+            this.amountToShow += 4
+        },
         filtered(category, query) {
             const [availableFilter, campusFilter, subjectFilter, courseFilter] = this.filters
             const filters = this.filters.filter(({
                 selected
             }) => selected !== null)
+            this.amountToShow = 10
 
             if (query && (category.subject.toLowerCase().includes(query) || category.shortcode.toLowerCase().includes(query))) {
                 return {
