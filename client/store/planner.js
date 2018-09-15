@@ -1,13 +1,15 @@
 import ls from 'local-storage';
 
+const DEFAULT_PLANS = [{
+        title: 'My 1st Planner',
+        courses: []
+    }]
+
 export const state = () => ({
     visible: false,
     curTab: 0,
     plan: 0,
-    plans: [{
-        title: 'My 1st Planner',
-        courses: []
-    }],
+    plans: DEFAULT_PLANS,
 
 })
 
@@ -102,15 +104,11 @@ export const actions = {
     }, { $api }) {
         if (loggedIn) {
             const { plans, plan } = await $api.auth.getPlans()
-            if (plans && plans.length) {
-                await commit('setPlans', plans)
-            }
+            await commit('setPlans', plans || DEFAULT_PLANS)
             await commit('setCurPlan', plan || 0)
         } else {
             const plans = ls('plans')
-            if (plans) {
-                await commit('setPlans', plans)
-            }
+            await commit('setPlans', plans || DEFAULT_PLANS)
             await commit('setCurPlan', ls('plan') || 0)
         }
     }

@@ -4,13 +4,16 @@ const { getUser, constants } = require('../api_helpers')
 class CoursesController {
     constructor(request) {
         this.request = request
-        this.user = getUser(request)
         this.nano = new nano( /*context.isDev*/ true ? 'http://localhost:5984/' : 'http://db.courseselector.com/')
         this.coursesDB = this.nano.use('usf')
     }
-    async getAllCourses() {
-        const { current_semester } = await this.coursesDB.get('courses')
-        const doc = await this.coursesDB.get(current_semester),
+    async getAllCourses({ params: { semester } }) {
+        if (!semester || semester === 'current') {
+            const courses = await this.coursesDB.get('courses')
+            semester = courses.current_semester
+        }
+
+        const doc = await this.coursesDB.get(semester),
             mapDays = {
                 M: 'Monday',
                 T: 'Tuesday',
@@ -95,13 +98,37 @@ class CoursesController {
                     selected: null,
                     every: false
                 }],
-                current_semester
+                semester
             }, doc)
         return ret
     }
-    async getProfessorData({ params: { professor_name } }) {
+    async getCourseData({ params: { semester, crn } }) {
+        if (!semester || semester === 'current') {
+            const courses = await this.coursesDB.get('courses')
+            semester = courses.current_semester
+        }
+
+        const { categories } = await this.coursesDB.get(semester)
+        const course = categories.reduce((response, category) => {
+            if (response !== false) {
+                return response
+            }
+            const course = category.courses.reduce((response, { classes }) => response || classes.find(course => course.crn === crn), false)
+            return course || response
+        }, false)
+        if (!course) {
+            return false
+        }
+        const proffessor_data = this.getProfessorData({ params: { proffessor_name: course.instructor } })
+
+        //also grab rating shit?
+
+        return { ...course, proffessor_data }
+
+    }
+    async getProfessorData({ params: { proffessor_name } }) {
         try {
-            return await this.coursesDB.get('Proffessor - ' + professor_name)
+            return await this.coursesDB.get('Proffessor - ' + proffessor_name)
         } catch (e) {
             return false
         }
@@ -110,11 +137,15 @@ class CoursesController {
 
 CoursesController.ROUTES = {
     getAllCourses: {
-        path: '/all-courses',
+        path: '/:semester/all-courses',
         verb: 'GET'
     },
     getProfessorData: {
-        path: '/:professor_name/info',
+        path: '/:proffessor_name/info',
+        verb: 'GET'
+    },
+    getCourseData: {
+        path: '/:semester/:crn',
         verb: 'GET'
     }
 }

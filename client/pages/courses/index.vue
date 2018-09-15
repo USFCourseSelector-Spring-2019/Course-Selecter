@@ -79,7 +79,11 @@ export default {
         }
     }) {
 
-        const courseData = await $api.courses.getAllCourses()
+        const courseData = await $api.courses.getAllCourses({
+            params: {
+                semester: 'current'
+            }
+        })
         const filters = courseData.filters.map(({
             possibles,
             ...obj

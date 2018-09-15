@@ -20,6 +20,9 @@
             <v-btn @click.stop="logout" v-if="$auth.loggedIn" color="primary-fg" flat>
                 Sign out
             </v-btn>
+            <v-btn href="/sign-up" v-else color="primary-fg" flat>
+                Sign Up
+            </v-btn>
             <v-btn icon @click.stop="togglePlanner" color="primary-fg" flat>
                 <v-icon>view_list</v-icon>
             </v-btn>
@@ -46,14 +49,18 @@ export default {
             }
         },
         mounted() {
-            this.$store.dispatch('planner/loadSettings', {
-                $api: this.$api
-            })
+            this.loadSettings()
         },
         methods: {
             async logout() {
                 await this.$auth.logout()
+                this.loadSettings()
             },
+            loadSettings() {
+                return this.$store.dispatch('planner/loadSettings', {
+                    $api: this.$api
+                })
+            }
         },
         computed: {
             dialog() {
@@ -78,8 +85,8 @@ export default {
                     to: '/dashboard'
                 } : {
                     icon: 'apps',
-                    title: 'Login for more features',
-                    to: '/login'
+                    title: 'Sign up for more features',
+                    to: '/sign-up'
                 }, {
                     icon: 'bubble_chart',
                     title: 'Browse Courses',

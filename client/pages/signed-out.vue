@@ -2,13 +2,13 @@
     <div class="fill-height layout justify-center align-center">
         <v-card class="flex sign-out-card" raised>
             <v-card-title>
-                <h1 class="display-1">Successfully Signed out</h1>
+                <h1 class="display-1">Successfully Signed out!</h1>
             </v-card-title>
             <v-card-text>
                 We hope to see you again soon!
                 <v-layout>
                     <v-spacer></v-spacer>
-                    <v-btn to="/login" color="primary">
+                    <v-btn to="/sign-in" color="primary">
                         Sign Back In
                     </v-btn>
                 </v-layout>

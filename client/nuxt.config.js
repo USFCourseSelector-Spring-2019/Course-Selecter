@@ -4,7 +4,8 @@ const nodeExternals = require('webpack-node-externals'),
     cookieParser = require('cookie-parser'),
     jwt = require('express-jwt'),
     { secret } = require('./api_helpers/constants.js')
-function noop(){}
+
+function noop() {}
 const ENABLE_AUTH = true
 
 module.exports = Object.assign({
@@ -23,7 +24,13 @@ module.exports = Object.assign({
             { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' }
         ]
     },
-    plugins: ['~/plugins/cart.js',{ src: '~/plugins/client-side.js', ssr:false}],
+    plugins: [
+        '~/plugins/cart.js',
+        {
+            src: '~/plugins/client-side.js',
+            ssr: false
+        }
+    ],
     css: [
         '~/assets/style/app.styl',
         '~/assets/style/app.scss'
@@ -36,13 +43,17 @@ module.exports = Object.assign({
             directory: __dirname + '/api',
             bodyParsers: ['json', 'urlencoded'],
             middleware: ENABLE_AUTH ? [
-                (req)=>cookieParser()(req,req.res,noop),
-                (req)=>bodyParser.json()(req,req.res,noop),
-                (req)=>jwt({
+                (req) => cookieParser()(req, req.res, noop),
+                (req) => bodyParser.json()(req, req.res, noop),
+                (req) => jwt({
                     secret
                 }).unless({
-                    path: ['/api/auth/login', /\/api\/sms/i]
-                })(req,req.res,noop)
+                    path: [
+                        '/api/auth/login',
+                        /\/api\/courses/i,
+                        /\/api\/payments/i
+                    ]
+                })(req, req.res, noop)
 
             ] : []
         }]
@@ -51,24 +62,34 @@ module.exports = Object.assign({
         strategies: {
             local: {
                 endpoints: {
-                    login: { url: '/api/auth/login', propertyName: 'token.accessToken' },
-                    logout: { url: '/api/auth/logout', method: 'post' },
-                    user: { url: '/api/auth/user', method: 'get', propertyName: 'user' }
+                    login: {
+                        url: '/api/auth/login',
+                        propertyName: 'token.accessToken'
+                    },
+                    logout: {
+                        url: '/api/auth/logout',
+                        method: 'post'
+                    },
+                    user: {
+                        url: '/api/auth/user',
+                        method: 'get',
+                        propertyName: 'user'
+                    }
                 }
             }
         },
         redirect: {
-            login: '/login',
+            login: '/sign-in',
             logout: '/signed-out',
             home: '/'
         }
     },
-    vuetify:{
-        theme:{
-            primary:'#00543C',
-            'primary-fg':'#FFF',
-            secondary:'#FCBA30',
-            'secondary-fg':'#000'
+    vuetify: {
+        theme: {
+            primary: '#00543C',
+            'primary-fg': '#FFF',
+            secondary: '#FCBA30',
+            'secondary-fg': '#000'
         }
     },
     /*

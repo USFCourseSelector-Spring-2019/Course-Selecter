@@ -1,5 +1,5 @@
 import jsonwebtoken from 'jsonwebtoken';
-const { getUser, constants: { secret } } = require('../api_helpers')
+const { getUser, constants: { secret }, checkPassword } = require('../api_helpers')
 import nano from 'nano'
 class AuthController {
     constructor(request) {
@@ -9,15 +9,15 @@ class AuthController {
         this.nano = new nano( /*context.isDev*/ true ? 'http://localhost:5984/' : 'http://db.courseselector.com/')
         this.userDB = this.nano.use('users')
     }
-    isCorrectPassword(password, user) {
-        return password === user.user_cred
+    async isCorrectPassword(password, user) {
+        return await checkPassword(password,user.user_cred)
     }
     async login({ body: { username, password } }) {
         console.log(username, password, 'attempting...')
         const user = await this.userDB.get(username)
 
         console.log(user)
-        if (!user || !this.isCorrectPassword(password, user)) {
+        if (!user || !(await this.isCorrectPassword(password, user))) {
             console.log('wrong password for', username)
             throw new Error('Invalid username or password')
         }

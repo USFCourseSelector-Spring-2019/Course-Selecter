@@ -9,19 +9,20 @@
 </template>
 <script>
 export default {
+    auth: false,
     data() {
-            return {}
-        },
-        async asyncData({
-            params: {
-                id
-            }
-        }) {
-            //need to load data on 1 course for this
-            return {
-                id
-            }
+        return {}
+    },
+    async asyncData({
+        params: {
+            id
         }
+    }) {
+        //need to load data on 1 course for this
+        return {
+            id
+        }
+    }
 }
 </script>
 <style>
