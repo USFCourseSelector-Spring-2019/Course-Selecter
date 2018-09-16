@@ -82,10 +82,10 @@
                 <v-flex md4 sm12 xs12>
                     <v-widget title="Missing Major Requirements">
                         <div slot="widget-content">
-                            <div v-for="(reqs,i) in major_missing_reqs" :key="reqs.classes[0]">
+                            <div v-for="(reqs,i) in major_missing_reqs" :key="i">
                                 <v-subheader class="pl-0">Requirement #{{i+1}}{{`${reqs.choose>1||reqs.classes.length>1?' - Choose '+reqs.choose:''}`}}</v-subheader>
                                 <v-layout row wrap>
-                                    <v-flex v-for="req in reqs.classes" :key="req.CRN" md4 xs6>
+                                    <v-flex v-for="req in reqs.classes" :key="req.name" md4 xs6>
                                         {{req.name}}
                                     </v-flex>
                                 </v-layout>
@@ -96,11 +96,11 @@
                 <v-flex md4 sm12 xs12 v-if="minor_missing_reqs.length">
                     <v-widget title="Missing Minor Requirements">
                         <div slot="widget-content">
-                            <v-list v-for="(reqs,i) in minor_missing_reqs" :key="reqs.classes[0]">
+                            <v-list v-for="(reqs,i) in minor_missing_reqs" :key="i">
                                 <v-subheader>Requirement #{{i+1}}{{`${reqs.choose>1?'Choose '+reqs.choose:''}`}}</v-subheader>
-                                <v-list-tile v-for="req in reqs.classes" :key="req">
+                                <v-list-tile v-for="req in reqs.classes" :key="req.name">
                                     <v-list-tile-content>
-                                        <v-list-tile-title v-text="req"></v-list-tile-title>
+                                        <v-list-tile-title v-text="req.name"></v-list-tile-title>
                                     </v-list-tile-content>
                                 </v-list-tile>
                             </v-list>
@@ -136,9 +136,15 @@ export default {
         async asyncData({
             app: {
                 $api
-            }
+            },
+            redirect
         }) {
-            return $api.dashboard.getProgress()
+            const resp = await $api.dashboard.getProgress()
+            if (resp.ok === false) {
+                redirect('/')
+                    //no data to display probably should send them to onboarding
+            }
+            return resp
         },
         computed: {
             total_credits_completion() {
@@ -154,7 +160,6 @@ export default {
                 return Math.min((this.minor_credits_applied / this.minor_credits_required * 100).toFixed(0), 100) || 0
             },
             core_requirements_completion() {
-                console.log(this.number_of_core_requirements, this.missing_attributes.length)
                 return Math.min(((this.number_of_core_requirements - this.missing_attributes.length) / this.number_of_core_requirements * 100).toFixed(0), 100)
             },
             core_requirements_left() {

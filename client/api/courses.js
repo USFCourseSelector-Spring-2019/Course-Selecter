@@ -12,7 +12,6 @@ class CoursesController {
             const courses = await this.coursesDB.get('courses')
             semester = courses.current_semester
         }
-
         const doc = await this.coursesDB.get(semester),
             mapDays = {
                 M: 'Monday',
@@ -137,15 +136,15 @@ class CoursesController {
 
 CoursesController.ROUTES = {
     getAllCourses: {
-        path: '/:semester/all-courses',
+        path: '/all-courses/:semester',
         verb: 'GET'
     },
     getProfessorData: {
-        path: '/:proffessor_name/info',
+        path: '/info/:proffessor_name',
         verb: 'GET'
     },
     getCourseData: {
-        path: '/:semester/:crn',
+        path: '/data/:semester/:crn',
         verb: 'GET'
     }
 }
