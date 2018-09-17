@@ -50,7 +50,7 @@
             <v-container fluid grid-list-md class="pa-0">
                 <v-layout row wrap>
                     <v-flex v-for="course in courses" :key="course.index" xs6 sm4 md3 xl2>
-                        <course-card v-bind="course"></course-card>
+                        <course-card v-bind="course" v-on:open-course="(crn)=>$emit('open-course',crn)"></course-card>
                     </v-flex>
                 </v-layout>
             </v-container>

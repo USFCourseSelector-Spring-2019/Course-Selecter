@@ -24,7 +24,7 @@
         </v-flex>
         <v-flex xl10 offset-xl2 xs12 :class="{'pa-3':$vuetify.breakpoint.mdAndUp,box:true}">
             <h1 class="pl-2 py-2 text-xl-left text-xs-center display-1">{{semester}} Results</h1>
-            <Subject v-for="category in categories_results.slice(0, amountToShow)" :key="category.shortcode" v-bind:subject="category" />
+            <Subject v-for="category in categories_results.slice(0, amountToShow)" :key="category.shortcode" v-bind:subject="category" v-on:open-course="openCourse" />
             <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="1000" :infinite-scroll-immediate-check="false">
             </div>
             <v-layout v-if="!categories_results.length">
@@ -205,6 +205,9 @@ export default {
         },
         search() {
             this.query = this.tempQuery
+        },
+        openCourse(crn) {
+            console.log(crn, 'wants to be opened')
         }
     },
     computed: {

@@ -1,5 +1,5 @@
 <template>
-    <v-card :class="`full-height pa-2 ma-0 layout column justify-space-between ${available?'enabled':'disabled'}`" :color="available?'white':'grey lighten-3 grey--text text--darken-1'" v-on:click="available?(()=>{openCourseInfo=true}):undefined" :ripple="available">
+    <v-card :class="`full-height pa-2 ma-0 layout column justify-space-between ${available?'enabled':'disabled'}`" :color="available?'white':'grey lighten-3 grey--text text--darken-1'" v-on:click.native="available?$emit('open-course',crn):undefined" :ripple="available">
         <v-flex xs3 md6>
             <h1 v-text="title" class="headline mb-3 mt-2 break-word"></h1>
         </v-flex>
