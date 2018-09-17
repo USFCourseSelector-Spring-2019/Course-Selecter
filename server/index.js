@@ -32,7 +32,7 @@ function store(params) {
             console.log('New Courses Document')
             courses._id = "courses"
         }
-        const coursesBody = usf.insertAsync({ ...courses })
+        const coursesBody = await usf.insertAsync({ ...courses })
         console.log(coursesBody)
         console.log('Successfully put all USF Data!')
         return DOC_ID
