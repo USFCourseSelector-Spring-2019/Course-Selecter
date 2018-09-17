@@ -207,7 +207,14 @@ export default {
             this.query = this.tempQuery
         },
         openCourse(crn) {
-            console.log(crn, 'wants to be opened')
+            console.log('Switching to: ', crn)
+            this.$router.push({
+                name: 'courses',
+                query: {
+                    ...this.$router.currentRoute.query,
+                    crn
+                }
+            })
         }
     },
     computed: {

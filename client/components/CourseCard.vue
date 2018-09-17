@@ -1,5 +1,5 @@
 <template>
-    <v-card :class="`full-height pa-2 ma-0 layout column justify-space-between ${available?'enabled':'disabled'}`" :color="available?'primary primary-fg--text':'grey lighten-3 grey--text text--darken-1'" v-on:click.native="$emit('open-course',crn)" :ripple="available?{ class: 'primary-fg--text' }:{ class: 'red--text' }" :hover="available">
+    <v-card :class="`full-height pa-2 ma-0 layout column justify-space-between course-card ${available?'enabled':'disabled'}`" :color="available?'primary primary-fg--text':'grey lighten-3 grey--text text--darken-1'" v-on:click.native="$emit('open-course',crn)" :ripple="available?{ class: 'primary-fg--text' }:{ class: 'red--text' }" :hover="available">
         <v-flex xs3 md6>
             <h1 v-text="title" class="headline mb-3 mt-2 break-word"></h1>
         </v-flex>
@@ -104,12 +104,12 @@ export default {
     user-select: none;
 }
 
-.enabled {
+.course-card {
     transform: translateY(0px);
     transition: all 300ms;
 }
 
-.enabled:hover {
+.course-card:hover {
     transform: translateY(-6px);
 }
 
