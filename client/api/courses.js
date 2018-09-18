@@ -25,7 +25,7 @@ class CoursesController {
             stringify = arr => arr.map(cur => {
                 cur.label = cur.map(dayCode => mapDays[dayCode]).join(', ')
                 cur.key = cur.join('')
-                cur.toString = () => cur.key
+                cur.string = cur.key
                 return cur
             }),
             lm = {
@@ -106,7 +106,7 @@ class CoursesController {
             const courses = await this.coursesDB.get('courses')
             semester = courses.current_semester
         }
-
+        const proffessor_data = this.getProfessorData({ params: { proffessor_name: course.instructor } })
         const { categories } = await this.coursesDB.get(semester)
         const course = categories.reduce((response, category) => {
             if (response !== false) {
@@ -118,11 +118,11 @@ class CoursesController {
         if (!course) {
             return false
         }
-        const proffessor_data = this.getProfessorData({ params: { proffessor_name: course.instructor } })
+        
 
         //also grab rating shit?
 
-        return { ...course, proffessor_data }
+        return { ...course, professor_data:(await proffessor_data) }
 
     }
     async getProfessorData({ params: { proffessor_name } }) {
