@@ -22,12 +22,10 @@ class CoursesController {
                 S: 'Saturday',
                 U: 'Sunday'
             },
-            stringify = arr => arr.map(cur => {
-                cur.label = cur.map(dayCode => mapDays[dayCode]).join(', ')
-                cur.key = cur.join('')
-                cur.string = cur.key
-                return cur
-            }),
+            stringify = arr => arr.map(cur => ({
+                label: cur.map(dayCode => mapDays[dayCode]).join(', '),
+                key: cur
+            })),
             lm = {
                 key: 'M',
                 label: 'Mountain top'
@@ -42,8 +40,7 @@ class CoursesController {
                     key: 'available',
                     possibles: [av, {
                         key: false,
-                        label: "Closed Classes",
-                        string: 'All Classes'
+                        label: "Closed Classes"
                     }],
                     selected: null
                 }, {
@@ -118,11 +115,11 @@ class CoursesController {
         if (!course) {
             return false
         }
-        
+
 
         //also grab rating shit?
 
-        return { ...course, professor_data:(await proffessor_data) }
+        return { ...course, professor_data: (await proffessor_data) }
 
     }
     async getProfessorData({ params: { proffessor_name } }) {

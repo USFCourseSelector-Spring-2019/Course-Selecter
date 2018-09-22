@@ -3,7 +3,7 @@
         <v-flex xl2 sm12 :class="['px-3', 'py-4', 'fixed-xl-and-up' ,'full-width']">
             <h1 class="text-xs-center display-1">Search Courses</h1>
             <v-layout class="my-4" :column="$vuetify.breakpoint.xsOnly">
-                <v-text-field v-model.trim="tempQuery" label="Search" append-icon="search" @click:append="search" v-on:keyup.enter="search" clearable solo color="primary"></v-text-field>
+                <v-text-field v-model.trim="query" label="Search" append-icon="search" @click:append="search" v-on:keyup.enter="search" clearable solo color="primary"></v-text-field>
                 <v-btn @click="bottomSheet=true" class="hidden-md-and-up" color="primary">
                     <v-icon left>filter_list</v-icon>Filter By
                 </v-btn>
@@ -12,12 +12,12 @@
                 <h2 class="headline mb-1 my-3 text-xs-center">Filter By</h2>
                 <v-layout column align-center style="height:65%">
                     <v-flex v-for="(filter,i) in filters" :key="filter.key" :class="{'px-3':$vuetify.breakpoint.lgAndDown}" style="width:100%">
-                        <v-autocomplete :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable color="primary" item-text="label" return-object v-if="filter.possibles.length" hide-details>
+                        <v-autocomplete :items="filter.possibles.map(mapper)" v-model="selected[i]" :label="filter.title" clearable color="primary" item-text="label" :item-value="filter.possibles[0].key?'key':undefined" v-if="filter.possibles.length" hide-details>
                             <template slot="item" slot-scope="data">
                                 <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
                             </template>
                         </v-autocomplete>
-                        <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable hide-details v-else></v-text-field>
+                        <v-text-field v-model.trim="selected[i]" :label="filter.title" clearable hide-details v-else></v-text-field>
                     </v-flex>
                 </v-layout>
             </div>
@@ -44,13 +44,13 @@
                     <h2 class="headline mb-1 mb-3 text-xs-center">Filter By</h2>
                 </v-card-text>
                 <v-layout justify-center row wrap>
-                    <v-flex sm6 xs12 v-for="(filter,i) in filters" :key="i" class="px-4">
-                        <v-autocomplete :key="filter.key" :items="filter.possibles" v-model="filter.selected" :label="filter.title" clearable color="light-blue" v-if="filter.possibles.length">
+                    <v-flex sm6 xs12 v-for="(filter,i) in filters" :key="filter.key" class="px-4">
+                        <v-autocomplete :items="filter.possibles.map(mapper)" v-model="selected[i]" :label="filter.title" clearable color="primary" item-text="label" :item-value="filter.possibles[0].key?'key':undefined" v-if="filter.possibles.length">
                             <template slot="item" slot-scope="data">
                                 <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
                             </template>
                         </v-autocomplete>
-                        <v-text-field v-model.trim="filter.selected" :label="filter.title" clearable v-else></v-text-field>
+                        <v-text-field v-model.trim="selected[i]" :label="filter.title" clearable v-else></v-text-field>
                     </v-flex>
                 </v-layout>
             </v-card>
@@ -59,6 +59,9 @@
 </template>
 <script>
 import Subject from '@/components/Subject'
+import {
+    Search
+} from 'js-search';
 
 export default {
     auth: false,
@@ -70,117 +73,115 @@ export default {
             filters: [],
             bottomSheet: false,
             amountToShow: 10,
-            busy: false
+            busy: false,
+            selected: [],
+            classesIndex: {
+                search: () => this.categories
+            },
+            subjectIndex: {
+                search: () => this.categories
+            }
         }
+    },
+    mounted() {
+        const subjectIndex = new Search('subject')
+        subjectIndex.addIndex('shortcode')
+        subjectIndex.addIndex('subject')
+        subjectIndex.addIndex(['courses', 'attributes'])
+        subjectIndex.addIndex(['courses', 'id'])
+        subjectIndex.addIndex(['courses', 'title'])
+        subjectIndex.addDocuments(this.categories)
+
+        const classesIndex = new Search('index')
+        classesIndex.addIndex('id')
+        classesIndex.addIndex('title')
+        classesIndex.addIndex('crn')
+        classesIndex.addIndex('loc')
+        classesIndex.addIndex('shortcode')
+        classesIndex.addIndex('subject')
+        classesIndex.addIndex('instructor')
+        classesIndex.addIndex('campus')
+        classesIndex.addIndex(['attributes', '0'])
+        classesIndex.addIndex(['attributes', '1'])
+        classesIndex.addIndex(['attributes', '2'])
+        classesIndex.addIndex(['attributes', '3'])
+        classesIndex.addIndex(['attributes', '4'])
+        const x = this.categories.reduce((arr, {
+            courses,
+            ...rest
+        }, r) => arr.concat(courses.reduce((arr, {
+            classes
+        }, c) => (arr.concat(classes.map(course => ({...course,
+            r,
+            c
+        })))), [])), [])
+        classesIndex.addDocuments(x)
+        this.subjectIndex = subjectIndex
+        this.classesIndex = classesIndex
+    },
+    async fetch({
+        query,
+        app: {
+            $api
+        },
+        store,
+        router
+    }) {
+
     },
     async asyncData({
         app: {
             $api
-        }
+        },
+        store
     }) {
-
-        const courseData = await $api.courses.getAllCourses({
-            params: {
-                semester: 'current'
-            }
-        })
-        const filters = courseData.filters.map(({
-            possibles,
-            ...obj
-        }) => ({
-            ...obj,
-            possibles: possibles.map((possible) => typeof possible === 'string' ? possible : ({
-                ...possible,
-                toString: () => possible.string || possible.label
-            }))
-        }))
-        return {...courseData,
-            filters
+        console.log(store.getters, store.getters.courseData)
+        if (!store.getters.loadedCourseData) {
+            console.log('loading')
+            await store.dispatch('loadCourseData', {
+                $api
+            })
+            console.log('loaded')
+        }
+        const courseData = await store.getters.courseData
+            //load the selected filters
+        return {
+            ...courseData,
         }
     },
     watch: {
-        filters: {
-            handler: function([availableFilter, campusFilter, subjectFilter, courseFilter]) {
-                if (subjectFilter.selected !== null) {
-                    const possibles = this.categories.find(({
-                        shortcode
-                    }) => shortcode === subjectFilter.selected.key).courses.map(({
-                        id
-                    }) => id)
-                    if (courseFilter.possibles.toString() !== possibles.toString()) {
-                        courseFilter.possibles = possibles
+        selected: {
+            handler: function([availableFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter]) {
+                this.$router.push({
+                    name: 'courses',
+                    query: {
+                        crn: this.$router.currentRoute.query.crn,
+                        ...[
+                            ['available', availableFilter],
+                            ['campus', campusFilter],
+                            ['subject', subjectFilter],
+                            ['course', courseFilter],
+                            ['days', dayFilter],
+                            ['instructor', profFilter],
+                            ['attributes', attrFilter]
+                        ].reduce((obj, [key, val]) => (val ? ({...obj,
+                            [key]: val
+                        }) : obj), {})
                     }
-                    if (!possibles.includes(courseFilter.selected)) {
-                        courseFilter.selected = null
-                    }
-                } else {
-                    if (courseFilter.possibles.length) {
-                        courseFilter.possibles = []
-                    }
-                }
+                })
             },
             deep: true
         }
     },
     methods: {
+        mapper(possible) {
+            return typeof possible === 'string' ? possible : ({
+                ...possible,
+                toString: () => possible.label
+            })
+        },
         loadMore() {
             this.amountToShow += 4
-        },
-        filtered(category, query) {
-            const [availableFilter, campusFilter, subjectFilter, courseFilter] = this.filters
-            const filters = this.filters.filter(({
-                selected
-            }) => selected !== null)
-            this.amountToShow = 10
-
-            if (query && (category.subject.toLowerCase().includes(query) || category.shortcode.toLowerCase().includes(query))) {
-                return {
-                    ...category
-                }
-            }
-            const courses = category.courses.map((course, i) => {
-                const classes = course.classes.reduce((arr, classy) => {
-                    if (filters.every(({
-                            selected,
-                            key,
-                            every = true
-                        }) => {
-                            let compareTo, comparator;
-                            if (!Array.isArray(classy[key])) {
-                                compareTo = [classy[key]]
-                            } else {
-                                compareTo = classy[key]
-                            }
-                            if (every) {
-                                comparator = 'every'
-                            } {
-                                comparator = 'some'
-                            }
-                            return (Array.isArray(selected) ? selected : compareTo)[comparator]((value, i) => {
-                                if (typeof selected == 'string' || selected === null || selected === undefined) {
-                                    return value === selected
-                                }
-                                if (Array.isArray(selected)) {
-                                    return selected.length === compareTo.length && value === compareTo[i]
-                                }
-                                return value === selected.key
-                            })
-
-                        }) && this.searchWithin(classy, query)) {
-                        arr.push(classy)
-                    }
-                    return arr
-                }, [])
-                return {...course,
-                    classes
-                }
-            }).filter(course => course.classes.length)
-            if (!courses.length) {
-                return false
-            }
-            return {...category,
-                courses
-            }
         },
         searchWithin(course, str) {
             if (!str.length) {
@@ -219,16 +220,102 @@ export default {
     },
     computed: {
         categories_results() {
-            const query = (this.query || '').trim().toLowerCase()
-            return this.categories.reduce((arr, category, index) => {
-                const resp = this.filtered(category, query)
-                if (resp !== false) {
-                    arr.push(resp)
-                }
-
-                return arr
-            }, [])
-        }
+            const [availableFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter] = this.selected,
+                filter = (course) => {
+                    if (availableFilter) {
+                        if (course.available !== availableFilter) {
+                            return false
+                        }
+                    }
+                    if (campusFilter) {
+                        if (course.campus !== campusFilter) {
+                            return false
+                        }
+                    }
+                    if (subjectFilter) {
+                        if (course.shortcode !== subjectFilter) {
+                            return false
+                        }
+                    }
+                    if (courseFilter) {
+                        const [full, shortcode, id] = /([A-Z]+)?(?: )?(\d+)?/gi.exec(courseFilter)
+                        if (shortcode) {
+                            if (course.shortcode.startsWith(shortcode)) {
+                                return false
+                            }
+                        }
+                        if (id) {
+                            if (!course.id.startsWith(id)) {
+                                return false
+                            }
+                        }
+                    }
+                    if (dayFilter) {
+                        if (course.days.join() !== dayFilter.join()) {
+                            return false
+                        }
+                    }
+                    if (profFilter) {
+                        if (course.instructor !== profFilter) {
+                            return false
+                        }
+                    }
+                    if (attrFilter) {
+                        if (!course.attributes || course.attributes.includes(attrFilter)) {
+                            return false
+                        }
+                    }
+                    return true
+                }, query = (this.query || '').trim().toLowerCase(),
+                categories = this.categories,
+                searched = this.classesIndex.search(query).reduce((arr, {
+                    r,
+                    c,
+                    ...course
+                }) => {
+                    if (filter(course)) {
+                        if (arr[r]) {
+                            if (arr[r].courses[c]) {
+                                arr[r].courses[c].classes.push(course)
+                            } else {
+                                arr[r].courses[c] = {
+                                    shortcode: course.shortcode,
+                                    subject: course.subject,
+                                    attributes: course.attributes,
+                                    classes: [course]
+                                }
+                            }
+                        } else {
+                            arr[r] = {...categories[r],
+                                courses: []
+                            }
+                            arr[r].courses[c] = {
+                                shortcode: course.shortcode,
+                                subject: course.subject,
+                                classes: [course]
+                            }
+                        }
+                    }
+                    return arr
+                }, []).filter(a => a)
+            return query.length ? searched : (() => this.categories.map(({
+                courses,
+                ...rest
+            }) => ({
+                courses: courses.map(({
+                    classes,
+                    ...other
+                }) => ({
+                    classes: classes.filter(filter),
+                    ...other
+                })).filter(({
+                    classes
+                }) => classes.length),
+                ...rest
+            })).filter(({
+                courses
+            }) => courses.length))()
+        },
     },
     components: {
         Subject
