@@ -109,7 +109,7 @@ export default {
     transition: all 300ms;
 }
 
-.course-card:hover {
+.course-card.enabled:hover {
     transform: translateY(-6px);
 }
 
