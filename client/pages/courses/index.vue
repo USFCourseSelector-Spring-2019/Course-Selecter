@@ -66,6 +66,7 @@ import {
 export default {
     auth: false,
     data() {
+
         return {
             tempQuery: '',
             query: '',
@@ -118,6 +119,7 @@ export default {
         classesIndex.addDocuments(x)
         this.subjectIndex = subjectIndex
         this.classesIndex = classesIndex
+        console.log(this, this.selected)
     },
     async fetch({
         query,
@@ -133,9 +135,9 @@ export default {
         app: {
             $api
         },
-        store
+        store,
+        query
     }) {
-        console.log(store.getters, store.getters.courseData)
         if (!store.getters.loadedCourseData) {
             console.log('loading')
             await store.dispatch('loadCourseData', {
@@ -145,10 +147,31 @@ export default {
         }
         const courseData = await store.getters.courseData
             //load the selected filters
+        const selected = [
+            'available',
+            'campus',
+            'subject',
+            'course',
+            'days',
+            'instructor',
+            'attributes'
+        ].map(key => key === 'available' ? key in query ? Boolean(query[key]) : undefined : key === 'days' ? key in query ? JSON.parse(query[key]) : undefined : query[key] || undefined)
+        console.log(query, selected)
         return {
+            selected,
             ...courseData,
         }
     },
+    watchQuery: [
+        'available',
+        'campus',
+        'subject',
+        'course',
+        'days',
+        'instructor',
+        'attributes',
+        'crn'
+    ],
     watch: {
         selected: {
             handler: function([availableFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter]) {
@@ -164,8 +187,8 @@ export default {
                             ['days', dayFilter],
                             ['instructor', profFilter],
                             ['attributes', attrFilter]
-                        ].reduce((obj, [key, val]) => (val ? ({...obj,
-                            [key]: val
+                        ].reduce((obj, [key, val]) => (val !== undefined && val !== null ? ({...obj,
+                            [key]: key === 'days' ? JSON.stringify(val) : val
                         }) : obj), {})
                     }
                 })
@@ -222,7 +245,7 @@ export default {
         categories_results() {
             const [availableFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter] = this.selected,
                 filter = (course) => {
-                    if (availableFilter) {
+                    if (availableFilter === Boolean(availableFilter)) {
                         if (course.available !== availableFilter) {
                             return false
                         }
@@ -251,7 +274,7 @@ export default {
                         }
                     }
                     if (dayFilter) {
-                        if (course.days.join() !== dayFilter.join()) {
+                        if (!Array.isArray(course.days) || course.days.join() !== dayFilter.join()) {
                             return false
                         }
                     }
@@ -261,7 +284,7 @@ export default {
                         }
                     }
                     if (attrFilter) {
-                        if (!course.attributes || course.attributes.includes(attrFilter)) {
+                        if (!Array.isArray(course.attributes) || course.attributes.includes(attrFilter)) {
                             return false
                         }
                     }
