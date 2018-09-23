@@ -103,7 +103,7 @@ class CoursesController {
             const courses = await this.coursesDB.get('courses')
             semester = courses.current_semester
         }
-        const proffessor_data = this.getProfessorData({ params: { proffessor_name: course.instructor } })
+        
         const { categories } = await this.coursesDB.get(semester)
         const course = categories.reduce((response, category) => {
             if (response !== false) {
@@ -112,19 +112,21 @@ class CoursesController {
             const course = category.courses.reduce((response, { classes }) => response || classes.find(course => course.crn === crn), false)
             return course || response
         }, false)
+
         if (!course) {
             return false
         }
+        const professor_data = await this.getProfessorData({ params: { proffessor_name: course.instructor } })
 
 
         //also grab rating shit?
 
-        return { ...course, professor_data: (await proffessor_data) }
+        return { ...course, professor_data }
 
     }
-    async getProfessorData({ params: { proffessor_name } }) {
+    async getProfessorData({ params: { professor_name } }) {
         try {
-            return await this.coursesDB.get('Proffessor - ' + proffessor_name)
+            return await this.coursesDB.get('Proffessor - ' + professor_name)
         } catch (e) {
             return false
         }

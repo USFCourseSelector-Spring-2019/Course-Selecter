@@ -23,9 +23,9 @@
             </div>
         </v-flex>
         <v-flex xl10 offset-xl2 xs12 :class="{'pa-3':$vuetify.breakpoint.mdAndUp,box:true}">
-            <h1 class="pl-2 py-2 text-xl-left text-xs-center display-1">{{semester}} Results</h1>
+            <h1 class="pl-2 py-2 text-xl-left text-xs-center display-1">{{semester}} Results{{crn}}</h1>
             <Subject v-for="category in categories_results.slice(0, amountToShow)" :key="category.shortcode" v-bind:subject="category" v-on:open-course="openCourse" />
-            <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="1000" :infinite-scroll-immediate-check="false">
+            <div v-infinite-scroll="loadMore" infinite-scroll-distance="1000" :infinite-scroll-immediate-check="false">
             </div>
             <v-layout v-if="!categories_results.length">
                 <h2>No Courses found:</h2> You should check your filters
@@ -55,6 +55,44 @@
                 </v-layout>
             </v-card>
         </v-bottom-sheet>
+        <v-dialog v-model="modal" fullscreen hide-overlay transition="dialog-bottom-transition" lazy>
+            <v-card>
+                <v-toolbar dark color="primary">
+                    <v-btn icon dark @click.native="modal= false">
+                        <v-icon>close</v-icon>
+                    </v-btn>
+                    <v-toolbar-title>Course:{{(courseInfo && courseInfo.title)||crn}}</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                    <v-toolbar-items>
+                        <v-btn :color="adding?'success':'primary'" @click="inPlanner?showPlanner():addCourse()" :loading="adding" class="primary-fg--text" flat>
+                            <v-icon left>{{inPlanner?'view_list':'add'}}</v-icon><span v-text="inPlanner?'Show in Plan':'Add to Plan'"></span>
+                        </v-btn>
+                    </v-toolbar-items>
+                </v-toolbar>
+                <div v-if="loading">
+                    Loading
+                </div>
+                <div v-else>
+                    {{courseInfo}}
+                    <v-list three-line subheader>
+                        <v-subheader>User Controls</v-subheader>
+                        <v-list-tile avatar>
+                            <v-list-tile-content>
+                                <v-list-tile-title>Content filtering</v-list-tile-title>
+                                <v-list-tile-sub-title>Set the content filtering level to restrict apps that can be downloaded</v-list-tile-sub-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                        <v-list-tile avatar>
+                            <v-list-tile-content>
+                                <v-list-tile-title>Password</v-list-tile-title>
+                                <v-list-tile-sub-title>Require password for purchase or use password to restrict purchase</v-list-tile-sub-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
+                    <v-divider></v-divider>
+                </div>
+            </v-card>
+        </v-dialog>
     </v-layout>
 </template>
 <script>
@@ -74,14 +112,18 @@ export default {
             filters: [],
             bottomSheet: false,
             amountToShow: 10,
-            busy: false,
+            loading: false,
+            crn: undefined,
             selected: [],
             classesIndex: {
                 search: () => this.categories
             },
             subjectIndex: {
                 search: () => this.categories
-            }
+            },
+            courseInfo: {},
+            adding: false,
+            professor: false
         }
     },
     mounted() {
@@ -119,7 +161,6 @@ export default {
         classesIndex.addDocuments(x)
         this.subjectIndex = subjectIndex
         this.classesIndex = classesIndex
-        console.log(this, this.selected)
     },
     async fetch({
         query,
@@ -139,11 +180,9 @@ export default {
         query
     }) {
         if (!store.getters.loadedCourseData) {
-            console.log('loading')
             await store.dispatch('loadCourseData', {
                 $api
             })
-            console.log('loaded')
         }
         const courseData = await store.getters.courseData
             //load the selected filters
@@ -156,9 +195,17 @@ export default {
             'instructor',
             'attributes'
         ].map(key => key === 'available' ? key in query ? Boolean(query[key]) : undefined : key === 'days' ? key in query ? JSON.parse(query[key]) : undefined : query[key] || undefined)
-        console.log(query, selected)
+        let courseInfo = {}
+        if (!store.getters.loadedCourseInfo(query.crn)) {
+            await store.dispatch('loadCourseInfo', {
+                $api,
+                crn: query.crn
+            })
+        }
         return {
             selected,
+            crn: query.crn || undefined,
+            courseInfo: (await store.getters.courseInfo(query.crn) || {}),
             ...courseData,
         }
     },
@@ -169,8 +216,7 @@ export default {
         'course',
         'days',
         'instructor',
-        'attributes',
-        'crn'
+        'attributes'
     ],
     watch: {
         selected: {
@@ -230,7 +276,7 @@ export default {
         search() {
             this.query = this.tempQuery
         },
-        openCourse(crn) {
+        async openCourse(crn) {
             console.log('Switching to: ', crn)
             this.$router.push({
                 name: 'courses',
@@ -239,12 +285,62 @@ export default {
                     crn
                 }
             })
+            this.crn = crn
+            if (this.$store.getters.loadedCourseInfo(crn)) {
+                this.courseInfo = this.$store.getters.courseInfo(crn)
+            } else {
+                this.loading = true
+                this.courseInfo = await this.$store.dispatch('loadCourseInfo', {
+                    $api: this.$api,
+                    crn
+                })
+                this.loading = false
+            }
+        },
+        addCourse() {
+            this.adding = true
+            this.$store.commit('planner/addCourse', this.courseInfo)
+            setTimeout(() => (this.adding = false), 200)
+        },
+        showPlanner() {
+            //close modal
+            this.crn = false
+
+            if (this.$store.state.planner.curTab === 2) {
+                return this.showCourses()
+            }
+            this.$store.commit('planner/showPlanner')
         }
     },
     computed: {
+        image() {
+            const professor = this.professor
+            if (professor) {
+                return professor.images[0]
+            }
+            return 'https://image.shutterstock.com/mosaic_250/0/0/518740741.jpg'
+        },
+        bio() {
+            const professor = this.professor
+            if (professor) {
+                return professor.bio.join('\n')
+            }
+        },
+        link() {
+            const professor = this.professor
+            if (professor) {
+                return professor.link
+            }
+        },
+        inPlanner() {
+            if (!this.courseInfo) {
+                return false
+            }
+            return this.$store.getters['planner/isInPlan'](this.courseInfo)
+        },
         categories_results() {
             const [availableFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter] = this.selected,
-                filter = (course) => {
+                filter = course => {
                     if (availableFilter === Boolean(availableFilter)) {
                         if (course.available !== availableFilter) {
                             return false
@@ -289,7 +385,8 @@ export default {
                         }
                     }
                     return true
-                }, query = (this.query || '').trim().toLowerCase(),
+                },
+                query = (this.query || '').trim().toLowerCase(),
                 categories = this.categories,
                 searched = this.classesIndex.search(query).reduce((arr, {
                     r,
@@ -321,6 +418,7 @@ export default {
                     }
                     return arr
                 }, []).filter(a => a)
+
             return query.length ? searched : (() => this.categories.map(({
                 courses,
                 ...rest
@@ -339,6 +437,16 @@ export default {
                 courses
             }) => courses.length))()
         },
+        modal: {
+            get() {
+                return !!this.crn
+            },
+            set(value) {
+                if (!value) {
+                    this.openCourse(undefined)
+                }
+            }
+        }
     },
     components: {
         Subject
