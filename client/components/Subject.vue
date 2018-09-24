@@ -148,11 +148,9 @@ export default {
                 return props
             },
             goTo(where) {
-                setTimeout(() => {
-                    this.$vuetify.goTo(where, {
-                        offset: -70
-                    })
-                }, 250)
+                this.$vuetify.goTo(where, {
+                    offset: -70
+                })
             },
         }
 }
