@@ -55,7 +55,7 @@
                 </v-layout>
             </v-card>
         </v-bottom-sheet>
-        <v-dialog v-model="modal" fullscreen hide-overlay transition="dialog-bottom-transition" lazy>
+        <v-dialog v-model="modal" :fullscreen="this.$vuetify.breakpoint.mdAndDown" :hide-overlay="this.$vuetify.breakpoint.mdAndDown" transition="dialog-bottom-transition" lazy>
             <v-card>
                 <v-toolbar dark color="primary">
                     <v-btn icon dark @click.native="modal= false">
@@ -69,10 +69,43 @@
                         </v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
-                <div v-if="loading">
+                <v-layout v-if="loading||!courseInfo" class="full-height" column justify-center align-center>
                     Loading
-                </div>
+                    <v-progress-circular :size="100" :width="7" color="primary" indeterminate></v-progress-circular>
+                </v-layout>
                 <div v-else>
+                    <v-layout xl5 lg6 xs12 class="flex" column>
+                        <h2 class="headline font-weight-regular py-2">ID: {{courseInfo.shortcode}} {{courseInfo.id}}</h2>
+                        <h3 class="title font-weight-regular py-2">Identifier (CRN):{{courseInfo.crn}}</h3>
+                        <h4 class="subheading font-weight-regular py-2">{{(courseInfo.days||[]).join('')}} {{(courseInfo.times||[]).join(' - ')}}</h4>
+                        <v-flex class="my-1"></v-flex>
+                        <v-layout row wrap class="no-grow">
+                            <v-flex xs3 class="pr-1">
+                                <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                    <div class="headline">{{Number(courseInfo.credits).toFixed(0)}}</div>
+                                    <span class="subheader">Credits</span>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs3 class="pr-1">
+                                <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                    <div class="headline">{{courseInfo.enrolled}}</div>
+                                    <span class="subheader">Enrolled</span>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs3 class="px-0">
+                                <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                    <div class="headline">{{courseInfo.remaining}}</div>
+                                    <span class="subheader">Remaining</span>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs3 class="pl-1">
+                                <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                    <div class="headline">{{courseInfo.wl_remaining}}</div>
+                                    <span class="subheader">Waitlist</span>
+                                </v-card>
+                            </v-flex>
+                        </v-layout>
+                    </v-layout>
                     {{courseInfo}}
                     <v-list three-line subheader>
                         <v-subheader>User Controls</v-subheader>
