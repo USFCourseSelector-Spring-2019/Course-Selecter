@@ -3,7 +3,11 @@
         <v-flex xl2 sm12 :class="['px-3', 'py-4', 'fixed-xl-and-up' ,'full-width']">
             <h1 class="text-xs-center display-1">Search Courses</h1>
             <v-layout class="my-4" :column="$vuetify.breakpoint.xsOnly">
-                <v-text-field v-model.trim="query" label="Search" append-icon="search" @click:append="search" v-on:keyup.enter="search" clearable solo color="primary"></v-text-field>
+                <v-text-field v-model.trim="tempQuery" label="Search" v-on:keyup.enter="search" clearable solo color="primary"></v-text-field>
+                <v-btn color="primary" @click="search">
+                    <v-icon left>search</v-icon>
+                    <span>Search</span>
+                </v-btn>
                 <v-btn @click="bottomSheet=true" class="hidden-md-and-up" color="primary">
                     <v-icon left>filter_list</v-icon>Filter By
                 </v-btn>
@@ -23,7 +27,7 @@
             </div>
         </v-flex>
         <v-flex xl10 offset-xl2 xs12 :class="{'pa-3':$vuetify.breakpoint.mdAndUp,box:true}">
-            <h1 class="pl-2 py-2 text-xl-left text-xs-center display-1">{{semester}} Results{{crn}}</h1>
+            <h1 class="pl-2 py-2 text-xl-left text-xs-center display-1" ref="results">{{semester}} Results{{crn}}</h1>
             <Subject v-for="category in categories_results.slice(0, amountToShow)" :key="category.shortcode" v-bind:subject="category" v-on:open-course="openCourse" />
             <div v-infinite-scroll="loadMore" infinite-scroll-distance="1000" :infinite-scroll-immediate-check="false">
             </div>
@@ -61,7 +65,7 @@
                     <v-btn icon dark @click.native="modal= false">
                         <v-icon>close</v-icon>
                     </v-btn>
-                    <v-toolbar-title>Course:{{(courseInfo && courseInfo.title)||crn}}</v-toolbar-title>
+                    <v-toolbar-title>{{(courseInfo && courseInfo.title)||'Loading...'}}</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
                         <v-btn :color="adding?'success':'primary'" @click="inPlanner?showPlanner():addCourse()" :loading="adding" class="primary-fg--text" flat>
@@ -148,52 +152,13 @@ export default {
             loading: false,
             crn: undefined,
             selected: [],
-            classesIndex: {
-                search: () => this.categories
-            },
-            subjectIndex: {
-                search: () => this.categories
-            },
             courseInfo: {},
             adding: false,
-            professor: false
+            professor: false,
         }
     },
     mounted() {
-        const subjectIndex = new Search('subject')
-        subjectIndex.addIndex('shortcode')
-        subjectIndex.addIndex('subject')
-        subjectIndex.addIndex(['courses', 'attributes'])
-        subjectIndex.addIndex(['courses', 'id'])
-        subjectIndex.addIndex(['courses', 'title'])
-        subjectIndex.addDocuments(this.categories)
 
-        const classesIndex = new Search('index')
-        classesIndex.addIndex('id')
-        classesIndex.addIndex('title')
-        classesIndex.addIndex('crn')
-        classesIndex.addIndex('loc')
-        classesIndex.addIndex('shortcode')
-        classesIndex.addIndex('subject')
-        classesIndex.addIndex('instructor')
-        classesIndex.addIndex('campus')
-        classesIndex.addIndex(['attributes', '0'])
-        classesIndex.addIndex(['attributes', '1'])
-        classesIndex.addIndex(['attributes', '2'])
-        classesIndex.addIndex(['attributes', '3'])
-        classesIndex.addIndex(['attributes', '4'])
-        const x = this.categories.reduce((arr, {
-            courses,
-            ...rest
-        }, r) => arr.concat(courses.reduce((arr, {
-            classes
-        }, c) => (arr.concat(classes.map(course => ({...course,
-            r,
-            c
-        })))), [])), [])
-        classesIndex.addDocuments(x)
-        this.subjectIndex = subjectIndex
-        this.classesIndex = classesIndex
     },
     async fetch({
         query,
@@ -238,6 +203,8 @@ export default {
         return {
             selected,
             crn: query.crn || undefined,
+            tempQuery: query.query || '',
+            query: query.query || '',
             courseInfo: (await store.getters.courseInfo(query.crn) || {}),
             ...courseData,
         }
@@ -308,6 +275,18 @@ export default {
         },
         search() {
             this.query = this.tempQuery
+            this.$router.push({
+                name: 'courses',
+                query: {
+                    ...this.$router.currentRoute.query,
+                    query: this.query.length ? this.query : undefined
+                }
+            })
+            setTimeout(() => { //give the search 50 ms to compute
+                this.$vuetify.goTo(this.$refs.results, {
+                    offset: -70
+                })
+            }, 50)
         },
         async openCourse(crn) {
             console.log('Switching to: ', crn)
@@ -451,7 +430,6 @@ export default {
                     }
                     return arr
                 }, []).filter(a => a)
-
             return query.length ? searched : (() => this.categories.map(({
                 courses,
                 ...rest
@@ -479,6 +457,43 @@ export default {
                     this.openCourse(undefined)
                 }
             }
+        },
+        classesIndex() {
+            const classesIndex = new Search('index')
+            classesIndex.addIndex('id')
+            classesIndex.addIndex('title')
+            classesIndex.addIndex('crn')
+            classesIndex.addIndex('loc')
+            classesIndex.addIndex('shortcode')
+            classesIndex.addIndex('subject')
+            classesIndex.addIndex('instructor')
+            classesIndex.addIndex('campus')
+            classesIndex.addIndex(['attributes', '0'])
+            classesIndex.addIndex(['attributes', '1'])
+            classesIndex.addIndex(['attributes', '2'])
+            classesIndex.addIndex(['attributes', '3'])
+            classesIndex.addIndex(['attributes', '4'])
+            const x = this.categories.reduce((arr, {
+                courses,
+                ...rest
+            }, r) => arr.concat(courses.reduce((arr, {
+                classes
+            }, c) => (arr.concat(classes.map(course => ({...course,
+                r,
+                c
+            })))), [])), [])
+            classesIndex.addDocuments(x)
+            return classesIndex
+        },
+        subjectIndex() {
+            const subjectIndex = new Search('subject')
+            subjectIndex.addIndex('shortcode')
+            subjectIndex.addIndex('subject')
+            subjectIndex.addIndex(['courses', 'attributes'])
+            subjectIndex.addIndex(['courses', 'id'])
+            subjectIndex.addIndex(['courses', 'title'])
+            subjectIndex.addDocuments(this.categories)
+            return subjectIndex
         }
     },
     components: {
