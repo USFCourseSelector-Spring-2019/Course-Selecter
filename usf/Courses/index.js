@@ -167,6 +167,6 @@ if (!module.parent) {
     //scraper(()=>loadFile('./all-classes.html'))
     scraper(() => loadFile(path.resolve(__dirname, './all-classes.html'))).then(results => write(path.resolve(__dirname, './courses.json'), results).then(() => console.log('Wrote Results to File') || results)).catch((err) => { console.log("welp something went wrong", err) })
 }
-module.exports = () => scraper(() => getHTML())
+module.exports = (params) => scraper(() => getHTML(params))
 module.exports.scraper = scraper
 module.exports.loadFile = () => scraper(() => loadFile(path.resolve(__dirname, './all-classes.html')))
