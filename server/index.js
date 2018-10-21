@@ -1,46 +1,65 @@
 const scraper = require('../usf/Courses/'),
     Promise = require('bluebird'),
     mydb = require('nano')('http://localhost:5984')
-
-function store(params) {
+function attachUpdate(db){
+    db.update = function(obj, key, callback,transform=a=>a) {
+     db.get(key, function (error, existing) { 
+      if(!error) obj._rev = existing._rev;
+      db.insert(transform(obj,existing), key, callback);
+     });
+    }
+    return db
+}
+async function store(params) {
     Promise.promisifyAll(mydb);
-    const getAndUse = dbName => Promise.promisifyAll(mydb.use(dbName))
+    const getAndUse = dbName => attachUpdate(Promise.promisifyAll(mydb.use(dbName)))
     return scraper(params).then(async function (data) {
         const DOC_ID = 'courses - ' + data.semester
         data._id = DOC_ID
         const usf = getAndUse('usf')
-        try {
-            const doc = await usf.getAsync(DOC_ID)
-            data._rev = doc._rev
-        } catch (err) {
-            console.log('New Semester Document')
+            
+        try{
+            const body = await usf.update(data,DOC_ID,(err,existing)=>{
+                if(err){
+                    console.log(err)
+                }
+            })
+            console.log(body)
         }
-        const body = await usf.insertAsync({ ...data })
-        console.log(body)
+        catch(e){
+            console.log(e)
+        }
         //successfully put semester Document in
 
         const courses = {
             current_semester: DOC_ID,
             accessDate: data.accessDate,
-            semesters_available: [DOC_ID]
+            semesters_available: [DOC_ID],
         }
-        try {
-            const coursesDoc = await use.getAsync('courses')
-            Object.assign(courses, coursesDoc)
-            courses.semesters_available.push(DOC_ID)
-        } catch (err) {
-            console.log('New Courses Document')
-            courses._id = "courses"
+        try{
+            const coursesBody = await usf.update(courses,'courses',(err,existing)=>{
+                if(err){
+                    console.log(err)
+                }
+            },(newObj,oldObj)=>{
+                if(oldObj){
+                    newObj.semesters_available=(oldObj.semesters_available.concat(DOC_ID)).filter(function(item, pos, self) {
+    return self.indexOf(item) == pos;
+})
+                }
+                return newObj
+            })
+            console.log(coursesBody)
+            console.log('Successfully put all USF Data!')
+        }catch(e){
+            console.log(e)
         }
-        const coursesBody = await usf.insertAsync({ ...courses })
-        console.log(coursesBody)
-        console.log('Successfully put all USF Data!')
         return DOC_ID
     })
 }
 
 if(!module.parent){
-    store()
+    store({offset:1, headless: true})
 }
 
 module.exports = store
