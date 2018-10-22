@@ -189,7 +189,7 @@ export default {
                 return `${(time.hour()>12?time.hour()-12:time.hour()).toString().padStart(2,'0')}:${time.minute().toString().padStart(2,'0')} ${time.hour()>12?'pm':'am'}`
             },
             getColor(index) {
-                const colors = ['secondary', 'light-blue', 'lime', 'amber', 'light-green', 'orange', 'light-blue', 'red', 'yellow']
+                const colors = ['secondary', 'light-blue', 'deep-orange', 'cyan lighten-1', 'pink lighten-2', 'purple lighten-2', 'green accent-2', 'indigo lighten-1', 'deep-purple lighten-2', 'red lighten-3']
                 return colors[index % colors.length]
             }
         },
