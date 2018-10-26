@@ -10,7 +10,7 @@
     "start": "nuxt start",
     "generate": "nuxt generate",
     "couch": "couchdb",
-    "server": "pm2 start npm --name \"course-selector-web-ui\" -- start",
+    "server": "HOST=0.0.0.0 PORT=3000 pm2 start npm --name \"course-selector-web-ui\" -- start",
     "postinstall": "npm run build"
   },
   "dependencies": {
