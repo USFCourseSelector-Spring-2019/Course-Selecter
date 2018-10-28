@@ -76,22 +76,29 @@ export default {
             },
             links() {
                 return [{
-                    icon: 'apps',
-                    title: 'Home',
-                    to: '/'
-                }, this.$auth.loggedIn ? {
-                    icon: 'apps',
-                    title: 'Dashboard',
-                    to: '/dashboard'
-                } : {
-                    icon: 'apps',
-                    title: 'Sign up for more features',
-                    to: '/sign-up'
-                }, {
-                    icon: 'bubble_chart',
-                    title: 'Browse Courses',
-                    to: '/courses'
-                }]
+                        icon: 'apps',
+                        title: 'Home',
+                        to: '/'
+                    }, {
+                        icon: 'info',
+                        title: 'About',
+                        to: '/about'
+                    },
+                    /*this.$auth.loggedIn ? {
+                                       icon: 'apps',
+                                       title: 'Dashboard',
+                                       to: '/dashboard'
+                                   } : {
+                                       icon: 'apps',
+                                       title: 'Sign up for more features',
+                                       to: '/sign-up'
+                                   },*/
+                    {
+                        icon: 'bubble_chart',
+                        title: 'Browse Courses',
+                        to: '/courses'
+                    }
+                ]
             }
         },
         components: {
