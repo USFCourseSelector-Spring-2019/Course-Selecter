@@ -31,6 +31,9 @@ export const mutations = {
         console.log('added', course, this.plans)
         getters.currentPlan(state).courses.push(course)
     },
+    removeCourseIndex(state, courseIndex){
+        getters.currentPlan(state).courses.splice(courseIndex, 1)
+    },
     setPlans(state, plans) {
         state.plans = plans
     },
@@ -86,6 +89,10 @@ export const actions = {
     },
     async addCourse({ commit, dispatch }, { payload, $api }) {
         await commit('addCourse', payload)
+        await dispatch('saveSettings', { $api })
+    },
+    async removeCourse({ commit, dispatch }, { payload, $api }) {
+        await commit('removeCourseIndex', payload)
         await dispatch('saveSettings', { $api })
     },
     async addPlan({ commit, dispatch }, { payload, $api }) {

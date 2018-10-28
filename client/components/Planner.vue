@@ -27,7 +27,7 @@
                 <v-card flat>
                     <v-layout column v-if="courses.length">
                         <v-flex v-for="(course,i) in courses" :key="course.index">
-                            <Course :course="course" @close="courses.splice(i,1)" :show-added="false" />
+                            <Course :course="course" @close="$store.dispatch('planner/removeCourse',{payload:i,$api})" :show-added="false" />
                         </v-flex>
                     </v-layout>
                     <v-card-text v-else>
