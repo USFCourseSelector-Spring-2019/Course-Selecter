@@ -1,9 +1,14 @@
 import ls from 'local-storage';
 
+function storeToLocalStorage({ plans, plan }) {
+    ls('plans', plans)
+    ls('plan', plan)
+}
+
 const DEFAULT_PLANS = [{
-        title: 'My 1st Planner',
-        courses: []
-    }]
+    title: 'My 1st Planner',
+    courses: []
+}]
 
 export const state = () => ({
     visible: false,
@@ -68,7 +73,6 @@ export const actions = {
         await commit('showPlanner')
     },
     async saveSettings({ state, rootState: { auth: { loggedIn, user } } }, { $api }) {
-        const { plans, plan } = state
         //Store these settings to the user in the db and localstorage or just localstorage if not logged in
         if (loggedIn) {
             try {
@@ -77,10 +81,12 @@ export const actions = {
             } catch (e) {
                 console.log('Failed to save plans with error:', e)
             }
-        } else {
-            ls('plans', plans)
-            ls('plan', plan)
         }
+        storeToLocalStorage(state)
+    },
+    async addCourse({ commit, dispatch }, { payload, $api }) {
+        await commit('addCourse', payload)
+        await dispatch('saveSettings', { $api })
     },
     async addPlan({ commit, dispatch }, { payload, $api }) {
         await commit('addPlan', payload)
@@ -102,14 +108,16 @@ export const actions = {
         commit,
         rootState: { auth: { loggedIn, user } }
     }, { $api }) {
+        const savedPlans = ls('plans'),
+            savedPlan = ls('plan')
         if (loggedIn) {
             const { plans, plan } = await $api.auth.getPlans()
-            await commit('setPlans', plans || DEFAULT_PLANS)
-            await commit('setCurPlan', plan || 0)
+            await commit('setPlans', plans || savedPlan || DEFAULT_PLANS)
+            await commit('setCurPlan', plan || savedPlan || 0)
         } else {
-            const plans = ls('plans')
-            await commit('setPlans', plans || DEFAULT_PLANS)
-            await commit('setCurPlan', ls('plan') || 0)
+            const savedPlans = ls('plans')
+            await commit('setPlans', savedPlans || DEFAULT_PLANS)
+            await commit('setCurPlan', savedPlan || 0)
         }
     }
 }

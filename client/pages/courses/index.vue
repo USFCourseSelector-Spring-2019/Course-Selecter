@@ -311,7 +311,10 @@ export default {
         },
         addCourse() {
             this.adding = true
-            this.$store.commit('planner/addCourse', this.courseInfo)
+            this.$store.dispatch('planner/addCourse', {
+                payload: this.courseInfo,
+                $api: this.$api
+            })
             setTimeout(() => (this.adding = false), 200)
         },
         showPlanner() {
