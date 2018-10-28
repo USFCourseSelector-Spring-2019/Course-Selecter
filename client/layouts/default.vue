@@ -14,13 +14,13 @@
         </v-navigation-drawer>
         <v-toolbar fixed app color="primary" class="primary-fg--text">
             <v-toolbar-side-icon @click="drawer = !drawer" color="primary-fg" flat></v-toolbar-side-icon>
-            <img src="/icon.png" height="50px" />
-            <v-toolbar-title v-text="title"></v-toolbar-title>
+            <img src="/icon.png" height="38px" />
+            <v-toolbar-title v-text="title" :class="{'ml-2':$vuetify.breakpoint.smAndDown}"></v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn @click.stop="logout" v-if="$auth.loggedIn" color="primary-fg" flat>
+            <v-btn @click.stop="logout" v-if="$auth.loggedIn" color="primary-fg" flat class="hidden-sm-and-down">
                 Sign out
             </v-btn>
-            <v-btn href="/sign-up" v-else color="primary-fg" flat>
+            <v-btn href="/sign-up" v-else color="primary-fg" flat class="hidden-sm-and-down">
                 Sign Up
             </v-btn>
             <v-btn icon @click.stop="togglePlanner" color="primary-fg" flat>

@@ -60,7 +60,7 @@
             </v-card>
         </v-bottom-sheet>
         <v-dialog v-model="modal" :fullscreen="this.$vuetify.breakpoint.mdAndDown" :hide-overlay="this.$vuetify.breakpoint.mdAndDown" transition="dialog-bottom-transition" lazy>
-            <v-card>
+            <v-card tile>
                 <v-toolbar dark color="primary">
                     <v-btn icon dark @click.native="modal= false">
                         <v-icon>close</v-icon>

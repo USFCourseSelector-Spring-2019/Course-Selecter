@@ -12,7 +12,7 @@
             <v-tabs slot="extension" centered v-model="curTab" slider-color="white" color="transparent" grow>
                 <v-tabs-slider color="secondary"></v-tabs-slider>
                 <v-tab ripple class="primary-fg--text">
-                    Course Descriptions
+                    Courses
                 </v-tab>
                 <v-tab ripple class="primary-fg--text">
                     Calendar

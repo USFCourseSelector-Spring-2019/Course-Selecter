@@ -72,15 +72,17 @@ export default {
             }
         },
         mounted() {
-            this.$api.courses.getProfessorData({
-                params: {
-                    professor_name: this.course.instructor
-                }
-            }).then(professorData => {
-                this.professor = professorData
-            }).catch(err => {
-                this.professor = false
-            })
+            if (this.course.instructor && this.course.instructor.length) {
+                this.$api.courses.getProfessorData({
+                    params: {
+                        professor_name: this.course.instructor
+                    }
+                }).then(professorData => {
+                    this.professor = professorData
+                }).catch(err => {
+                    this.professor = false
+                })
+            }
         },
         props: {
             course: Object,
