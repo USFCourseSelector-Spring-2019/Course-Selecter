@@ -21,7 +21,7 @@
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" flat nuxt to="/courses">Search for Courses</v-btn>
+                <v-btn color="primary" flat nuxt to="/about">Learn More</v-btn>
             </v-card-actions>
         </v-card>
     </v-container>
