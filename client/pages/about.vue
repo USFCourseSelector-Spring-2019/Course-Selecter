@@ -16,6 +16,8 @@
             <li>Planning for future semesters</li>
             <li>Share Plans with friends</li>
         </ul>
+        <h1>Contact</h1>
+        <p>If you have any feature requests, bugs, complaints or otherwise send me an email! <a href="mailto:nperez0111@gmail.com">nperez0111@gmail.com</a></p>
     </v-container>
 </template>
 <script>
