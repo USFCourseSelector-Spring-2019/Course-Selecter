@@ -9,7 +9,7 @@
                 <v-btn v-for="viewOption in viewOptions" :key="viewOption.value" :flat="days===viewOption.value" @click="days=viewOption.value" depressed color="primary" v-text="viewOption.label"></v-btn>
             </template>
             <template v-else>
-                <v-select :items="viewOptions"></v-select>
+                <v-select :items="viewOptions" item-text="label" label="Calendar View" v-model="days"></v-select>
             </template>
             <v-spacer></v-spacer>
             <v-btn @click="nextWeek" icon :disabled="nextWeekDisabled">
@@ -167,7 +167,7 @@ export default {
             },
             rangeOfTimes() {
                 const [lowestTime, highestTime] = this.highestAndLowestTime
-                return moment.range(lowestTime.clone().minutes(0).subtract(1, 'hours'), highestTime.clone().minutes(60))
+                return moment.range(lowestTime.clone().minutes(0).subtract(lowestTime.minutes() < 30 ? 1 : 0, 'hours'), highestTime.clone().minutes(60))
             },
             times() {
                 return Array.from(this.rangeOfTimes.by('hours'))
