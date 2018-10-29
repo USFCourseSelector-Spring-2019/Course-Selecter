@@ -30,7 +30,7 @@
         <v-content>
             <nuxt />
         </v-content>
-        <v-navigation-drawer temporary right v-model="visibilePlanner" fixed floating width="600">
+        <v-navigation-drawer temporary right v-model="visibilePlanner" fixed floating app width="600">
             <Planner @close="hidePlanner" />
         </v-navigation-drawer>
         <!--<v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>

@@ -1,6 +1,6 @@
 <template>
     <v-layout row wrap style="height:100%">
-        <v-flex xl2 sm12 :class="['px-3', 'py-4', 'fixed-xl-and-up' ,'full-width']">
+        <v-flex xl2 sm12 class="px-3 py-4 full-width fixed-xl-and-up">
             <h1 class="text-xs-center display-1">Search Courses</h1>
             <v-layout class="my-4" :column="$vuetify.breakpoint.xsOnly">
                 <v-text-field v-model.trim="tempQuery" label="Search" v-on:keyup.enter="search" clearable solo color="primary"></v-text-field>
