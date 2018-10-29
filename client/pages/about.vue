@@ -7,7 +7,7 @@
             <li>Better filtering and searching</li>
             <li>Plan Calendar spacing issues</li>
         </ul>
-        <h1>Future Plans</h1>
+        <h1 class="mt-3">Future Plans</h1>
         <ul>
             <li>Recommends courses that fulfill your requirements</li>
             <li>Show your degree progress and helps you to progress further</li>
@@ -16,7 +16,7 @@
             <li>Planning for future semesters</li>
             <li>Share Plans with friends</li>
         </ul>
-        <h1>Contact</h1>
+        <h1 class="mt-3">Contact</h1>
         <p>If you have any feature requests, bugs, complaints or otherwise send me an email! <a href="mailto:nperez0111@gmail.com">nperez0111@gmail.com</a></p>
     </v-container>
 </template>

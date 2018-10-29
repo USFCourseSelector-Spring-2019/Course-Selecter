@@ -17,12 +17,12 @@
             <img src="/icon.png" height="38px" />
             <v-toolbar-title v-text="title" :class="{'ml-2':$vuetify.breakpoint.smAndDown}"></v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn @click.stop="logout" v-if="$auth.loggedIn" color="primary-fg" flat class="hidden-sm-and-down">
+            <!--<v-btn @click.stop="logout" v-if="$auth.loggedIn" color="primary-fg" flat class="hidden-sm-and-down">
                 Sign out
             </v-btn>
             <v-btn href="/sign-up" v-else color="primary-fg" flat class="hidden-sm-and-down">
                 Sign Up
-            </v-btn>
+            </v-btn>-->
             <v-btn icon @click.stop="togglePlanner" color="primary-fg" flat>
                 <v-icon>view_list</v-icon>
             </v-btn>
