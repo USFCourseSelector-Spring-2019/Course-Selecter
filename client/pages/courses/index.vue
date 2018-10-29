@@ -65,7 +65,7 @@
                     <v-btn icon dark @click.native="modal= false">
                         <v-icon>close</v-icon>
                     </v-btn>
-                    <v-toolbar-title>{{(courseInfo && courseInfo.title)||'Loading...'}}</v-toolbar-title>
+                    <v-toolbar-title>{{(courseInfo && `${courseInfo.shortcode} ${courseInfo.id}`)||'Loading...'}}</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
                         <v-btn :color="adding?'success':'primary'" @click="inPlanner?showPlanner():addCourse()" :loading="adding" class="primary-fg--text" flat>
@@ -78,9 +78,17 @@
                     <v-progress-circular :size="100" :width="7" color="primary" indeterminate></v-progress-circular>
                 </v-layout>
                 <div v-else>
-                    <v-layout xl5 lg6 xs12 class="flex" column>
-                        <h2 class="headline font-weight-regular py-2">ID: {{courseInfo.shortcode}} {{courseInfo.id}}</h2>
-                        <h3 class="title font-weight-regular py-2">Identifier (CRN):{{courseInfo.crn}}</h3>
+                    <v-layout xl5 lg6 xs12 class="flex px-1" column>
+                        <v-alert v-model="!courseInfo.available" class="full-width" color="red darken-4" icon="warning">This is course is not available</v-alert>
+                        <v-alert :value="canAddToPlanner(courseInfo) && conflictsWith(courseInfo)[0].index!==courseInfo.index" color="warning grey--text text--darken-4" icon="warning">
+                            The course times of this course conflicts with {{conflictsWith(courseInfo).length===1?'this course:':'these courses:'}}
+                            <span v-for="(conflict,i) in conflictsWith(courseInfo)" :key="conflict.index">
+                                {{i>1?',':' '}}{{conflict.title}} - {{conflict.shortcode}} {{courseInfo.id}} with {{courseInfo.instructor}}
+                            </span>
+                        </v-alert>
+                        <h2 class="headline font-weight-regular py-2">{{courseInfo.title}}</h2>
+                        <h3 class="title font-weight-regular py-2">CRN: {{courseInfo.crn}}</h3>
+                        <h2 class="headline font-weight-regular py-2">{{courseInfo.instructor}}</h2>
                         <h4 class="subheading font-weight-regular py-2">{{(courseInfo.days||[]).join('')}} {{(courseInfo.times||[]).join(' - ')}}</h4>
                         <v-flex class="my-1"></v-flex>
                         <v-layout row wrap class="no-grow">
@@ -110,23 +118,6 @@
                             </v-flex>
                         </v-layout>
                     </v-layout>
-                    {{courseInfo}}
-                    <v-list three-line subheader>
-                        <v-subheader>User Controls</v-subheader>
-                        <v-list-tile avatar>
-                            <v-list-tile-content>
-                                <v-list-tile-title>Content filtering</v-list-tile-title>
-                                <v-list-tile-sub-title>Set the content filtering level to restrict apps that can be downloaded</v-list-tile-sub-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile avatar>
-                            <v-list-tile-content>
-                                <v-list-tile-title>Password</v-list-tile-title>
-                                <v-list-tile-sub-title>Require password for purchase or use password to restrict purchase</v-list-tile-sub-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                    </v-list>
-                    <v-divider></v-divider>
                 </div>
             </v-card>
         </v-dialog>
