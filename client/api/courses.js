@@ -139,7 +139,7 @@ CoursesController.ROUTES = {
         verb: 'GET'
     },
     getProfessorData: {
-        path: '/info/:proffessor_name',
+        path: '/info/:professor_name',
         verb: 'GET'
     },
     getCourseData: {

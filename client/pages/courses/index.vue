@@ -88,7 +88,6 @@
                         </v-alert>
                         <h2 class="headline font-weight-regular py-2">{{courseInfo.title}}</h2>
                         <h3 class="title font-weight-regular py-2">CRN: {{courseInfo.crn}}</h3>
-                        <h2 class="headline font-weight-regular py-2">{{courseInfo.instructor}}</h2>
                         <h4 class="subheading font-weight-regular py-2">{{(courseInfo.days||[]).join('')}} {{(courseInfo.times||[]).join(' - ')}}</h4>
                         <v-flex class="my-1"></v-flex>
                         <v-layout row wrap class="no-grow">
@@ -117,6 +116,9 @@
                                 </v-card>
                             </v-flex>
                         </v-layout>
+                        <h2 class="headline font-weight-regular py-2 mt-2 text-xs-center">{{courseInfo.instructor}}</h2>
+                        <a :href="link" target="_blank" class="avatar mx-auto"><img :src="image" class="elevation-1 proffessor-img mt-3" /></a>
+                        <p v-text="bio" class="mx-3 mt-4">Proffessor Bio... and Proffessor images</p>
                     </v-layout>
                 </div>
             </v-card>
@@ -185,17 +187,30 @@ export default {
             'attributes'
         ].map(key => key === 'available' ? key in query ? Boolean(query[key]) : undefined : key === 'days' ? key in query ? JSON.parse(query[key]) : undefined : query[key] || undefined)
         let courseInfo = {}
+        let professor = false
         if (!store.getters.loadedCourseInfo(query.crn)) {
-            await store.dispatch('loadCourseInfo', {
+            const courseData = await store.dispatch('loadCourseInfo', {
                 $api,
                 crn: query.crn
             })
+            if (courseData && courseData.instructor && courseData.instructor.length) {
+                await $api.courses.getProfessorData({
+                    params: {
+                        professor_name: courseData.instructor
+                    }
+                }).then(professorData => {
+                    professor = professorData
+                }).catch(err => {
+                    professor = false
+                })
+            }
         }
         return {
             selected,
             crn: query.crn || undefined,
             tempQuery: query.query || '',
             query: query.query || '',
+            professor,
             courseInfo: (await store.getters.courseInfo(query.crn) || {}),
             ...courseData,
         }
@@ -297,8 +312,20 @@ export default {
                     $api: this.$api,
                     crn
                 })
-                this.loading = false
+
             }
+            if (this.courseInfo.instructor && this.courseInfo.instructor.length) {
+                this.$api.courses.getProfessorData({
+                    params: {
+                        professor_name: this.courseInfo.instructor
+                    }
+                }).then(professorData => {
+                    this.professor = professorData
+                }).catch(err => {
+                    this.professor = false
+                })
+            }
+            this.loading = false
         },
         addCourse() {
             this.adding = true

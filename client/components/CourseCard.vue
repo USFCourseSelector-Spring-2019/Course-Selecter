@@ -21,16 +21,7 @@ export default {
             }
         },
         mounted() {
-            /*
-            this.$api.courses.getProfessorData({
-                params: {
-                    professor_name: this.course.instructor
-                }
-            }).then(professorData => {
-                this.professor = professorData
-            }).catch(err => {
-                this.professor = false
-            })*/
+
         },
         props: {
             available: Boolean,
@@ -75,25 +66,6 @@ export default {
             }
         },
         computed: {
-            image() {
-                const professor = this.professor
-                if (professor) {
-                    return professor.images[0]
-                }
-                return 'https://image.shutterstock.com/mosaic_250/0/0/518740741.jpg'
-            },
-            bio() {
-                const professor = this.professor
-                if (professor) {
-                    return professor.bio.join('\n')
-                }
-            },
-            link() {
-                const professor = this.professor
-                if (professor) {
-                    return professor.link
-                }
-            },
             inPlanner() {
                 return this.$store.getters['planner/isInPlan'](this)
             }
