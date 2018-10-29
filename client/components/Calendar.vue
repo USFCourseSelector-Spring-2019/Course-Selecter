@@ -110,7 +110,8 @@ export default {
                 return moment.range.apply(moment.range, this.firstAndLastDayOfClass)
             },
             getDays() {
-                const range = this.range
+                const range = this.range.clone()
+                range.start.add(this.dayNumbers[0] - 1, 'days')
                 return Array.from(range.by('days', {
                     step: this.distance
                 }))
