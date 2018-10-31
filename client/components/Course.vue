@@ -46,7 +46,7 @@
                     <h2 class="text-xs-center headline">{{course.instructor}}</h2>
                     <h3 class="text-xs-center caption">Instructor</h3>
                     <a :href="link" target="_blank"><img :src="image" class="elevation-1 proffessor-img mt-3" /></a>
-                    <p v-text="bio" class="mx-3 mt-4">Proffessor Bio... and Proffessor images</p>
+                    <p v-text="bio" v-if="showAdded" class="mx-3 mt-4">Proffessor Bio... and Proffessor images</p>
                 </v-flex>
             </v-layout>
             <v-alert :value="canAddToPlanner(course) && conflictsWith(course)[0].index!==course.index" color="warning grey--text text--darken-4" icon="warning">
