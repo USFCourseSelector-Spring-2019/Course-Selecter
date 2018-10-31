@@ -36,7 +36,7 @@ class CoursesController {
             },
             ret = Object.assign({
                 filters: [{
-                    title: 'Availability',
+                    title: 'Availability of Class',
                     key: 'available',
                     possibles: [av, {
                         key: false,
@@ -44,7 +44,7 @@ class CoursesController {
                     }],
                     selected: null
                 }, {
-                    title: 'Campus',
+                    title: 'All Campuses',
                     key: 'campus',
                     possibles: [lm, ...doc.campuses.filter(a => a.length).slice(1)],
                     selected: lm
@@ -57,7 +57,7 @@ class CoursesController {
                     }) => ({
                         key: shortcode,
                         label: subject
-                    })),
+                    })).sort(({label:a},{label:b})=>a>b),
                     selected: null
                 }, {
                     title: 'Course ID',
@@ -83,16 +83,17 @@ class CoursesController {
                     ]),
                     selected: null
                 }, {
-                    title: 'Professors',
+                    title: 'Professor',
                     key: 'instructor',
-                    possibles: doc.instructors.filter(a => a.length),
+                    possibles: doc.instructors.filter(a => a.length).sort(),
                     selected: null
                 }, {
-                    title: 'Attributes',
+                    title: 'Attribute',
                     key: 'attributes',
-                    possibles: doc.attributes.filter(a => a.length),
+                    possibles: doc.attributes.filter(a => a.length).sort(),
                     selected: null,
-                    every: false
+                    every: false,
+                    hint: 'Search by the requirement the class fufills'
                 }],
                 semester
             }, doc)
