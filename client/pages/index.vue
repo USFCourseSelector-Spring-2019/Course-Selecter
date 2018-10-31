@@ -5,7 +5,7 @@
             <img src="/icon.png" alt="USF Logo" class="my-3" />
         </div>
         <v-card class="flex xs12 sm8 md6 mx-auto" to="/courses">
-            <v-card-title class="title text-xs-center font-weight-regular">We handle registration, you handle college</v-card-title>
+            <h1 class="title text-xs-center font-weight-regular pt-3">We handle registration, you handle college</h1>
             <v-card-text>
                 This website help you pick and plan your courses faster!
             </v-card-text>
