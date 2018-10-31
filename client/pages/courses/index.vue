@@ -414,7 +414,7 @@ export default {
                         }
                     }
                     if (attrFilter) {
-                        if (!Array.isArray(course.attributes) || course.attributes.includes(attrFilter)) {
+                        if (!Array.isArray(course.attributes) || !course.attributes.includes(attrFilter)) {
                             return false
                         }
                     }
