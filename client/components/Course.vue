@@ -60,6 +60,9 @@
             <v-btn :color="adding?'success':'primary'" v-if="showAdded" @click="inPlanner?showPlanner():addCourse()" :loading="adding" class="primary-fg--text">
                 <v-icon left>{{inPlanner?'view_list':'add'}}</v-icon><span v-text="inPlanner?'Show in Plan':'Add to Plan'"></span>
             </v-btn>
+            <v-btn color="red" v-if="showAdded && inPlanner" @click="$store.dispatch('planner/removeCourse',{payload:$store.getters['planner/indexInPlan'](course),$api})" class="primary-fg--text">
+                <v-icon left>remove</v-icon><span>Remove from Plan</span>
+            </v-btn>
         </v-card-actions>
     </v-card>
 </template>

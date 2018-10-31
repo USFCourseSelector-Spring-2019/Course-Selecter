@@ -23,6 +23,14 @@ export const getters = {
     currentPlan: state => state.plans[state.plan],
     currentPlanIndex: state => state.plan,
     isInPlan: state => ({ index }) => state.plans[state.plan].courses.some(course => course.index === index),
+    indexInPlan: state => ({ index }) => {
+        let indexInPlan = -1;
+        state.plans[state.plan].courses.some((course,i) => {
+            indexInPlan = i
+            return course.index === index
+        })
+        return indexInPlan
+    },
     plannerIsVisible: state => state.visible
 }
 
