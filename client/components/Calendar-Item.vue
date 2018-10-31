@@ -27,6 +27,7 @@ export default {
     right: 0;
     text-align: center;
     background-color: #FFF;
+    white-space: nowrap;
 }
 
 .calendar-item::after {

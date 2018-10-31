@@ -49,7 +49,7 @@
                     <p v-text="bio" class="mx-3 mt-4">Proffessor Bio... and Proffessor images</p>
                 </v-flex>
             </v-layout>
-            <v-alert :value="canAddToPlanner(course) && conflictsWith(course)[0].index!==course.index" color="error" icon="warning">
+            <v-alert :value="canAddToPlanner(course) && conflictsWith(course)[0].index!==course.index" color="warning grey--text text--darken-4" icon="warning">
                 The course times of this course conflicts with {{conflictsWith(course).length===1?'this course:':'these courses:'}}
                 <span v-for="(conflict,i) in conflictsWith(course)" :key="conflict.index">
                     {{i>1?',':' '}}{{conflict.title}} - {{conflict.shortcode}} {{course.id}} with {{course.instructor}}
@@ -72,15 +72,17 @@ export default {
             }
         },
         mounted() {
-            this.$api.courses.getProfessorData({
-                params: {
-                    professor_name: this.course.instructor
-                }
-            }).then(professorData => {
-                this.professor = professorData
-            }).catch(err => {
-                this.professor = false
-            })
+            if (this.course.instructor && this.course.instructor.length) {
+                this.$api.courses.getProfessorData({
+                    params: {
+                        professor_name: this.course.instructor
+                    }
+                }).then(professorData => {
+                    this.professor = professorData
+                }).catch(err => {
+                    this.professor = false
+                })
+            }
         },
         props: {
             course: Object,
@@ -92,7 +94,10 @@ export default {
         methods: {
             addCourse() {
                 this.adding = true
-                this.$store.commit('planner/addCourse', this.course)
+                this.$store.dispatch('planner/addCourse', {
+                    payload: this.course,
+                    $api: this.$api
+                })
                 setTimeout(() => (this.adding = false), 500)
             }
         },

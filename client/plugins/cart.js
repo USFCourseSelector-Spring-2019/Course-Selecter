@@ -49,6 +49,9 @@ const Cart = {
                     if (!Array.isArray(classes)) {
                         classes = [classes]
                     }
+                    if(!classes.every(({times})=>!!times)){
+                        return []
+                    }
                     return [
                         moment.min(classes.map(({
                             times: [lowestTime]

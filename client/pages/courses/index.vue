@@ -1,6 +1,6 @@
 <template>
     <v-layout row wrap style="height:100%">
-        <v-flex xl2 sm12 :class="['px-3', 'py-4', 'fixed-xl-and-up' ,'full-width']">
+        <v-flex xl2 sm12 class="px-3 py-4 full-width fixed-xl-and-up">
             <h1 class="text-xs-center display-1">Search Courses</h1>
             <v-layout class="my-4" :column="$vuetify.breakpoint.xsOnly">
                 <v-text-field v-model.trim="tempQuery" label="Search" v-on:keyup.enter="search" clearable solo color="primary"></v-text-field>
@@ -60,13 +60,13 @@
                 </v-layout>
             </v-card>
         </v-bottom-sheet>
-        <v-dialog v-model="modal" fullscreen hide-overlay transition="dialog-bottom-transition" lazy>
-            <v-card>
+        <v-dialog v-model="modal" :fullscreen="this.$vuetify.breakpoint.mdAndDown" :hide-overlay="this.$vuetify.breakpoint.mdAndDown" transition="dialog-bottom-transition" lazy>
+            <v-card tile>
                 <v-toolbar dark color="primary">
                     <v-btn icon dark @click.native="modal= false">
                         <v-icon>close</v-icon>
                     </v-btn>
-                    <v-toolbar-title>{{(courseInfo && courseInfo.title)||'Loading...'}}</v-toolbar-title>
+                    <v-toolbar-title>{{(courseInfo && `${courseInfo.shortcode} ${courseInfo.id}`)||'Loading...'}}</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
                         <v-btn :color="adding?'success':'primary'" @click="inPlanner?showPlanner():addCourse()" :loading="adding" class="primary-fg--text" flat>
@@ -74,27 +74,53 @@
                         </v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
-                <div v-if="loading">
+                <v-layout v-if="loading||!courseInfo" class="full-height" column justify-center align-center>
                     Loading
-                </div>
+                    <v-progress-circular :size="100" :width="7" color="primary" indeterminate></v-progress-circular>
+                </v-layout>
                 <div v-else>
-                    {{courseInfo}}
-                    <v-list three-line subheader>
-                        <v-subheader>User Controls</v-subheader>
-                        <v-list-tile avatar>
-                            <v-list-tile-content>
-                                <v-list-tile-title>Content filtering</v-list-tile-title>
-                                <v-list-tile-sub-title>Set the content filtering level to restrict apps that can be downloaded</v-list-tile-sub-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                        <v-list-tile avatar>
-                            <v-list-tile-content>
-                                <v-list-tile-title>Password</v-list-tile-title>
-                                <v-list-tile-sub-title>Require password for purchase or use password to restrict purchase</v-list-tile-sub-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                    </v-list>
-                    <v-divider></v-divider>
+                    <v-layout xl5 lg6 xs12 class="flex px-1" column>
+                        <v-alert v-model="!courseInfo.available" class="full-width" color="red darken-4" icon="warning">This is course is not available</v-alert>
+                        <v-alert :value="canAddToPlanner(courseInfo) && conflictsWith(courseInfo)[0].index!==courseInfo.index" color="warning grey--text text--darken-4" icon="warning">
+                            The course times of this course conflicts with {{conflictsWith(courseInfo).length===1?'this course:':'these courses:'}}
+                            <span v-for="(conflict,i) in conflictsWith(courseInfo)" :key="conflict.index">
+                                {{i>1?',':' '}}{{conflict.title}} - {{conflict.shortcode}} {{courseInfo.id}} with {{courseInfo.instructor}}
+                            </span>
+                        </v-alert>
+                        <h2 class="headline font-weight-regular py-2">{{courseInfo.title}}</h2>
+                        <h3 class="title font-weight-regular py-2">CRN: {{courseInfo.crn}}</h3>
+                        <h4 class="subheading font-weight-regular py-2">{{(courseInfo.days||[]).join('')}} {{(courseInfo.times||[]).join(' - ')}}</h4>
+                        <v-flex class="my-1"></v-flex>
+                        <v-layout row wrap class="no-grow">
+                            <v-flex xs3 class="pr-1">
+                                <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                    <div class="headline">{{Number(courseInfo.credits).toFixed(0)}}</div>
+                                    <span class="subheader">Credits</span>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs3 class="pr-1">
+                                <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                    <div class="headline">{{courseInfo.enrolled}}</div>
+                                    <span class="subheader">Enrolled</span>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs3 class="px-0">
+                                <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                    <div class="headline">{{courseInfo.remaining}}</div>
+                                    <span class="subheader">Remaining</span>
+                                </v-card>
+                            </v-flex>
+                            <v-flex xs3 class="pl-1">
+                                <v-card class="full-height layout column justify-center align-center text-sm-center py-2 px-0 primary-fg--text primary">
+                                    <div class="headline">{{courseInfo.wl_remaining}}</div>
+                                    <span class="subheader">Waitlist</span>
+                                </v-card>
+                            </v-flex>
+                        </v-layout>
+                        <h2 class="headline font-weight-regular py-2 mt-2 text-xs-center">{{courseInfo.instructor}}</h2>
+                        <a :href="link" target="_blank" class="avatar mx-auto"><img :src="image" class="elevation-1 proffessor-img mt-3" /></a>
+                        <p v-text="bio" class="mx-3 mt-4">Proffessor Bio... and Proffessor images</p>
+                    </v-layout>
                 </div>
             </v-card>
         </v-dialog>
@@ -162,17 +188,30 @@ export default {
             'attributes'
         ].map(key => key === 'available' ? key in query ? Boolean(query[key]) : undefined : key === 'days' ? key in query ? JSON.parse(query[key]) : undefined : query[key] || undefined)
         let courseInfo = {}
+        let professor = false
         if (!store.getters.loadedCourseInfo(query.crn)) {
-            await store.dispatch('loadCourseInfo', {
+            const courseData = await store.dispatch('loadCourseInfo', {
                 $api,
                 crn: query.crn
             })
+            if (courseData && courseData.instructor && courseData.instructor.length) {
+                await $api.courses.getProfessorData({
+                    params: {
+                        professor_name: courseData.instructor
+                    }
+                }).then(professorData => {
+                    professor = professorData
+                }).catch(err => {
+                    professor = false
+                })
+            }
         }
         return {
             selected,
             crn: query.crn || undefined,
             tempQuery: query.query || '',
             query: query.query || '',
+            professor,
             courseInfo: (await store.getters.courseInfo(query.crn) || {}),
             ...courseData,
         }
@@ -274,12 +313,27 @@ export default {
                     $api: this.$api,
                     crn
                 })
-                this.loading = false
+
             }
+            if (this.courseInfo.instructor && this.courseInfo.instructor.length) {
+                this.$api.courses.getProfessorData({
+                    params: {
+                        professor_name: this.courseInfo.instructor
+                    }
+                }).then(professorData => {
+                    this.professor = professorData
+                }).catch(err => {
+                    this.professor = false
+                })
+            }
+            this.loading = false
         },
         addCourse() {
             this.adding = true
-            this.$store.commit('planner/addCourse', this.courseInfo)
+            this.$store.dispatch('planner/addCourse', {
+                payload: this.courseInfo,
+                $api: this.$api
+            })
             setTimeout(() => (this.adding = false), 200)
         },
         showPlanner() {

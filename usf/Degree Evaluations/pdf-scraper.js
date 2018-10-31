@@ -3,7 +3,7 @@ const cheerio = require('cheerio'),
     fs = require('fs'),
     path = require('path'),
     execa = require('execa'),
-    FILE_NAME = './bensu-degree-eval.pdf',
+    FILE_NAME = './degree-eval.pdf',
     {toCourseNames, rmbr} = require('./shared')
 
 

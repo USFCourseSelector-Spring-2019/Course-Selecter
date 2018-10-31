@@ -12,7 +12,7 @@
             <v-tabs slot="extension" centered v-model="curTab" slider-color="white" color="transparent" grow>
                 <v-tabs-slider color="secondary"></v-tabs-slider>
                 <v-tab ripple class="primary-fg--text">
-                    Course Descriptions
+                    Courses
                 </v-tab>
                 <v-tab ripple class="primary-fg--text">
                     Calendar
@@ -27,7 +27,7 @@
                 <v-card flat>
                     <v-layout column v-if="courses.length">
                         <v-flex v-for="(course,i) in courses" :key="course.index">
-                            <Course :course="course" @close="courses.splice(i,1)" :show-added="false" />
+                            <Course :course="course" @close="$store.dispatch('planner/removeCourse',{payload:i,$api})" :show-added="false" />
                         </v-flex>
                     </v-layout>
                     <v-card-text v-else>

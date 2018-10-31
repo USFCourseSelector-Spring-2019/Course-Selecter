@@ -5,10 +5,12 @@
                 <v-icon>chevron_left</v-icon>
             </v-btn>
             <v-spacer></v-spacer>
-            <v-btn :flat="week" @click="days='MTWRF'" depressed color="primary">Weekdays</v-btn>
-            <v-btn :flat="mwf" @click="days='MWF'" depressed color="primary">MWF</v-btn>
-            <v-btn :flat="tr" @click="days='TR'" depressed color="primary">TR</v-btn>
-            <v-btn :flat="su" @click="days='SU'" depressed color="primary">Weekend</v-btn>
+            <template v-if="$vuetify.breakpoint.mdAndUp">
+                <v-btn v-for="viewOption in viewOptions" :key="viewOption.value" :flat="days===viewOption.value" @click="days=viewOption.value" depressed color="primary" v-text="viewOption.label"></v-btn>
+            </template>
+            <template v-else>
+                <v-select :items="viewOptions" item-text="label" label="Calendar View" v-model="days"></v-select>
+            </template>
             <v-spacer></v-spacer>
             <v-btn @click="nextWeek" icon :disabled="nextWeekDisabled">
                 <v-icon>chevron_right</v-icon>
@@ -24,14 +26,14 @@
                     </v-flex>
                 </v-layout>
             </div>
-            <v-flex v-for="(day,i) in getDays" :key="i">
-                <v-card class="fill-height time-card">
+            <v-flex v-for="(day,i) in getDays" :key="i" class="time-column">
+                <v-card class="fill-height time-card" tile>
                     <v-card-title class="layout column elevation-1">
-                        <h1 class="title" v-text="mapDays[mapNum[day.day()]]"></h1>
+                        <h1 class="title">{{$vuetify.breakpoint.mdAndUp?mapDays[mapNum[day.day()]]:abreviated[mapDays[mapNum[day.day()]]]}}</h1>
                         <h2 class="title" v-text="day.date()"></h2>
                     </v-card-title>
                     <div :style="`height:${height}px`" class="time-container">
-                        <div v-for="(course,ind) in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])}px;height:${distanceBetween(course.times)}px;`" :class="['time-block',i==0?'is-blocking-times':'']">
+                        <div v-for="(course,ind) in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])}px;height:${distanceBetween(course.times)}px;`" :class="{'time-block':true,'is-blocking-times':$vuetify.breakpoint.mdAndUp&&i==0}">
                             <calendar-item :course="course" :color="getColor(classes.indexOf(course))"></calendar-item>
                         </div>
                     </div>
@@ -51,6 +53,19 @@ const moment = extendMoment(Moment);
 export default {
     data() {
             return {
+                viewOptions: [{
+                    value: 'MTWRF',
+                    label: 'Weekdays'
+                }, {
+                    value: 'MWF',
+                    label: 'MWF'
+                }, {
+                    value: 'TR',
+                    label: 'TR'
+                }, {
+                    value: 'SU',
+                    label: 'Weekend'
+                }],
                 mapDay: {
                     U: 7,
                     M: 1,
@@ -65,10 +80,19 @@ export default {
                     M: 'Monday',
                     T: 'Tuesday',
                     W: 'Wednesday',
-                    R: 'Thurdsday',
+                    R: 'Thursday',
                     F: 'Friday',
                     S: 'Saturday',
                     U: 'Sunday'
+                },
+                abreviated: {
+                    Monday: 'Mon',
+                    Tuesday: 'Tues',
+                    Wednesday: 'Wed',
+                    Thursday: 'Thurs',
+                    Friday: 'Fri',
+                    Saturday: 'Sat',
+                    Sunday: 'Sun'
                 },
                 range: {
                     by: () => []
@@ -110,7 +134,8 @@ export default {
                 return moment.range.apply(moment.range, this.firstAndLastDayOfClass)
             },
             getDays() {
-                const range = this.range
+                const range = this.range.clone()
+                range.start.add(this.dayNumbers[0] - 1, 'days')
                 return Array.from(range.by('days', {
                     step: this.distance
                 }))
@@ -142,22 +167,10 @@ export default {
             },
             rangeOfTimes() {
                 const [lowestTime, highestTime] = this.highestAndLowestTime
-                return moment.range(lowestTime.clone().minutes(0).subtract(1, 'hours'), highestTime.clone().minutes(60))
+                return moment.range(lowestTime.clone().minutes(0).subtract(lowestTime.minutes() < 30 ? 1 : 0, 'hours'), highestTime.clone().minutes(60))
             },
             times() {
                 return Array.from(this.rangeOfTimes.by('hours'))
-            },
-            week() {
-                return this.days === 'MTWRF'
-            },
-            mwf() {
-                return this.days === 'MWF'
-            },
-            tr() {
-                return this.days === 'TR'
-            },
-            su() {
-                return this.days === 'SU'
             },
         },
         props: ['classes'],
@@ -189,7 +202,7 @@ export default {
                 return `${(time.hour()>12?time.hour()-12:time.hour()).toString().padStart(2,'0')}:${time.minute().toString().padStart(2,'0')} ${time.hour()>12?'pm':'am'}`
             },
             getColor(index) {
-                const colors = ['secondary', 'light-blue', 'lime', 'amber', 'light-green', 'orange', 'light-blue', 'red', 'yellow']
+                const colors = ['secondary', 'light-blue', 'deep-orange', 'cyan lighten-1', 'pink lighten-2', 'purple lighten-2', 'green accent-2', 'indigo lighten-1', 'deep-purple lighten-2', 'red lighten-3']
                 return colors[index % colors.length]
             }
         },
@@ -234,6 +247,10 @@ export default {
 
 .time-labels {
     border-bottom: 1px dashed rgba(0, 0, 0, 0.5);
+}
+
+.time-column {
+    min-width: 20%;
 }
 
 .time-card .card__title {

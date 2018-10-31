@@ -1,0 +1,1477 @@
+<head><title>
+     Ellucian Degree Works
+   </title>
+<link rel="stylesheet" href="DGW_Style.css" type="text/css">
+<script id="auditFormJs" language="JavaScript" type="text/javascript">
+      //////////////////////////////////////////////////////////////////////
+      // Get the information for this course when the user clicks on the course
+      // as part of AdviceLink
+      //////////////////////////////////////////////////////////////////////
+      function GetCourseInfo(sDisc, sNumber, sAttribute, sAttributeOp)
+      {
+      var sWindowParams = "width=600,height=300,toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes";
+      var sWindowName = "wCourseInfo";
+      var wNew = window.open("", sWindowName, sWindowParams);
+
+
+         sThisAttribute = "";
+         sThisAttributeOp = "";
+         if (sAttribute != undefined)
+         {
+         sThisAttribute = sAttribute;
+         if (sAttributeOp != undefined)
+         {
+         if (sAttributeOp == "<>")
+         sThisAttributeOp = "<>";    // not-equals
+         else if (sAttributeOp == "<=")
+         sThisAttributeOp = "<=";       // less-than-equals
+         else if (sAttributeOp == ">=")
+         sThisAttributeOp = ">=";       // greater-than-equals
+         else if (sAttributeOp == "<")
+         sThisAttributeOp = "<";        // less-than
+         else if (sAttributeOp == ">")
+         sThisAttributeOp = ">";        //   greater-than
+         else // default to equals
+         sThisAttributeOp = "=";           // equsls
+         }
+         }
+
+         // Do not use the frmCourseInfo form in frControl because SEP cannot make use of it
+         // Instead both in classic and in SEP we will create a new form that we will use instead
+
+         var method = "POST";
+         // This --path-- will be replaced by a complete URL to IRISLink.cgi by the SEP Java code
+         // If we are not w/in SEP then the path needs to be the name we find in frControl
+         var pathToCgi = '--path--';
+
+         // If we are not in SEP the frControl frame should exist - so get the action
+         if (pathToCgi.substring(0,2) == "--")
+         pathToCgi = top.frControl.document.frmCourseInfo.action;
+
+         // Create a new form for the request
+         var form = document.createElement("form");
+         // Move the submit function to another variable so that it doesn't get overwritten
+         form._submit_function_ = form.submit;
+
+         form.setAttribute("method", method);
+         form.setAttribute("action", pathToCgi);
+         form.setAttribute("target", sWindowName);
+
+         appendFormChild(form, "COURSEDISC",   '"' + sDisc   + '"');
+         appendFormChild(form, "COURSENUMB",   '"' + sNumber + '"');
+         appendFormChild(form, "SCRIPT",       "SD2COURSEINFO");
+         appendFormChild(form, "COURSEATTR",   sThisAttribute);
+         appendFormChild(form, "COURSEATTROP", sThisAttributeOp);
+         appendFormChild(form, "REPORT",        'WEB31');
+         appendFormChild(form, "REPORTUCLASS",  'WEB31STU');
+
+         appendFormChild(form, "ContentType", "xml");
+
+         document.body.appendChild(form);
+         form._submit_function_(); // call the renamed function
+         wNew.focus();
+     }
+
+     //////////////////////////////////////////////////////////////////////
+     function appendFormChild(form, inputName, inputValue)
+     {
+     var hiddenElement = document.createElement("input");
+     hiddenElement.setAttribute("type", "hidden");
+     hiddenElement.setAttribute("name", inputName);
+     hiddenElement.setAttribute("value",inputValue);
+
+     form.appendChild(hiddenElement);
+     }
+
+     //////////////////////////////////////////////////////////////////////
+     // This is setup to link to LeepFrog's InstantRapport chat system.
+     // This can be modified to work with other systems however.
+     //////////////////////////////////////////////////////////////////////
+     function LinkToAdvisorChat(sAdvisorId)
+     {
+     var sWindowParams = "width=400,height=400,toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes";
+     var sWindowName = "wAdvisorChat";
+     var wNew = window.open("", sWindowName, sWindowParams);
+     //wNew.resizeTo (iWidth, iHeight);
+     //wNew.moveTo   (iXPlace, iYPlace);
+
+     //alert ("LinkToAdvisorChat: " advisor-id=" + sAdvisorId);
+
+     sProfileInfo="xxxx";
+     // MAJORS
+
+      sProfileInfo= sProfileInfo + "&MAJOR" + "1" + "=" + "Computer Science (CS)";
+
+
+    sProfileInfo= sProfileInfo + "&MAJORLABEL=" + "Major";
+    sProfileInfo= sProfileInfo + "&CREDITSLABEL=" + "Credits";
+
+    // ADVISORS
+
+      sProfileInfo= sProfileInfo + "&ADVISOR1=Rollins, Sami N";
+
+      sProfileInfo= sProfileInfo + "&ADVISOR2=Quinn, Liam B";
+
+    // LEVEL
+    sProfileInfo= sProfileInfo + "&LEVEL=Senior";
+    // DEGREE
+    sProfileInfo= sProfileInfo + "&DEGREE=Bachelor of Science";
+    sProfileInfo= sProfileInfo + "&DEGREECODE=BS          ";
+    // SCHOOL
+    sProfileInfo= sProfileInfo + "&SCHOOLCODE=UG          ";
+    // GPA
+    sProfileInfo= sProfileInfo + "&GPA=2.17";
+    // CATALOG YEAR
+    sProfileInfo= sProfileInfo + "&CATYR=2016-2017";
+    // CLASSES APPLIED
+    sProfileInfo= sProfileInfo + "&CLASSES=39";
+    // CREDITS APPLIED
+    sProfileInfo= sProfileInfo + "&CREDITS=134";
+    // EMAIL ADDRESS
+    sProfileInfo= sProfileInfo + "&EMAIL=njperez@usfca.edu";
+
+    // The control frame has the form to submit
+    var frm = top.frControl.document.frmAdvisorChat;
+    if (frm == "undefined") alert ("frmAdvisorChat was not found in control window");
+    frm.target = sWindowName;
+    frm.ADVISORID.value   = sAdvisorId;
+    frm.PROFILEINFO.value = sProfileInfo; //+ '"'; // surround in quotes
+    frm.submit();
+    wNew.focus(); // needed in case window was already open
+    } // linktoadvisorchat
+
+    //////////////////////////////////////////////////////////////////////
+    // Update the audit with the status and description.
+    //////////////////////////////////////////////////////////////////////
+    function UpdateAudit()
+    {
+    if (top.frControl == null) {alert ("frControl not defined - can't UpdateAudit"); return;}
+    //alert ("UpdateAudit enter");
+    var frmThis = document.frmAudit;
+    //  The control frame has the form to submit
+    var frmSubmit = top.frControl.document.frmUpdateAudit;
+    if (typeof(frmThis.selFreeze) != "undefined")
+    frmSubmit.FREEZETYPE.value =  frmThis.selFreeze.options[frmThis.selFreeze.selectedIndex].value
+    if (typeof(frmThis.auditdescription) != "undefined")
+    frmSubmit.AUDITDESC.value = '"' + frmThis.auditdescription.value + '"'; // put in dbl-quotes in case user entered a dbl-quote or ampersand
+    frmSubmit.AUDITID.value =  'AB09CghZ';
+    frmSubmit.STUID.value   =  '20403230';
+    frmSubmit.USERID.value  =  '20403230';
+    //alert ("UpdateAudit submit");
+    frmSubmit.target = "frHold"; // the hidden frame
+    frmSubmit.submit();
+    } // updateaudit
+
+    //////////////////////////////////////////////
+    function printForm()
+    {
+    var prtContent = document.getElementById('frmAudit');
+    ifrm=document.getElementById('printIframe');
+    var oDoc = (ifrm.contentWindow || ifrm.contentDocument);
+    if (oDoc.document)
+    oDoc = oDoc.document;
+
+    oDoc.open();
+    oDoc.write('<link href="DGW_Style.css" rel="stylesheet" type="text/css""></link>');
+    oDoc.write('<body onload="self.focus(); self.print();">');
+    oDoc.write(prtContent.innerHTML + "</body>");
+    oDoc.close();
+
+    }
+  </script></head><body style="margin: 5px;" marginwidth="0" marginheight="0">
+<iframe id="printIframe" style="height:0px;width:0px;border:0px;"></iframe><form name="frmAudit" id="frmAudit" onsubmit="return false" target="">
+<br><table border="0" cellspacing="1" cellpadding="0" width="100%" class="Blocks">
+<tbody><tr><td colspan="20"><table border="0" cellspacing="0" cellpadding="0" width="100%" class="BlockHeader"><tbody><tr><td class="DisclaimerText2" colspan="1" rowspan="2" valign="middle" nowrap="">
+           &nbsp;This document is for advising purposes only. You are encouraged to use this
+           degree evaluation, in consultation with your adviser, to plan and monitor completion
+           of your degree and certificate requirements.
+         </td></tr></tbody></table></td></tr>
+<tr><td>&nbsp;</td></tr>
+</tbody></table>
+<table border="0" cellspacing="0" cellpadding="0" width="100%" class="SchoolName"><tbody><tr><td align="left" valign="top"><table border="0" cellspacing="0" cellpadding="4" width="100%"><tbody><tr><td align="center" valign="middle"><span class="SchoolName">DEGREE EVALUATION</span></td></tr></tbody></table></td></tr></tbody></table>
+<table border="0" cellspacing="0" cellpadding="0" width="100%" class="AuditTable">
+<tbody><tr><td align="left" valign="top" class="AuditTable2" colspan="2"><table border="0" cellspacing="0" cellpadding="4" width="100%"><tbody><tr>
+<td align="left" valign="middle" class="StuHead">
+<span class="StuHeadTitle">
+        General Information</span><span class="StuHeadCaption">&nbsp; &nbsp;AB09CghZ as of
+                    08/22/2018
+                 at 09:57</span>
+</td>
+<td align="center" valign="middle" class="StuHead"><span class="StuHeadTitle"></span></td>
+<td align="right" valign="middle" class="StuHead">
+<span class="StuHeadTitle"></span><br>
+</td>
+</tr></tbody></table></td></tr>
+<tr>
+<td><img src="http://artemis.usfca.edu:8020/20403230.JPG" width="200" height="229" border="0" alt="no photo available"></td>
+<td><table class="Inner" cellspacing="1" cellpadding="3" border="0" width="100%">
+<tbody><tr class="StuTableTitle">
+<td class="StuTableTitle">Student</td>
+<td class="StuTableData">Perez, Nicholas James</td>
+<td class="StuTableTitle">Campus</td>
+<td class="StuTableData">Hilltop</td>
+</tr>
+<tr class="StuTableTitle">
+<td class="StuTableTitle">ID</td>
+<td class="StuTableData">20403230</td>
+<td class="StuTableTitle">College/School</td>
+<td class="StuTableData">College of Arts and Sci (Sci)</td>
+</tr>
+<tr class="StuTableTitle">
+<td class="StuTableTitle">Admit Term</td>
+<td class="StuTableData">Fall 2016</td>
+<td class="StuTableTitle">Level</td>
+<td class="StuTableData">Undergraduate</td>
+</tr>
+<tr class="StuTableTitle">
+<td class="StuTableTitle">Classification</td>
+<td class="StuTableData">Senior &nbsp; </td>
+<td class="StuTableTitle">Degree</td>
+<td class="StuTableData">Bachelor of Science</td>
+</tr>
+<tr class="StuTableTitle">
+<td class="StuTableTitle">
+      Major Adviser</td>
+<td class="StuTableData">Rollins, Sami</td>
+<td class="StuTableTitle">Major</td>
+<td class="StuTableData">Computer Science (CS)</td>
+</tr>
+<tr class="StuTableTitle">
+<td class="StuTableTitle">Academic Success Coach</td>
+<td class="StuTableData">Quinn, Liam</td>
+<td class="StuTableTitle">
+      Concentration</td>
+<td class="StuTableData"></td>
+</tr>
+<tr class="StuTableTitle">
+<td class="StuTableTitle">Minor Adviser</td>
+<td class="StuTableData"></td>
+<td class="StuTableTitle">Minor</td>
+<td class="StuTableData"></td>
+</tr>
+<tr class="StuTableTitle">
+<td class="StuTableTitle">Academic Standing</td>
+<td class="StuTableData">Good Standing</td>
+<td class="StuTableTitle">Overall GPA</td>
+<td class="StuTableData">2.17</td>
+</tr>
+<tr class="StuTableTitle">
+<td class="StuTableTitle"></td>
+<td class="StuTableData"></td>
+<td class="StuTableTitle">
+      Major GPA
+   </td>
+<td class="StuTableData">2.24</td>
+</tr>
+</tbody></table></td>
+</tr>
+</tbody></table>
+<br><table border="0" cellspacing="0" cellpadding="0" width="100%" class="LegendTitle" role="presentation" aria-hidden="true">
+<tbody><tr><td class="BorderDark"></td></tr>
+<tr><td class="BorderLight"></td></tr>
+<tr><td align="left" valign="top"><table border="0" cellspacing="0" cellpadding="4" width="100%"><tbody><tr><td align="left" valign="middle"><span class="LegendTitle">
+                  Legend
+               </span></td></tr></tbody></table></td></tr>
+<tr><td class="BorderLight"></td></tr>
+<tr><td class="BorderDark"></td></tr>
+</tbody></table>
+<table border="0" cellspacing="0" cellpadding="0" width="100%" aria-hidden="true" role="presentation"><tbody><tr><td align="left" valign="top"><table border="0" cellspacing="0" cellpadding="4" width="100%">
+<tbody><tr>
+<td class="LegendItem"><img src="common/dwcheckyes.png" ondragstart="window.event.returnValue=false;"></td>
+<td class="LegendLabel">
+                  Complete
+               </td>
+<td class="LegendItem"><img src="common/dwcheck98.png" ondragstart="window.event.returnValue=false;"></td>
+<td class="LegendLabel">
+                  Complete except for classes in-progress
+               </td>
+<td class="LegendItem">
+                  (T)
+               </td>
+<td class="LegendLabel">
+                  Transfer Class
+               </td>
+<td class="LegendItem">
+                  xx:yy
+               </td>
+<td class="LegendLabel">
+                  Any course in this range
+               </td>
+</tr>
+<tr>
+<td class="LegendItem"><img src="common/dwcheckno.png" ondragstart="window.event.returnValue=false;"></td>
+<td class="LegendLabel">
+                  Not Complete
+               </td>
+<td class="LegendItem"><img src="common/dwcheck99.png" ondragstart="window.event.returnValue=false;"></td>
+<td class="LegendLabel">
+              Nearly complete - see adviser
+               </td>
+<td class="LegendItem">
+                  @@
+               </td>
+<td class="LegendLabel">
+                  Any subject, any number (see FAQ)
+            </td>
+<td class="LegendItem">
+                  *
+               </td>
+<td class="LegendLabel">
+                  Course has a prerequisite
+            </td>
+<td class="LegendItem"></td>
+<td class="LegendLabel"></td>
+</tr>
+</tbody></table></td></tr></tbody></table>
+<br><a name="DEGREE-BS"></a><a name="Block-RA000025"></a><a name="BlockTitle-Degree%20in%20Bachelor%20of%20Science"></a><table border="0" cellspacing="1" cellpadding="0" width="100%"><tbody><tr><td></td></tr></tbody></table>
+<table border="0" cellspacing="1" cellpadding="0" align="center" width="100%"><tbody><tr><td><table border="0" cellspacing="1" cellpadding="0" width="100%" class="Blocks">
+<tbody><tr class="TableHead"><td colspan="20"><table border="0" cellspacing="0" cellpadding="0" width="100%" class="BlockHeader"><tbody><tr>
+<td class="BlockHeader" colspan="1" rowspan="2" valign="middle" nowrap="">
+<img src="Images_DG2/spacer.gif" width="5" alt="" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td width="70%" align="left" class="BlockHeadTitle">Degree in Bachelor of Science</td>
+<td align="right"><table border="0" cellspacing="1" cellpadding="2" width="100%" class="BlockHeader">
+<tbody><tr>
+<td class="BlockHeadSubTitle" align="right">Catalog Year:
+                  </td>
+<td class="BlockHeadSubData">
+                     &nbsp; 2016-2017</td>
+<td class="BlockHeadSubTitle" align="right">Credits
+      Required:
+      </td>
+<td class="BlockHeadSubData" align="left">
+       &nbsp; 128</td>
+</tr>
+<tr>
+<td class="BlockHeadSubTitle" align="right">
+                     &nbsp; </td>
+<td class="BlockHeadSubData">
+                     &nbsp; </td>
+<td class="BlockHeadSubTitle" align="right">Credits
+       Applied (Includes Current Registration):
+      </td>
+<td class="BlockHeadSubData" align="left">
+       &nbsp; 134</td>
+</tr>
+</tbody></table></td>
+</tr></tbody></table></td></tr>
+<tr class="BlockRequirements"><td colspan="30" class="BlockRemarksTable"><table border="0"></table></td></tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">You meet the minimum GPA requirement</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"></table></td>
+</tr>
+<tr class="bgLight98">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheck98.png" alt="Complete except for in-progress classes" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Core Requirements</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"></table></td>
+</tr>
+<tr class="bgLight0">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNeeded">Service Learning &amp; Cultural Diversity Requirements</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="10"><table><tbody><tr>
+<td class="RuleAdviceTitleNew">    Still Needed:  </td>
+<td class="RuleAdviceData">
+<a href="#Block-RA000339">
+                           See <b>Service Learning &amp; Cultural Diversity Requirements</b> section
+                         </a><br>
+</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight0">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNeeded">Foreign Language Requirement</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="10"><table><tbody><tr>
+<td class="RuleAdviceTitleNew">    Still Needed:  </td>
+<td class="RuleAdviceData">
+<a href="#Block-RA000338">
+                           See <b>Foreign Language Requirement</b> section
+                         </a><br>
+</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight0">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNeeded">Major Requirements</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="10"><table><tbody><tr>
+<td class="RuleAdviceTitleNew">    Still Needed:  </td>
+<td class="RuleAdviceData"><a href="#BlockTitle-Major%20in%20Computer%20Science%20(CS)%20-%20BS">
+                                    See <b>Major in Computer Science (CS) - BS</b> section <br></a></td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Computer Science Lab Science Requirement</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">File Graduation Application</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">Grad App Receipt Date</td>
+<td class="CourseAppliedDataGrade">21-AUG-18</td>
+<td class="CourseAppliedDataTerm" colspan="6"></td>
+</tr></tbody></table></td>
+</tr>
+</tbody></table></td></tr></tbody></table>
+<a name="OTHER-CORE"></a><a name="Block-RA000021"></a><a name="BlockTitle-Core%20Requirements"></a><table border="0" cellspacing="1" cellpadding="0" width="100%"><tbody><tr><td></td></tr></tbody></table>
+<table border="0" cellspacing="1" cellpadding="0" align="center" width="100%"><tbody><tr><td><table border="0" cellspacing="1" cellpadding="0" width="100%" class="Blocks">
+<tbody><tr class="TableHead"><td colspan="20"><table border="0" cellspacing="0" cellpadding="0" width="100%" class="BlockHeader"><tbody><tr>
+<td class="BlockHeader" colspan="1" rowspan="2" valign="middle" nowrap="">
+<img src="Images_DG2/spacer.gif" width="5" alt="" ondragstart="window.event.returnValue=false;"><img src="common/dwcheck98.png" alt="Complete except for in-progress classes" ondragstart="window.event.returnValue=false;">
+</td>
+<td width="70%" align="left" class="BlockHeadTitle">Core Requirements</td>
+<td align="right"><table border="0" cellspacing="1" cellpadding="2" width="100%" class="BlockHeader">
+<tbody><tr>
+<td class="BlockHeadSubTitle" align="right">Catalog Year:
+                  </td>
+<td class="BlockHeadSubData">
+                     &nbsp; 2016-2017</td>
+<td class="BlockHeadSubTitle" align="right">Credits
+      Required:
+      </td>
+<td class="BlockHeadSubData" align="left">
+       &nbsp; 44</td>
+</tr>
+<tr>
+<td class="BlockHeadSubTitle" align="right">
+                     &nbsp; </td>
+<td class="BlockHeadSubData">
+                     &nbsp; </td>
+<td class="BlockHeadSubTitle" align="right">Credits
+       Applied (Includes Current Registration):
+      </td>
+<td class="BlockHeadSubData" align="left">
+       &nbsp; 58</td>
+</tr>
+</tbody></table></td>
+</tr></tbody></table></td></tr>
+<tr class="BlockRequirements"><td colspan="30" class="BlockRemarksTable"><table border="0"></table></td></tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">AREA A: FOUNDATIONS OF COMMUNICATION</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">C-A1 Public Speaking</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%">
+<tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">RHET 103</td>
+<td class="CourseAppliedDataTitle">Public Speaking</td>
+<td class="CourseAppliedDataGrade">TB&nbsp;</td>
+<td class="CourseAppliedDataCredits">3</td>
+<td class="CourseAppliedDataTerm">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">SPC1017 - Fund of Speech Comm - Miami Dade College</td>
+</tr>
+</tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">C-A2 Rhetoric and Composition (Min C-)</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">RHET 250</td>
+<td class="CourseAppliedDataTitle">Academic Writing at USF</td>
+<td class="CourseAppliedDataGrade">B-&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Spring 2018</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">AREA B: MATH AND THE SCIENCES</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">C-B1 Math or Quantitative Science</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%">
+<tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">MATH 101</td>
+<td class="CourseAppliedDataTitle">Elementary Statistics</td>
+<td class="CourseAppliedDataGrade">TB&nbsp;</td>
+<td class="CourseAppliedDataCredits">3</td>
+<td class="CourseAppliedDataTerm">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">STA2023 - Statistcal Methods - Miami Dade College</td>
+</tr>
+</tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">C-B2 Applied or Laboratory Science</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">PHYS 110</td>
+<td class="CourseAppliedDataTitle">General Physics I</td>
+<td class="CourseAppliedDataGrade">D-&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Fall 2017</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight98">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheck98.png" alt="Complete except for in-progress classes" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">AREA C: HUMANITIES</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"></table></td>
+</tr>
+<tr class="bgLight98">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheck98.png" alt="Complete except for in-progress classes" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">C-C1 Literature</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">ENGL 202</td>
+<td class="CourseAppliedDataTitle">Great Wrks:Romanticism &amp; Exile</td>
+<td class="CourseAppliedDataGrade">TBD&nbsp;</td>
+<td class="CourseAppliedDataCredits">(4)</td>
+<td class="CourseAppliedDataTerm">Fall 2018</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">C-C2 History</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">HIST 120</td>
+<td class="CourseAppliedDataTitle">History of the U.S.</td>
+<td class="CourseAppliedDataGrade">D&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Spring 2018</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">AREA D: PHILOSOPHY, THEOLOGY, AND ETHICS</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">C-D1 Philosophy</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">PHIL 211</td>
+<td class="CourseAppliedDataTitle">Ancient Philosophy</td>
+<td class="CourseAppliedDataGrade">B&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Fall 2017</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">C-D2 Theology</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">THRS 367</td>
+<td class="CourseAppliedDataTitle">Intro to Buddhism: Dalai Lama</td>
+<td class="CourseAppliedDataGrade">B&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Fall 2016</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">C-D3 Ethics</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">PHIL 240</td>
+<td class="CourseAppliedDataTitle">Ethics</td>
+<td class="CourseAppliedDataGrade">C&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Spring 2017</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">C-E AREA E: SOCIAL SCIENCES</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%">
+<tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">PSYC 101</td>
+<td class="CourseAppliedDataTitle">General Psychology</td>
+<td class="CourseAppliedDataGrade">TA&nbsp;</td>
+<td class="CourseAppliedDataCredits">3</td>
+<td class="CourseAppliedDataTerm">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">PSY2012 - Intro to Psychology - Miami Dade College</td>
+</tr>
+</tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">C-F AREA F: VISUAL AND PERFORMING ARTS</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%">
+<tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">MUS 1XX</td>
+<td class="CourseAppliedDataTitle">Jazz &amp; Pop Music America</td>
+<td class="CourseAppliedDataGrade">TC&nbsp;</td>
+<td class="CourseAppliedDataCredits">3</td>
+<td class="CourseAppliedDataTerm">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">MUL2380 - Jazz &amp; Pop Music America - Miami Dade College</td>
+</tr>
+</tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr><td class="RuleRemarksTable" colspan="2"><table border="0"><tbody><tr><td class="RuleRemarksData">Additional core courses are not required, but can be used to meet the&nbsp;overall 44 core credits required if the student falls short.&nbsp;</td></tr></tbody></table></td></tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Additional courses taken in Areas A-F</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%">
+<tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">ART 1XX</td>
+<td class="CourseAppliedDataTitle">Art Appreciation</td>
+<td class="CourseAppliedDataGrade">TA&nbsp;</td>
+<td class="CourseAppliedDataCredits">3</td>
+<td class="CourseAppliedDataTerm">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">ARH1000 - Art Appreciation - Miami Dade College</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">CS 110</td>
+<td class="CourseAppliedDataTitle">Intro to Computer Science I</td>
+<td class="CourseAppliedDataGrade">TCR&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Fall 2016</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">CS1 - AP Computer Science A - CEEB-Advanced Placement Exam</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">MATH 109</td>
+<td class="CourseAppliedDataTitle">Calculus &amp; Analytic Geom I</td>
+<td class="CourseAppliedDataGrade">TCR&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Fall 2016</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">MATH1 - AP Calculus AB - CEEB-Advanced Placement Exam</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">PHYS 100</td>
+<td class="CourseAppliedDataTitle">Introductory Physics I</td>
+<td class="CourseAppliedDataGrade">TC&nbsp;</td>
+<td class="CourseAppliedDataCredits">3</td>
+<td class="CourseAppliedDataTerm">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">PHY1025 - Basic Physics - Miami Dade College</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">POLS 101</td>
+<td class="CourseAppliedDataTitle">Intro to American Politics</td>
+<td class="CourseAppliedDataGrade">TCR&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Fall 2016</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">POLS1 - AP Gov't &amp; Politics- US - CEEB-Advanced Placement Exam</td>
+</tr>
+</tbody></table></td></tr></tbody></table></td>
+</tr>
+</tbody></table></td></tr></tbody></table>
+<a name="OTHER-SLCD"></a><a name="Block-RA000339"></a><a name="BlockTitle-Service%20Learning%20&amp;%20Cultural%20Diversity%20Requirements"></a><table border="0" cellspacing="1" cellpadding="0" width="100%"><tbody><tr><td></td></tr></tbody></table>
+<table border="0" cellspacing="1" cellpadding="0" align="center" width="100%"><tbody><tr><td><table border="0" cellspacing="1" cellpadding="0" width="100%" class="Blocks">
+<tbody><tr class="TableHead"><td colspan="20"><table border="0" cellspacing="0" cellpadding="0" width="100%" class="BlockHeader"><tbody><tr>
+<td class="BlockHeader" colspan="1" rowspan="2" valign="middle" nowrap="">
+<img src="Images_DG2/spacer.gif" width="5" alt="" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td width="100%" align="left" class="BlockHeadTitle">Service Learning &amp; Cultural Diversity Requirements</td>
+<td align="right"><table border="0" cellspacing="1" cellpadding="2" width="100%" class="BlockHeader">
+<tbody><tr>
+<td class="BlockHeadSubTitle" align="right">
+                     &nbsp; </td>
+<td class="BlockHeadSubData">
+                     &nbsp; </td>
+</tr>
+<tr>
+<td class="BlockHeadSubTitle" align="right"></td>
+<td class="BlockHeadSubData"></td>
+</tr>
+</tbody></table></td>
+</tr></tbody></table></td></tr>
+<tr class="BlockRequirements"><td colspan="30" class="BlockRemarksTable"><table border="0"></table></td></tr>
+<tr class="bgLight0">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNeeded">SL &amp; CD REQUIREMENT</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"></table></td>
+</tr>
+<tr class="bgLight0">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNeeded">Service Learning</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied">
+<tbody><tr></tr>
+<tr><td colspan="10"><table><tbody><tr>
+<td class="RuleAdviceTitleNew">    Still Needed:  </td>
+<td class="RuleAdviceData">
+<b>1</b>
+                        Class
+
+                   in
+
+                  <span><b>@</b>&nbsp;@</span>
+       &nbsp;
+      <a href="javascript:GetCourseInfo('@','@',%20'SL',%20'=');" title="Click to see @&nbsp;@ with an Attribute of SL">with Attribute SL</a>
+</td>
+</tr></tbody></table></td></tr>
+</tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Cultural Diversity</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">POLS 331</td>
+<td class="CourseAppliedDataTitle">Latin American Politics</td>
+<td class="CourseAppliedDataGrade">C+&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Spring 2017</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+</tbody></table></td></tr></tbody></table>
+<a name="OTHER-FORNLANG"></a><a name="Block-RA000338"></a><a name="BlockTitle-Foreign%20Language%20Requirement"></a><table border="0" cellspacing="1" cellpadding="0" width="100%"><tbody><tr><td></td></tr></tbody></table>
+<table border="0" cellspacing="1" cellpadding="0" align="center" width="100%"><tbody><tr><td><table border="0" cellspacing="1" cellpadding="0" width="100%" class="Blocks">
+<tbody><tr class="TableHead"><td colspan="20"><table border="0" cellspacing="0" cellpadding="0" width="100%" class="BlockHeader"><tbody><tr>
+<td class="BlockHeader" colspan="1" rowspan="2" valign="middle" nowrap="">
+<img src="Images_DG2/spacer.gif" width="5" alt="" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td width="100%" align="left" class="BlockHeadTitle">Foreign Language Requirement</td>
+<td align="right"><table border="0" cellspacing="1" cellpadding="2" width="100%" class="BlockHeader">
+<tbody><tr>
+<td class="BlockHeadSubTitle" align="right">
+                     &nbsp; </td>
+<td class="BlockHeadSubData">
+                     &nbsp; </td>
+</tr>
+<tr>
+<td class="BlockHeadSubTitle" align="right"></td>
+<td class="BlockHeadSubData"></td>
+</tr>
+</tbody></table></td>
+</tr></tbody></table></td></tr>
+<tr class="BlockRequirements"><td colspan="30" class="BlockRemarksTable"><table border="0"></table></td></tr>
+<tr class="bgLight0">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNeeded">Foreign Language Requirement</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied">
+<tbody><tr></tr>
+<tr><td colspan="10"><table><tbody><tr>
+<td class="RuleAdviceTitleNew">    Still Needed:  </td>
+<td class="RuleAdviceData">
+<b>1</b>
+                        Class
+
+                   in
+
+                  <span><b>@</b>&nbsp;@</span>
+       &nbsp;
+      <a href="javascript:GetCourseInfo('@','@',%20'FL2',%20'=');" title="Click to see @&nbsp;@ with an Attribute of FL2">with Attribute FL2</a>
+</td>
+</tr></tbody></table></td></tr>
+</tbody></table></td>
+</tr>
+</tbody></table></td></tr></tbody></table>
+<a name="MAJOR-CS"></a><a name="Block-RA000898"></a><a name="BlockTitle-Major%20in%20Computer%20Science%20(CS)%20-%20BS"></a><table border="0" cellspacing="1" cellpadding="0" width="100%"><tbody><tr><td></td></tr></tbody></table>
+<table border="0" cellspacing="1" cellpadding="0" align="center" width="100%"><tbody><tr><td><table border="0" cellspacing="1" cellpadding="0" width="100%" class="Blocks">
+<tbody><tr class="TableHead"><td colspan="20"><table border="0" cellspacing="0" cellpadding="0" width="100%" class="BlockHeader"><tbody><tr>
+<td class="BlockHeader" colspan="1" rowspan="2" valign="middle" nowrap="">
+<img src="Images_DG2/spacer.gif" width="5" alt="" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td width="100%" align="left" class="BlockHeadTitle">Major in Computer Science (CS) - BS</td>
+<td align="right"><table border="0" cellspacing="1" cellpadding="2" width="100%" class="BlockHeader">
+<tbody><tr>
+<td class="BlockHeadSubTitle" align="right">Catalog Year:
+                  </td>
+<td class="BlockHeadSubData">
+                     &nbsp; 2016-2017</td>
+<td class="BlockHeadSubTitle" align="right">Credits
+      Required:
+      </td>
+<td class="BlockHeadSubData" align="left">
+       &nbsp; 52</td>
+</tr>
+<tr>
+<td class="BlockHeadSubTitle" align="right">
+                     GPA:
+                  </td>
+<td class="BlockHeadSubData">
+                     &nbsp; 2.24</td>
+<td class="BlockHeadSubTitle" align="right">Credits
+       Applied (Includes Current Registration):
+      </td>
+<td class="BlockHeadSubData" align="left">
+       &nbsp; 44</td>
+</tr>
+</tbody></table></td>
+</tr></tbody></table></td></tr>
+<tr><td colspan="30" class="BlockAdviceTableUSF"><table border="0" class="BlockAdviceTable"><tbody><tr>
+<td class="BlockAdviceTitle" width="40%" rowspan="100">
+               Unmet conditions for this set of requirements:
+            </td>
+<td class="BlockAdviceData">52 credits are required.  You currently have 44,&nbsp;you still need 8 more credits.&nbsp;</td>
+</tr></tbody></table></td></tr>
+<tr>
+<td class="RuleLabelLine2"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap=""><img src="common/dwcheckno.png" ondragstart="window.event.returnValue=false;" alt="Not yet complete"></td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNeeded">16 upper-level credits in residence</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData2"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="10"><table><tbody><tr>
+<td class="RuleAdviceTitleNew">    Still Needed:  </td>
+<td class="RuleAdviceData">
+A minimum of 16 upper-division credits must be
+taken at the University of San Francisco.
+You have taken 12 but need 4 more credits.
+</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="BlockRequirements"><td colspan="30" class="BlockRemarksTable"><table border="0"><tbody><tr class="BlockRemarksData"><td class="BlockRemarksData">A grade of C or higher must be earned in all courses.&nbsp;</td></tr></tbody></table></td></tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Introduction to Computer Science I</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%">
+<tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">CS 110</td>
+<td class="CourseAppliedDataTitle">Intro to Computer Science I</td>
+<td class="CourseAppliedDataGrade">TCR&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Fall 2016</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">CS1 - AP Computer Science A - CEEB-Advanced Placement Exam</td>
+</tr>
+</tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Introduction to Computer Science II</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">CS 112</td>
+<td class="CourseAppliedDataTitle">Intro to Computer Science II</td>
+<td class="CourseAppliedDataGrade">C+&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Spring 2018</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Software Development</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">CS 212</td>
+<td class="CourseAppliedDataTitle">Software Development</td>
+<td class="CourseAppliedDataGrade">C+&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Fall 2016</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Intro to Parallel Programming or C &amp; Systems Programming</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">CS 220</td>
+<td class="CourseAppliedDataTitle">Intro to Parallel Computing</td>
+<td class="CourseAppliedDataGrade">C&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Spring 2018</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Data Structure and Algorithms</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">CS 245</td>
+<td class="CourseAppliedDataTitle">Data Struct &amp; Algorithms</td>
+<td class="CourseAppliedDataGrade">C+&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Spring 2017</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight0">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNeeded">UPPER DIVISION REQUIREMENTS</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"></table></td>
+</tr>
+<tr class="bgLight98">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheck98.png" alt="Complete except for in-progress classes" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Systems Area</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">CS 315</td>
+<td class="CourseAppliedDataTitle">Computer Architecture</td>
+<td class="CourseAppliedDataGrade">TBD&nbsp;</td>
+<td class="CourseAppliedDataCredits">(4)</td>
+<td class="CourseAppliedDataTerm">Fall 2018</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight0">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNeeded">Operating Systems</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied">
+<tbody><tr></tr>
+<tr><td colspan="10"><table><tbody><tr>
+<td class="RuleAdviceTitleNew">    Still Needed:  </td>
+<td class="RuleAdviceData">
+<b>1</b>
+                        Class
+
+                   in
+
+                  <a href="javascript:GetCourseInfo('CS','326');" title="Operating Systems - 4&nbsp;Credits"><b>CS</b>&nbsp;326</a>*</td>
+</tr></tbody></table></td></tr>
+</tbody></table></td>
+</tr>
+<tr class="bgLight98">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheck98.png" alt="Complete except for in-progress classes" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Senior Team Project</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">CS 490</td>
+<td class="CourseAppliedDataTitle">Senior Team Project</td>
+<td class="CourseAppliedDataGrade">TBD&nbsp;</td>
+<td class="CourseAppliedDataCredits">(4)</td>
+<td class="CourseAppliedDataTerm">Fall 2018</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight0">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckno.png" alt="Not yet complete" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNeeded">Theory and Language Area</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied">
+<tbody><tr></tr>
+<tr><td colspan="10"><table><tbody><tr>
+<td class="RuleAdviceTitleNew">    Still Needed:  </td>
+<td class="RuleAdviceData">
+<b>1</b>
+                        Class
+
+                   in
+
+                  <a href="javascript:GetCourseInfo('CS','345');" title="Prog Language Paradigms - 4&nbsp;Credits"><b>CS</b>&nbsp;345</a>*
+                              or       <a href="javascript:GetCourseInfo('CS','411');" title="Automata Theory - 4&nbsp;Credits">411</a>*
+                              or       <a href="javascript:GetCourseInfo('CS','414');" title="Compilers - 4&nbsp;Credits">414</a>*</td>
+</tr></tbody></table></td></tr>
+</tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Applications Area</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">CS 486</td>
+<td class="CourseAppliedDataTitle">SpTp: UX Design</td>
+<td class="CourseAppliedDataGrade">B+&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Fall 2017</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Calculus &amp; Analytic Geometry I</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%">
+<tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">MATH 109</td>
+<td class="CourseAppliedDataTitle">Calculus &amp; Analytic Geom I</td>
+<td class="CourseAppliedDataGrade">TCR&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Fall 2016</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">MATH1 - AP Calculus AB - CEEB-Advanced Placement Exam</td>
+</tr>
+</tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Discrete Mathematics</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">MATH 201</td>
+<td class="CourseAppliedDataTitle">Discrete Mathematics</td>
+<td class="CourseAppliedDataGrade">B&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Fall 2016</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Linear Algebra &amp; Probability</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%"><tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">MATH 202</td>
+<td class="CourseAppliedDataTitle">Linear Algebra &amp; Probability</td>
+<td class="CourseAppliedDataGrade">B-&nbsp;</td>
+<td class="CourseAppliedDataCredits">4</td>
+<td class="CourseAppliedDataTerm">Spring 2017</td>
+</tr></tbody></table></td></tr></tbody></table></td>
+</tr>
+</tbody></table></td></tr></tbody></table>
+<a name="OTHER-CSLABSCI"></a><a name="Block-RA001017"></a><a name="BlockTitle-Computer%20Science%20Lab%20Science%20Requirement"></a><table border="0" cellspacing="1" cellpadding="0" width="100%"><tbody><tr><td></td></tr></tbody></table>
+<table border="0" cellspacing="1" cellpadding="0" align="center" width="100%"><tbody><tr><td><table border="0" cellspacing="1" cellpadding="0" width="100%" class="Blocks">
+<tbody><tr class="TableHead"><td colspan="20"><table border="0" cellspacing="0" cellpadding="0" width="100%" class="BlockHeader"><tbody><tr>
+<td class="BlockHeader" colspan="1" rowspan="2" valign="middle" nowrap="">
+<img src="Images_DG2/spacer.gif" width="5" alt="" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td width="70%" align="left" class="BlockHeadTitle">Computer Science Lab Science Requirement</td>
+<td align="right"><table border="0" cellspacing="1" cellpadding="2" width="100%" class="BlockHeader">
+<tbody><tr>
+<td class="BlockHeadSubTitle" align="right">Catalog Year:
+                  </td>
+<td class="BlockHeadSubData">
+                     &nbsp; 2016-2017</td>
+</tr>
+<tr>
+<td class="BlockHeadSubTitle" align="right">
+                     &nbsp; </td>
+<td class="BlockHeadSubData">
+                     &nbsp; </td>
+</tr>
+</tbody></table></td>
+</tr></tbody></table></td></tr>
+<tr class="BlockRequirements"><td colspan="30" class="BlockRemarksTable"><table border="0"></table></td></tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis1.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">CS LAB REQUIREMENT. NOT INCLUDED IN TOTAL CREDITS REQUIRED</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"></table></td>
+</tr>
+<tr class="bgLight100">
+<td class="RuleLabelLine"><table border="0" cellspacing="0" cellpadding="0"><tbody><tr>
+<td nowrap="">
+<img src="Images_DG2/dwinvis2.gif" ondragstart="window.event.returnValue=false;"><img src="common/dwcheckyes.png" alt="Complete" valign="bottom" ondragstart="window.event.returnValue=false;">
+</td>
+<td class="RuleLabelTitle"></td><td class="RuleLabelTitleNotNeeded">Complete one of the following:</td>
+</tr></tbody></table></td>
+<td class="RuleLabelData"><table border="0" cellspacing="1" cellpadding="1" width="100%" class="ClassesApplied"><tbody><tr><td colspan="1"><table border="0" cellspacing="0" cellpadding="1" width="100%">
+<tbody><tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataDiscNum">PHYS 100</td>
+<td class="CourseAppliedDataTitle">Introductory Physics I</td>
+<td class="CourseAppliedDataGrade">TC&nbsp;</td>
+<td class="CourseAppliedDataCredits">3</td>
+<td class="CourseAppliedDataTerm">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite">
+<td class="CourseAppliedDataSatisfiedBy">
+                        Satisfied by
+                     </td>
+<td colspan="4" class="CourseTransferData">PHY1025 - Basic Physics - Miami Dade College</td>
+</tr>
+</tbody></table></td></tr></tbody></table></td>
+</tr>
+</tbody></table></td></tr></tbody></table>
+<br><table border="0" cellspacing="1" cellpadding="0" width="100%" class="Blocks">
+<tbody><tr><td colspan="20"><table border="0" cellspacing="0" cellpadding="0" width="100%" class="BlockHeader"><tbody><tr>
+<td class="BlockHeader" colspan="1" rowspan="2" valign="middle" nowrap="">
+             &nbsp;
+             Open Electives</td>
+<td align="right" width="30%"><table border="0" cellspacing="1" cellpadding="2" width="100%" class="BlockHeader"><tbody><tr>
+<td class="SectionTableSubTitle" align="right">Credits
+                Applied:
+              </td>
+<td class="SectionTableSubData" align="right">36</td>
+<td class="SectionTableSubTitle"></td>
+<td class="SectionTableSubData" align="right"></td>
+</tr></tbody></table></td>
+</tr></tbody></table></td></tr>
+<tr class="CourseAppliedRowWhite">
+<td width="8%" class="ClassesAppliedClasses">BIOL&nbsp;1XX</td>
+<td xxxwidth="50%" class="SectionCourseTitle">Biology &amp; Environment</td>
+<td class="SectionCourseGrade" width="6%">TA&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">3</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite"><td class="SectionTransferLine" colspan="5">
+<b>
+          Satisfied by: &nbsp;
+        </b>BSC1050 - Biology &amp; Environment - Miami Dade College</td></tr>
+<tr class="CourseAppliedRowAlt">
+<td width="8%" class="ClassesAppliedClasses">CS&nbsp;1XX</td>
+<td xxxwidth="50%" class="SectionCourseTitle">Intro to Web Page De</td>
+<td class="SectionCourseGrade" width="6%">TB&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">4</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowAlt"><td class="SectionTransferLine" colspan="5">
+<b>
+          Satisfied by: &nbsp;
+        </b>CTS1800 - Intro to Web Page De - Miami Dade College</td></tr>
+<tr class="CourseAppliedRowWhite">
+<td width="8%" class="ClassesAppliedClasses">CS&nbsp;1XX</td>
+<td xxxwidth="50%" class="SectionCourseTitle">Intro to C++ Prog</td>
+<td class="SectionCourseGrade" width="6%">TC&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">4</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite"><td class="SectionTransferLine" colspan="5">
+<b>
+          Satisfied by: &nbsp;
+        </b>COP1334 - Intro to C++ Prog - Miami Dade College</td></tr>
+<tr class="CourseAppliedRowAlt">
+<td width="8%" class="ClassesAppliedClasses">CS&nbsp;1XX</td>
+<td xxxwidth="50%" class="SectionCourseTitle">Intro Comp Serv Main</td>
+<td class="SectionCourseGrade" width="6%">TA&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">3</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowAlt"><td class="SectionTransferLine" colspan="5">
+<b>
+          Satisfied by: &nbsp;
+        </b>CET1171 - Intro Comp Serv Main - Miami Dade College</td></tr>
+<tr class="CourseAppliedRowWhite">
+<td width="8%" class="ClassesAppliedClasses">CS&nbsp;315L</td>
+<td xxxwidth="50%" class="SectionCourseTitle">Laboratory</td>
+<td class="SectionCourseGrade" width="6%">TBD&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">0</td>
+<td class="SectionCourseTerm" width="10%">Fall 2018</td>
+</tr>
+<tr class="CourseAppliedRowAlt">
+<td width="8%" class="ClassesAppliedClasses">MATH&nbsp;1XX</td>
+<td xxxwidth="50%" class="SectionCourseTitle">College Algebra</td>
+<td class="SectionCourseGrade" width="6%">TC&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">3</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowAlt"><td class="SectionTransferLine" colspan="5">
+<b>
+          Satisfied by: &nbsp;
+        </b>MAC1105 - College Algebra - Miami Dade College</td></tr>
+<tr class="CourseAppliedRowWhite">
+<td width="8%" class="ClassesAppliedClasses">PHYS&nbsp;110L</td>
+<td xxxwidth="50%" class="SectionCourseTitle">Laboratory</td>
+<td class="SectionCourseGrade" width="6%">NG&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">0</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowAlt">
+<td width="8%" class="ClassesAppliedClasses">RHET&nbsp;1XX</td>
+<td xxxwidth="50%" class="SectionCourseTitle">English Comp 2</td>
+<td class="SectionCourseGrade" width="6%">TB&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">3</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowAlt"><td class="SectionTransferLine" colspan="5">
+<b>
+          Satisfied by: &nbsp;
+        </b>ENC1002 - English Comp 2 - Miami Dade College</td></tr>
+<tr class="CourseAppliedRowWhite">
+<td width="8%" class="ClassesAppliedClasses">RHET&nbsp;1XX</td>
+<td xxxwidth="50%" class="SectionCourseTitle">English Composition 1</td>
+<td class="SectionCourseGrade" width="6%">TA&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">3</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite"><td class="SectionTransferLine" colspan="5">
+<b>
+          Satisfied by: &nbsp;
+        </b>ENC1101 - English Composition 1 - Miami Dade College</td></tr>
+<tr class="CourseAppliedRowAlt">
+<td width="8%" class="ClassesAppliedClasses">TRNS&nbsp;1XX</td>
+<td xxxwidth="50%" class="SectionCourseTitle">Humanities</td>
+<td class="SectionCourseGrade" width="6%">TB&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">3</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowAlt"><td class="SectionTransferLine" colspan="5">
+<b>
+          Satisfied by: &nbsp;
+        </b>HUM1020 - Humanities - Miami Dade College</td></tr>
+<tr class="CourseAppliedRowWhite">
+<td width="8%" class="ClassesAppliedClasses">TRNS&nbsp;1XX</td>
+<td xxxwidth="50%" class="SectionCourseTitle">Social Environment</td>
+<td class="SectionCourseGrade" width="6%">TC&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">3</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite"><td class="SectionTransferLine" colspan="5">
+<b>
+          Satisfied by: &nbsp;
+        </b>ISS1120 - Social Environment - Miami Dade College</td></tr>
+<tr class="CourseAppliedRowAlt">
+<td width="8%" class="ClassesAppliedClasses">TRNS&nbsp;1XX</td>
+<td xxxwidth="50%" class="SectionCourseTitle">Preparng for Stu Suc</td>
+<td class="SectionCourseGrade" width="6%">TB&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">3</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowAlt"><td class="SectionTransferLine" colspan="5">
+<b>
+          Satisfied by: &nbsp;
+        </b>SLS1510 - Preparng for Stu Suc - Miami Dade College</td></tr>
+<tr class="CourseAppliedRowWhite">
+<td width="8%" class="ClassesAppliedClasses">TRNS&nbsp;1XX</td>
+<td xxxwidth="50%" class="SectionCourseTitle">Intro Micro Usage</td>
+<td class="SectionCourseGrade" width="6%">TB&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">4</td>
+<td class="SectionCourseTerm" width="10%">Fall 2017</td>
+</tr>
+<tr class="CourseAppliedRowWhite"><td class="SectionTransferLine" colspan="5">
+<b>
+          Satisfied by: &nbsp;
+        </b>CGS1060 - Intro Micro Usage - Miami Dade College</td></tr>
+</tbody></table>
+<table border="0" cellspacing="1" cellpadding="0" width="100%" class="xBlocks">
+<tbody><tr><td colspan="20"><table border="0" cellspacing="0" cellpadding="0" width="100%" class="BlockHeader"><tbody><tr>
+<td class="BlockHeader" colspan="1" rowspan="2" valign="middle" nowrap="">
+             &nbsp;
+                  Insufficient </td>
+<td align="right" width="30%"><table border="0" cellspacing="1" cellpadding="2" width="100%" class="BlockHeader"><tbody><tr>
+<td class="SectionTableSubTitle" align="right"></td>
+<td class="SectionTableSubData" align="right"></td>
+<td class="SectionTableSubTitle"></td>
+<td class="SectionTableSubData" align="right"></td>
+</tr></tbody></table></td>
+</tr></tbody></table></td></tr>
+<tr class="CourseAppliedRowWhite">
+<td width="8%" class="ClassesAppliedClasses">CS&nbsp;220</td>
+<td xxxwidth="50%" class="SectionCourseTitle">Intro to Parallel Computing</td>
+<td class="SectionCourseGrade" width="6%">F&nbsp;</td>
+<td class="SectionCourseCredits" width="6%">0</td>
+<td class="SectionCourseTerm" width="10%">Fall 2016</td>
+</tr>
+</tbody></table>
+<br><br><table border="0" cellspacing="1" cellpadding="0" width="100%" class="Blocks">
+<tbody><tr><td colspan="20"><table border="0" cellspacing="0" cellpadding="0" width="100%" class="BlockHeader"><tbody><tr><td class="BlockHeader" colspan="1" rowspan="2" valign="middle" nowrap="">
+           &nbsp;Disclaimer
+         </td></tr></tbody></table></td></tr>
+<tr><td class="DisclaimerText">
+
+
+    Note to Students:
+It is the responsibility of each student to be aware of and understand the requirements of the selected degree program. Students should contact their academic adviser with questions and/or discrepancies about their degree evaluation. The degree evaluation is not your academic transcript and is not official notification of completion of degree or certificate requirements.
+
+</td></tr>
+</tbody></table>
+<script type="text/javascript" language="JavaScript">
+    if (typeof(top.frControl) != "undefined")
+    {
+    myAuditId = 'AB09CghZ';
+    // if it is a real audit then update the auditdate otherwise do not
+    if (myAuditId.substring(0,1) == "A")
+    {
+    sTodaysDate = top.frControl.GetCurrentDate(); // mm/dd/ccyy or whatever the format is
+    sAuditDate = top.frControl.FormatDate ("20180822");
+    //sAuditMonth = '08';
+    //sAuditDay   = '22';
+    //sAuditYear  = '2018';
+    //sAuditDate = sAuditMonth + '/' + sAuditDay + '/' + sAuditYear;
+    // If this audit was run today then show its time; otherwise the date of the last
+    // run audit should already be displaying and there is no reason to show this old date
+    if (sAuditDate == sTodaysDate)
+    {
+    //sAuditHour  = '09';
+    //sAuditMin   = '57';
+    //sDisplayDate = sAuditHour + ':' + sAuditMin;
+    sDisplayDate = 'Today';
+    // Update the display date at the top with this new date
+    top.frControl.document.frmHoldFields.LastAudit.value = sDisplayDate;
+    }
+    }
+    } // frcontrol != undefined
+  </script><script type="text/javascript" language="JavaScript">
+      try
+      {
+      top.frSelection.ToggleButtons("on");
+      }
+      catch (err)
+      {
+      // this is fine -- it just means the top frame does not exist
+      }
+    </script>
+</form>
+
+
+
+
+
+
+
+
+
+</body>

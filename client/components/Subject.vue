@@ -18,7 +18,7 @@
                     </v-tooltip>
                 </template>
                 <template slot="items" slot-scope="props">
-                    <tr @click="props.expanded = !props.expanded, goTo($refs[`row-${props.item.crn}`])" :ref="`row-${props.item.crn}`" :class="{'grey lighten-4 grey--text text--darken-1 fix-border':!props.item.available,'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="expand(props).item.index" :id="props.item.index">
+                    <tr @click="props.expanded = !props.expanded, goTo($refs[`row-${props.item.index}`])" :ref="`row-${props.item.crn}`" :class="{'grey lighten-4 grey--text text--darken-1 fix-border':!props.item.available,'blue darken-4 white--text':isInPlanner(props.item),'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="expand(props).item.index" :id="props.item.index">
                         <td>{{ props.item.title }}</td>
                         <td class="text-xs-center">{{ props.item.shortcode }} {{props.item.id}}</td>
                         <td class="text-xs-left">{{ props.item.instructor }}</td>
@@ -49,7 +49,7 @@
             </v-layout>
             <v-container fluid grid-list-md class="pa-0">
                 <v-layout row wrap>
-                    <v-flex v-for="course in courses" :key="course.index" xs6 sm4 md3 xl2>
+                    <v-flex v-for="course in courses" :key="course.index" xs6 sm4 md3 lg2>
                         <course-card v-bind="course" v-on:open-course="(crn)=>$emit('open-course',crn)"></course-card>
                     </v-flex>
                 </v-layout>
@@ -153,6 +153,9 @@ export default {
                 })
 
             },
+            isInPlanner(course) {
+                return this.$store.getters['planner/isInPlan'](course)
+            }
         }
 }
 </script>

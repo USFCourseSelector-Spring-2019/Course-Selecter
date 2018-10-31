@@ -125,8 +125,12 @@ class CoursesController {
 
     }
     async getProfessorData({ params: { professor_name } }) {
+        function getLongestNames(name){
+  const namesSortedByLength = name.split(' ').sort((a, b)=>b.length-a.length)
+  return namesSortedByLength.slice(0,2).join(" ")
+}
         try {
-            return await this.coursesDB.get('Proffessor - ' + professor_name)
+            return await this.coursesDB.get('Proffessor - ' + getLongestNames(professor_name))
         } catch (e) {
             return false
         }
@@ -139,7 +143,7 @@ CoursesController.ROUTES = {
         verb: 'GET'
     },
     getProfessorData: {
-        path: '/info/:proffessor_name',
+        path: '/info/:professor_name',
         verb: 'GET'
     },
     getCourseData: {
