@@ -37,15 +37,17 @@ class PaymentController {
         }
         console.log(token, username, password, email)
         const charge = await stripe.charges.create({
-            amount: 799,
+            amount: 199,
             currency: 'usd',
             description: 'USF Course Selector Premium',
             source: token,
             metadata: {
                 school: 'USF'
-            },
-            receipt_email: email || ''
+            }
         })
+        if(email){
+            charge.receipt_email = email
+        }
         //console.log(charge)
         if (charge.status !== 'succeeded') {
             throw new Error('Payment Failed')

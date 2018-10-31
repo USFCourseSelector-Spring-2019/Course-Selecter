@@ -14,7 +14,7 @@
                         <v-alert :value="true" type="error">Something went wrong proccessing your payment</v-alert>
                     </expander>
                     <v-btn @click="pay" color="primary" class="primary-fg--text right mt-2">
-                        Pay $7.99
+                        Pay $1.99
                     </v-btn>
                     <div class="clear"></div>
                 </v-form>
@@ -42,7 +42,7 @@ export default {
                     currency: 'usd',
                     total: {
                         label: 'USF Course Selector',
-                        amount: 799,
+                        amount: 199,
                     },
                     requestPayerName: true,
                     requestPayerEmail: true,
@@ -189,6 +189,7 @@ export default {
         },
         async goToOnboarding(username) {
             //move on to onboarding as payment has been placed
+            this.$router.push('/onboarding')
         }
     },
     computed: {
