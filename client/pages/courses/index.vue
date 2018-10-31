@@ -4,16 +4,17 @@
             <h1 class="text-xs-center display-1">Search Courses</h1>
             <v-layout class="my-4" :column="$vuetify.breakpoint.xsOnly">
                 <v-text-field v-model.trim="tempQuery" label="Search" v-on:keyup.enter="search" clearable solo color="primary"></v-text-field>
-                <v-btn color="primary" @click="search">
+                <v-btn color="primary" @click="search" large class="my-0">
                     <v-icon left>search</v-icon>
                     <span>Search</span>
                 </v-btn>
-                <v-btn @click="bottomSheet=true" class="hidden-md-and-up" color="primary">
-                    <v-icon left>filter_list</v-icon>Filter By
+                <v-btn @click="bottomSheet=true" large flat class="my-0 hidden-md-and-up">
+                    <v-icon left>filter_list</v-icon>
+                    <span>Filter By</span>
                 </v-btn>
             </v-layout>
             <div class="hidden-sm-and-down" style="height:100%">
-                <h2 class="headline mb-1 my-3 text-xs-center">Filter By</h2>
+                <h2 class="headline text-xs-center">Filter By</h2>
                 <v-layout column align-center style="height:65%">
                     <v-flex v-for="(filter,i) in filters" :key="filter.key" :class="{'px-3':$vuetify.breakpoint.lgAndDown}" style="width:100%">
                         <v-autocomplete :items="filter.possibles.map(mapper)" v-model="selected[i]" :label="filter.title" clearable color="primary" item-text="label" :item-value="filter.possibles[0].key?'key':undefined" v-if="filter.possibles.length" hide-details>
@@ -26,8 +27,8 @@
                 </v-layout>
             </div>
         </v-flex>
-        <v-flex xl10 offset-xl2 xs12 :class="{'pa-3':$vuetify.breakpoint.mdAndUp,box:true}">
-            <h1 class="pl-2 py-2 text-xl-left text-xs-center display-1" ref="results">{{semester}} Results{{crn}}</h1>
+        <v-flex xl10 offset-xl2 xs12 :class="{'px-3 pb-3':$vuetify.breakpoint.mdAndUp,box:true}">
+            <h1 class="pl-2 py-2 text-xl-left text-xs-center display-1" ref="results">All {{semester}} Results</h1>
             <Subject v-for="category in categories_results.slice(0, amountToShow)" :key="category.shortcode" v-bind:subject="category" v-on:open-course="openCourse" />
             <div v-infinite-scroll="loadMore" infinite-scroll-distance="1000" :infinite-scroll-immediate-check="false">
             </div>
@@ -477,5 +478,9 @@ export default {
 
 .full-width {
     width: 100%;
+}
+
+.v-btn--large {
+    height: 48px;
 }
 </style>
