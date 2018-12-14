@@ -71,6 +71,12 @@ module.exports = Object.assign(
       ENABLE_AUTH && "@nuxtjs/auth",
       process.env.LOCAL_DEV ? false : "@nuxtjs/pwa",
       [
+        "@nuxtjs/google-analytics",
+        {
+          id: "UA-131043303-1"
+        }
+      ],
+      [
         "nuxt-neo",
         {
           directory: __dirname + "/api",
