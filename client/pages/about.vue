@@ -5,7 +5,8 @@
             <li>Working on mobile view</li>
             <li>More useful content in course info views</li>
             <li>Better filtering and searching</li>
-            <li>Plan Calendar spacing issues</li>
+            <li>Planner view spacing issues</li>
+            <li>Accounts for syncing plans and later premium features.</li>
         </ul>
         <h1 class="mt-3">Future Plans</h1>
         <ul>
