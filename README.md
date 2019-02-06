@@ -1,2 +1,2 @@
 # Course-Selecter
-Let us handle registration, you handle college
+You handle college, we’ll handle registration
