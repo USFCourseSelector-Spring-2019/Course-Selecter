@@ -17,12 +17,12 @@ We extract courses every so often (can be set to any interval) and store those c
 Within the frontend users are able to create "plans"(possible schedules that the user can use to plan their next schedule). These plans are viewable in two formats: a list of courses and a calendar view. All plans are stored to the user's browser (using [localStorage browser API](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)).
 
 There are multiple folders within this folder
-- client/
+- [client/](client/README.md)
     - the frontend of course selector with it's own frontend API
-- usf/
+- [usf/](usf/README.md)
     - all the USF specific attachments for Course Selector
     - has all of the browser scrapers to pull data from USF's website
-- server/
+- [server/](usf/README.md)
     - puts all of the data we pull from the USF scrapers into the DB (CouchDB)
 
 ## New Features to be made
