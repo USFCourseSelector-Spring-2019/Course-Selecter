@@ -14,6 +14,27 @@ First, install couchdb, nodejs and yarn (MacOS only):
 brew install node yarn couchdb
 ```
 
+# Asana Workflow
+
+![Course Selector Workflow](Course Selector Workflow.png)
+
+## Things To Do (Figure 1.1)
+
+This is a column in Asana, this will be the queue of all the tasks which are to be completed. The tasks that are ready for you to complete will be assigned to you inside of this column.
+
+## In Progress (Figure 1.2)
+
+This column will be where you will show that you have begun to work on a task by dragging it from Figure 1.1 to Figure 1.2. Before begining your work you should create a branch as described below in the "Code Sharing Practices" section. Once you have completed your work within your branch you should open up a Pull Request into the master branch and once this is done you will move the task into Figure 1.3
+
+## Ready to Check (Figure 1.3)
+
+This column are all of the tasks which are currently in the review stage to be handled by Nick. Once you've made your PR with all the changes you've made I'll be notified that you made a Pull Request so just sit tight for the review of your code. If you feel so inclined you can go continue to work on your next task or you can just chill out.
+
+## Done (Figure 1.4)
+
+This column will signify all the work that is completed, Nick will move the task in here once the task's Pull Request is approved.
+
+
 # Code Sharing Practices
 
 In order to not conflict and constantly deal with merge conflicts as we develop together we will use [Pull Requests in GitHub](https://help.github.com/articles/about-pull-requests/).
