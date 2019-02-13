@@ -16,7 +16,7 @@ brew install node yarn couchdb
 
 # Asana Workflow
 
-![Course Selector Workflow](Course Selector Workflow.png)
+![Course Selector Workflow](Course%20Selector%20Workflow.png)
 
 ## Things To Do (Figure 1.1)
 
