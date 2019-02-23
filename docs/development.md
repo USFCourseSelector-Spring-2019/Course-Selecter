@@ -38,7 +38,7 @@ This column will signify all the work that is completed, Nick will move the task
 # Code Sharing Practices
 
 In order to not conflict and constantly deal with merge conflicts as we develop together we will use [Pull Requests in GitHub](https://help.github.com/articles/about-pull-requests/).
-The flow of development will look similar to this example:
+This flow of development is called [Feature Branch Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow) will look similar to this example:
 
 First, you go into the master branch and pull the latest changes by executing:
 
