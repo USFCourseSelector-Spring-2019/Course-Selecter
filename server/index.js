@@ -23,11 +23,14 @@ async function store(params) {
             const body = await usf.update(data, DOC_ID, (err, existing) => {
                 if (err) {
                     console.log(err)
+                    console.log('***********\nYour server probably is not running or the usf database is not initialized\n*********')
+                    return;
                 }
             })
             console.log('Updated Courses Document')
         } catch (e) {
-            console.log(e)
+            console.log('***********\nYour server probably is not running or the usf database is not initialized\n*********')
+            return;
         }
         //successfully put semester Document in
 
@@ -52,6 +55,8 @@ async function store(params) {
             console.log('Successfully put all USF Data!')
         } catch (e) {
             console.log(e)
+            console.log('unable to update the courses document');
+            return;
         }
         return DOC_ID
     })
