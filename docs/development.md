@@ -167,7 +167,7 @@ yarn run dev
 
 Now if you go to [http://localhost:3000/](http://localhost:3000) you'll have the server running!
 
-This will pretty much always be running when you write your code and the cool part about it is anytime you save a file it will automatically reload the page so you don't constantly have to refresh the page to see the changes.
+This will pretty much always be running when you write your code and the cool part about it is anytime you save a file it will automatically reload the page so you don't constantly have to refresh the page to see the changes. The cool thing is that it also runs couchdb for you so you don't need to always have it running in a separate window.
 
 # To be continued
 
