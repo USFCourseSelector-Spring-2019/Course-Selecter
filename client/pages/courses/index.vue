@@ -179,8 +179,8 @@ export default {
         const courseData = await store.getters.courseData
             //load the selected filters
         const selected = [
-            'time',
             'available',
+            'schedule',
             'campus',
             'subject',
             'course',
@@ -218,8 +218,8 @@ export default {
         }
     },
     watchQuery: [
-        'time',
         'available',
+        'schedule',
         'campus',
         'subject',
         'course',
@@ -229,14 +229,14 @@ export default {
     ],
     watch: {
         selected: {
-            handler: function([timeFilter, availableFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter]) {
+            handler: function([availableFilter, scheduleFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter]) {
                 this.$router.push({
                     name: 'courses',
                     query: {
                         crn: this.$router.currentRoute.query.crn,
                         ...[
-                            ['time', timeFilter],
                             ['available', availableFilter],
+                            ['schedule', scheduleFilter],
                             ['campus', campusFilter],
                             ['subject', subjectFilter],
                             ['course', courseFilter],
@@ -377,15 +377,15 @@ export default {
         },
         categories_results() {
             //TODO actual filtering
-            const [timeFilter, availableFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter] = this.selected,
+            const [availableFilter, scheduleFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter] = this.selected,
                 filter = course => {
-                    if (timeFilter === Boolean(timeFilter)) {
-                        if (!timeFilter) {
-                            alert("Now we are filtering")
-                        }
-                    }
                     if (availableFilter === Boolean(availableFilter)) {
                         if (course.available !== availableFilter) {
+                            return false
+                        }
+                    }
+                    if (!scheduleFilter) {
+                        if (this.canAddToPlanner(course)) {
                             return false
                         }
                     }

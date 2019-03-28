@@ -34,24 +34,25 @@ class CoursesController {
                 key: true,
                 label: "Available Classes"
             },
-            tm = {
+            sc = {
                 key: true,
-                label: "All Classes"
+                label: "All courses"
             },
             ret = Object.assign({
                 filters: [{
-                    title: 'Schedule Conflicts',
-                    key: 'time',
-                    possibles: [tm, {
-                        key: false,
-                        label: "No Schedule Conflicts"
-                    }]
-                },  {
                     title: 'Availability of Class',
                     key: 'available',
                     possibles: [av, {
                         key: false,
                         label: "Closed Classes"
+                    }],
+                    selected: null
+                }, {
+                    title: 'Schedule Conflicts',
+                    key: 'shedule',
+                    possibles: [sc, {
+                        key: false,
+                        label: "Courses With No Schedule Conflicts"
                     }],
                     selected: null
                 }, {
