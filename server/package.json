@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "cron": "pm2 start index.js --no-autorestart  --cron \"0 0 1 * * ?\""
+    "cron": "pm2 start index.js --no-autorestart  --cron \"0 0 1 * * ?\"",
+    "courses": "node index.js",
+    "proffessors": "node proffessors.js"
   },
   "author": "Nick the Sick",
   "license": "ISC",

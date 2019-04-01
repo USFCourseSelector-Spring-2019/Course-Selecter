@@ -9,7 +9,7 @@ const cheerio = require('cheerio'),
 
 
 function loadFile(file) {
-    return Promise.resolve(execa.stdout('pdftohtml', ['-stdout', '-q', file]))
+    return Promise.resolve(execa.stdout('pdftohtml', ['-stdout', '-q', '-i', file]))
 }
 
 
@@ -148,7 +148,6 @@ function scraper(doTheThing) {
                 }
             }
         }
-
         return obj
     }).then(results => write(path.resolve(__dirname, './degree-eval.json'), results).then(() => results)).catch((err) => { console.log("welp something went wrong", err) })
 }
