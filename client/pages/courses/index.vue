@@ -376,7 +376,6 @@ export default {
             return this.$store.getters['planner/isInPlan'](this.courseInfo)
         },
         categories_results() {
-            //TODO actual filtering
             const [availableFilter, scheduleFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter] = this.selected,
                 filter = course => {
                     if (availableFilter === Boolean(availableFilter)) {
@@ -384,8 +383,8 @@ export default {
                             return false
                         }
                     }
-                    if (!scheduleFilter) {
-                        if (this.canAddToPlanner(course)) {
+                    if (scheduleFilter) {
+                        if (!this.canAddToPlanner(course)) {
                             return false
                         }
                     }
