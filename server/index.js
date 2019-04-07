@@ -63,7 +63,7 @@ async function store(params) {
 }
 
 if (!module.parent) {
-    store({ offset: 1, headless: true })
+    store({ offset: 2, headless: true })
 }
 
 module.exports = store

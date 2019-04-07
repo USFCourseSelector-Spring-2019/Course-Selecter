@@ -44,6 +44,17 @@ class CoursesController {
                     }],
                     selected: null
                 }, {
+                    title: 'Schedule Conflicts',
+                    key: 'schedule',
+                    possibles: [{
+                        key: false,
+                        label: "All Courses"
+                    }, {
+                        key: true,
+                        label: "Courses With No Schedule Conflicts"
+                    }],
+                    selected: null
+                }, {
                     title: 'All Campuses',
                     key: 'campus',
                     possibles: [lm, ...doc.campuses.filter(a => a.length).slice(1)],
