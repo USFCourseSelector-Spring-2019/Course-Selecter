@@ -75,6 +75,11 @@ export const mutations = {
 }
 
 export const actions = {
+    async downloadPlan(state, index) {
+        const { writeFileSync } = require('fs')
+        const ics = require('ics')
+        alert('hai')
+    },
     async showCourseView({ commit }) {
         await commit('setTab', 0)
         await commit('showPlanner')
