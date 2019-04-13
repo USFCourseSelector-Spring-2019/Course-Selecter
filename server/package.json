@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "cron": "pm2 start index.js --no-autorestart  --cron \"0 0 1 * * ?\"",
+    "cron": "pm2 start index.js --no-autorestart  --cron \"*/10 6-24, 0-6/1 * * *\" --name \"scraper\"",
+    "monthly": "pm2 stop scraper  --cron \"*/0 * 30 4 * \"",
+    "start": "pm2 start scraper  --cron \"*/0 * 1 4 * \"",
     "courses": "node index.js",
     "proffessors": "node proffessors.js"
   },
