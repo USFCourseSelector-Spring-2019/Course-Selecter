@@ -55,7 +55,7 @@
                             <v-layout v-for="(curPlan,i) in plans" :key="i">
                                 <v-text-field :value="curPlan.title" :label="`Plan #${i+1}`" @change="title=>$store.dispatch('planner/setTitleOf',{payload:{title,index:i},$api})"></v-text-field>
                                 <v-btn @click.native.stop="$store.dispatch('planner/setCurPlan',{payload:i,$api})" :disabled="$store.getters['planner/currentPlan']===curPlan" color="primary">{{$store.getters['planner/currentPlan']===curPlan?'Is Current Plan':'Set as Current Plan'}}</v-btn>
-                                <v-btn @click.native.stop="$store.dispatch('planner/downloadPlan',{payload:i,$api})">Download</v-btn>
+                                <v-btn @click.native.stop="$store.dispatch('planner/downloadPlan',{index: i})">Download</v-btn>
                                 <v-tooltip bottom>
                                     <v-btn @click.native.stop="$store.dispatch('planner/removePlan',{payload:i,$api})" icon flat slot="activator">
                                         <v-icon>close</v-icon>

@@ -1,4 +1,8 @@
 import ls from 'local-storage';
+import Moment from 'moment';
+import {
+    extendMoment
+} from 'moment-range';
 
 function storeToLocalStorage({ plans, plan }) {
     ls('plans', plans)
@@ -75,10 +79,73 @@ export const mutations = {
 }
 
 export const actions = {
-    async downloadPlan(state, index) {
-        const { writeFileSync } = require('fs')
+    async downloadPlan({ state: { plans } }, { index }) {
+        const moment = extendMoment(Moment)
+        const plan_to_download = plans[index];
         const ics = require('ics')
-        alert('hai')
+        const day_map = new Map([
+            ['M', 'MO'],
+            ['T', 'TU'],
+            ['W', 'WE'],
+            ['R', 'TH'],
+            ['F', 'FR'],
+            ['S', 'SA'],
+            ['U', 'SU']
+        ])
+
+        let icsEvents = []
+
+        plan_to_download.courses.forEach(function(plan_course) {
+            console.log('course')
+            console.log(plan_course)
+            const start_date = plan_course.dates[0]
+            const end_date = plan_course.dates[1]
+            const start_time = plan_course.times[0]
+            const end_time = plan_course.times[1]
+
+            let start_hour = Number(start_time.slice(0,2))
+            let end_hour = Number(end_time.slice(0,2))
+            let start_minute = Number(start_time.slice(3,5))
+            let end_minute = Number(end_time.slice(3,5))
+            if (start_time.slice(-2) == 'pm') {
+                start_hour += 12
+            }
+            if (end_time.slice(-2) == 'pm') {
+                end_hour += 12
+            }
+            
+            let duration_hour = end_hour - start_hour
+            let duration_minute = end_minute - start_minute
+
+            console.log('start: ' + start_hour)
+            console.log('end: ' + end_hour)
+            
+            let recurr_string = 'FREQ=WEEKLY;BYDAY='
+            plan_course.days.forEach(function(day) {
+                recurr_string += day_map.get(day) + ','
+            })
+            recurr_string = recurr_string.slice(0, -1)
+            recurr_string += ';INTERVAL=1;UNTIL='
+            recurr_string += moment().year() + end_date.slice(0, end_date.indexOf('/')) + end_date.slice(end_date.indexOf('/') + 1)
+
+            ics.createEvent({
+                title: plan_course.title,
+                //TODO how do I get the course's year, not just this year
+                start: [moment().year(), start_date.slice(0, start_date.indexOf('/')), start_date.slice(start_date.indexOf('/') + 1), start_hour, start_minute],
+                duration: { hours: duration_hour, minutes: duration_minute },
+                location: plan_course.loc,
+                recurrenceRule: recurr_string
+            }, (error, value) => {
+                if (error) {
+                    console.log('error' + error)
+                    return
+                } else {
+                    icsEvents.push(value)
+                    console.log('ICS Event')
+                    console.log(value)
+                }
+            })
+        })
     },
     async showCourseView({ commit }) {
         await commit('setTab', 0)
