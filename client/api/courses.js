@@ -190,3 +190,5 @@ CoursesController.ROUTES = {
     verb: "GET"
   }
 };
+
+module.exports = CoursesController;

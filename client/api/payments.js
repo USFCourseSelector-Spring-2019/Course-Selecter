@@ -77,3 +77,5 @@ PaymentController.ROUTES = {
     verb: "GET"
   }
 };
+
+module.exports = PaymentController;

@@ -97,3 +97,5 @@ AuthController.ROUTES = {
     verb: "GET"
   }
 };
+
+module.exports = AuthController;

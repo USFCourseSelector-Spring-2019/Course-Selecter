@@ -41,3 +41,5 @@ DashboardController.ROUTES = {
     verb: "GET"
   }
 };
+
+module.exports = DashboardController;
