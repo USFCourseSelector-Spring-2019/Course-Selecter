@@ -27,7 +27,7 @@ async function store(params) {
                     return;
                 }
             })
-            console.log('Updated Courses Document')
+            console.log('Updated Courses Document as:', data.semester)
         } catch (e) {
             console.log('***********\nYour server probably is not running or the usf database is not initialized\n*********')
             return;
@@ -63,7 +63,7 @@ async function store(params) {
 }
 
 if (!module.parent) {
-    store({ offset: 1, headless: true })
+    store({ offset: 0, headless: true })
 }
 
 module.exports = store

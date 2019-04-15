@@ -180,6 +180,7 @@ export default {
             //load the selected filters
         const selected = [
             'available',
+            'schedule',
             'campus',
             'subject',
             'course',
@@ -218,6 +219,7 @@ export default {
     },
     watchQuery: [
         'available',
+        'schedule',
         'campus',
         'subject',
         'course',
@@ -227,13 +229,14 @@ export default {
     ],
     watch: {
         selected: {
-            handler: function([availableFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter]) {
+            handler: function([availableFilter, scheduleFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter]) {
                 this.$router.push({
                     name: 'courses',
                     query: {
                         crn: this.$router.currentRoute.query.crn,
                         ...[
                             ['available', availableFilter],
+                            ['schedule', scheduleFilter],
                             ['campus', campusFilter],
                             ['subject', subjectFilter],
                             ['course', courseFilter],
@@ -373,10 +376,15 @@ export default {
             return this.$store.getters['planner/isInPlan'](this.courseInfo)
         },
         categories_results() {
-            const [availableFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter] = this.selected,
+            const [availableFilter, scheduleFilter, campusFilter, subjectFilter, courseFilter, dayFilter, profFilter, attrFilter] = this.selected,
                 filter = course => {
                     if (availableFilter === Boolean(availableFilter)) {
                         if (course.available !== availableFilter) {
+                            return false
+                        }
+                    }
+                    if (scheduleFilter) {
+                        if (!this.canAddToPlanner(course)) {
                             return false
                         }
                     }
