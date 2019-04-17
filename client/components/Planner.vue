@@ -9,21 +9,23 @@
             <v-btn icon @click.native="$emit('close')" color="primary-fg" flat>
                 <v-icon>close</v-icon>
             </v-btn>
-            <v-tabs slot="extension" centered v-model="curTab" slider-color="white" color="transparent" grow>
-                <v-tabs-slider color="secondary"></v-tabs-slider>
-                <v-tab ripple class="primary-fg--text">
-                    Courses
-                </v-tab>
-                <v-tab ripple class="primary-fg--text">
-                    Calendar
-                </v-tab>
-                <v-tab ripple class="primary-fg--text">
-                    Settings
-                </v-tab>
-            </v-tabs>
+            <template v-slot:extension>
+                <v-tabs centered v-model="curTab" slider-color="white" color="transparent" grow>
+                    <v-tabs-slider color="secondary"></v-tabs-slider>
+                    <v-tab ripple class="primary-fg--text" href="#tab-course">
+                        Courses
+                    </v-tab>
+                    <v-tab ripple class="primary-fg--text" href="#tab-calendar">
+                        Calendar
+                    </v-tab>
+                    <v-tab ripple class="primary-fg--text" href="#tab-settings">
+                        Settings
+                    </v-tab>
+                </v-tabs>
+            </template>
         </v-toolbar>
         <v-tabs-items v-model="curTab">
-            <v-tab-item key="course">
+            <v-tab-item key="course" value="tab-course">
                 <v-card flat>
                     <v-layout column v-if="courses.length">
                         <v-flex v-for="(course,i) in courses" :key="course.index">
@@ -41,12 +43,12 @@
                     </v-card-text>
                 </v-card>
             </v-tab-item>
-            <v-tab-item key="calendar">
+            <v-tab-item key="calendar" value="tab-calendar">
                 <v-card flat>
                     <Calendar :classes="courses" />
                 </v-card>
             </v-tab-item>
-            <v-tab-item key="settings">
+            <v-tab-item key="settings" value="tab-settings">
                 <v-card tile>
                     <v-card-title class="title">All Plans</v-card-title>
                     <v-subheader>You can create multiple possible schedules to see which is the best fit for you</v-subheader>
@@ -56,19 +58,23 @@
                                 <v-text-field :value="curPlan.title" :label="`Plan #${i+1}`" @change="title=>$store.dispatch('planner/setTitleOf',{payload:{title,index:i},$api})"></v-text-field>
                                 <v-btn @click.native.stop="$store.dispatch('planner/setCurPlan',{payload:i,$api})" :disabled="$store.getters['planner/currentPlan']===curPlan" color="primary">{{$store.getters['planner/currentPlan']===curPlan?'Is Current Plan':'Set as Current Plan'}}</v-btn>
                                 <v-tooltip bottom>
-                                    <v-btn @click.native.stop="$store.dispatch('planner/removePlan',{payload:i,$api})" icon flat slot="activator">
-                                        <v-icon>close</v-icon>
-                                    </v-btn>
-                                    <span>Delete {{curPlan.title}}</span>
+                                    <template v-slot:activator>
+                                        <v-btn @click.native.stop="$store.dispatch('planner/removePlan',{payload:i,$api})" icon flat>
+                                            <v-icon>close</v-icon>
+                                        </v-btn>
+                                        <span>Delete {{curPlan.title}}</span>
+                                    </template>
                                 </v-tooltip>
                             </v-layout>
                         </v-layout>
                         <v-tooltip top>
-                            <v-btn @click.native.stop="$store.dispatch('planner/addPlan',{payload:{title: `Plan #${plans.length+1}`,courses: []},$api})" color="primary" slot="activator">
-                                <v-icon left>add</v-icon>
-                                Add A Plan
-                            </v-btn>
-                            <span>Adds a clean possible plan to your list of plans</span>
+                            <template v-slot:activator>
+                                <v-btn @click.native.stop="$store.dispatch('planner/addPlan',{payload:{title: `Plan #${plans.length+1}`,courses: []},$api})" color="primary">
+                                    <v-icon left>add</v-icon>
+                                    Add A Plan
+                                </v-btn>
+                                <span>Adds a clean possible plan to your list of plans</span>
+                            </template>
                         </v-tooltip>
                     </v-card-text>
                     <div style="flex: 1 1 auto;"></div>
