@@ -7,7 +7,7 @@ export default (path, verb, { query, body }, { prefix }, { $axios }) => {
     baseURL: `${
       document
         ? document.location.origin
-        : `http://${process.env.HOST}:&{process.env.PORT}`
+        : `http://${process.env.HOST}:${process.env.PORT}`
     }${prefix || ''}`,
     timeout: 10000,
     url: path,
