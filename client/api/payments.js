@@ -1,81 +1,81 @@
-import nano from "nano";
-const { constants, hashPassword } = require("../api_helpers");
-const stripe = require("stripe")("sk_test_NqR71Jtkq7zpa1vsdyrwFMf7");
+import Nano from 'nano'
+const { constants, hashPassword } = require('../api_helpers')
+const stripe = require('stripe')('sk_test_NqR71Jtkq7zpa1vsdyrwFMf7')
 export default class PaymentController {
-  constructor(request) {
-    this.request = request;
-    this.nano = new nano(
-      /*context.isDev*/ true
-        ? "http://localhost:5984/"
-        : "http://db.courseselector.com/"
-    );
-    this.userDB = this.nano.use("users");
+  constructor (request) {
+    this.request = request
+    this.nano = new Nano(
+      /* context.isDev */ true
+        ? 'http://localhost:5984/'
+        : 'http://db.courseselector.com/'
+    )
+    this.userDB = this.nano.use('users')
   }
-  async userWithUsernameExists({ params: { username } }) {
+  async userWithUsernameExists ({ params: { username } }) {
     try {
-      const user = await this.userDB.get(username);
+      const user = await this.userDB.get(username)
       return {
-        user_exists: true,
+        user_exists: !!user,
         ok: true
-      };
+      }
     } catch (err) {
       return {
-        user_exists: false,
+        user_exists: undefined,
         ok: false
-      };
+      }
     }
   }
-  async pay({ body: { token, email, username, password } }) {
+  async pay ({ body: { token, email, username, password } }) {
     if (!token || !username || !password) {
-      throw new Error("Username and Password Fields Required");
+      throw new Error('Username and Password Fields Required')
     }
     if (
       (await this.userWithUsernameExists({ params: { username } })).user_exists
     ) {
-      throw new Error("Username is in use");
+      throw new Error('Username is in use')
     }
-    console.log(token, username, password, email);
+    console.log(token, username, password, email)
     const charge = await stripe.charges.create({
       amount: 199,
-      currency: "usd",
-      description: "USF Course Selector Premium",
+      currency: 'usd',
+      description: 'USF Course Selector Premium',
       source: token,
       metadata: {
-        school: "USF"
+        school: 'USF'
       }
-    });
+    })
     if (email) {
-      charge.receipt_email = email;
+      charge.receipt_email = email
     }
-    //console.log(charge)
-    if (charge.status !== "succeeded") {
-      throw new Error("Payment Failed");
+    // console.log(charge)
+    if (charge.status !== 'succeeded') {
+      throw new Error('Payment Failed')
     }
-    return await this.createAccount({ body: { username, password } });
+    return this.createAccount({ body: { username, password } })
   }
-  async createAccount({ body: { username, password } }) {
+  async createAccount ({ body: { username, password } }) {
     const userObj = {
       _id: username,
       plan: 0,
-      plans: [{ title: "My First Plan", courses: [] }],
+      plans: [{ title: 'My First Plan', courses: [] }],
       user_cred: await hashPassword(password)
-    };
-    //create the account
-    //hash password put into api_helpers
-    await this.userDB.insert(userObj);
-    return { ok: true, username };
+    }
+    // create the account
+    // hash password put into api_helpers
+    await this.userDB.insert(userObj)
+    return { ok: true, username }
   }
 }
 
 PaymentController.ROUTES = {
   pay: {
-    path: "/pay",
-    verb: "POST"
+    path: '/pay',
+    verb: 'POST'
   },
   userWithUsernameExists: {
-    path: "/:username/exists",
-    verb: "GET"
+    path: '/:username/exists',
+    verb: 'GET'
   }
-};
+}
 
-module.exports = PaymentController;
+module.exports = PaymentController
