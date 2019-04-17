@@ -58,23 +58,23 @@
                                 <v-text-field :value="curPlan.title" :label="`Plan #${i+1}`" @change="title=>$store.dispatch('planner/setTitleOf',{payload:{title,index:i},$api})"></v-text-field>
                                 <v-btn @click.native.stop="$store.dispatch('planner/setCurPlan',{payload:i,$api})" :disabled="$store.getters['planner/currentPlan']===curPlan" color="primary">{{$store.getters['planner/currentPlan']===curPlan?'Is Current Plan':'Set as Current Plan'}}</v-btn>
                                 <v-tooltip bottom>
-                                    <template v-slot:activator>
-                                        <v-btn @click.native.stop="$store.dispatch('planner/removePlan',{payload:i,$api})" icon flat>
+                                    <template v-slot:activator="{ on }">
+                                        <v-btn @click.native.stop="$store.dispatch('planner/removePlan',{payload:i,$api})" icon flat v-on="on">
                                             <v-icon>close</v-icon>
                                         </v-btn>
-                                        <span>Delete {{curPlan.title}}</span>
                                     </template>
+                                    <span>Delete {{curPlan.title}}</span>
                                 </v-tooltip>
                             </v-layout>
                         </v-layout>
                         <v-tooltip top>
-                            <template v-slot:activator>
-                                <v-btn @click.native.stop="$store.dispatch('planner/addPlan',{payload:{title: `Plan #${plans.length+1}`,courses: []},$api})" color="primary">
+                            <template v-slot:activator="{ on }">
+                                <v-btn @click.native.stop="$store.dispatch('planner/addPlan',{payload:{title: `Plan #${plans.length+1}`,courses: []},$api})" color="primary" v-on="on">
                                     <v-icon left>add</v-icon>
                                     Add A Plan
                                 </v-btn>
-                                <span>Adds a clean possible plan to your list of plans</span>
                             </template>
+                            <span>Adds a clean possible plan to your list of plans</span>
                         </v-tooltip>
                     </v-card-text>
                     <div style="flex: 1 1 auto;"></div>
