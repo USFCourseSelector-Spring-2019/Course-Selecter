@@ -27,14 +27,8 @@
     "js-search": "^1.4.2",
     "local-storage": "^1.4.2",
     "moment": "^2.22.2",
-<<<<<<< HEAD
-    "moment-range": "^4.0.1",
-    "nano": "^7.0.0",
-    "net": "^1.0.2",
-=======
     "moment-range": "^4.0.2",
     "nano": "^8.0.1",
->>>>>>> 5f5f1ebfd3a8740b4b24adfbfadffc570470142a
     "node-sass": "^4.9.3",
     "nuxt": "^2.6.2",
     "nuxt-neo": "^2.0.2",

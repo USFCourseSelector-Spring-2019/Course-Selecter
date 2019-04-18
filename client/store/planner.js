@@ -1,12 +1,5 @@
-<<<<<<< HEAD
-import ls from 'local-storage';
-import Moment from 'moment';
-import {
-    extendMoment
-} from 'moment-range';
-=======
 import ls from 'local-storage'
->>>>>>> 5f5f1ebfd3a8740b4b24adfbfadffc570470142a
+// import { saveAs } from 'file-saver';
 
 function storeToLocalStorage ({ plans, plan }) {
   ls('plans', plans)
@@ -85,8 +78,9 @@ export const mutations = {
 }
 
 export const actions = {
-<<<<<<< HEAD
     async downloadPlan({ state: { plans } }, { index }) {
+        alert('hello!')
+        return
         const moment = extendMoment(Moment)
         const plan_to_download = plans[index];
         const ics = require('ics')
@@ -213,79 +207,5 @@ export const actions = {
             await commit('setPlans', savedPlans || DEFAULT_PLANS)
             await commit('setCurPlan', savedPlan || 0)
         }
-=======
-  async showCourseView ({ commit }) {
-    await commit('setTab', 0)
-    await commit('showPlanner')
-  },
-  async showCalendarView ({ commit }) {
-    await commit('setTab', 1)
-    await commit('showPlanner')
-  },
-  async saveSettings (
-    {
-      state,
-      rootState: {
-        auth: { loggedIn, user }
-      }
-    },
-    { $api }
-  ) {
-    // Store these settings to the user in the db and localstorage or just localstorage if not logged in
-    if (loggedIn) {
-      const { plans, plan } = state
-      try {
-        console.log($api)
-        await $api.auth.savePlans({ body: { plans, plan } })
-      } catch (e) {
-        console.log('Failed to save plans with error:', e)
-      }
-    }
-    storeToLocalStorage(state)
-  },
-  async addCourse ({ commit, dispatch }, { payload, $api }) {
-    await commit('addCourse', payload)
-    await dispatch('saveSettings', { $api })
-  },
-  async removeCourse ({ commit, dispatch }, { payload, $api }) {
-    await commit('removeCourseIndex', payload)
-    await dispatch('saveSettings', { $api })
-  },
-  async addPlan ({ commit, dispatch }, { payload, $api }) {
-    await commit('addPlan', payload)
-    await dispatch('saveSettings', { $api })
-  },
-  async setTitleOf ({ commit, dispatch }, { payload, $api }) {
-    await commit('setTitleOf', payload)
-    await dispatch('saveSettings', { $api })
-  },
-  async setCurPlan ({ commit, dispatch }, { payload, $api }) {
-    await commit('setCurPlan', payload)
-    await dispatch('saveSettings', { $api })
-  },
-  async removePlan ({ commit, dispatch }, { payload, $api }) {
-    await commit('removePlan', payload)
-    await dispatch('saveSettings', { $api })
-  },
-  async loadSettings (
-    {
-      commit,
-      rootState: {
-        auth: { loggedIn, user }
-      }
-    },
-    { $api }
-  ) {
-    const savedPlans = ls('plans')
-    const savedPlan = ls('plan')
-    if (loggedIn) {
-      const { plans, plan } = await $api.auth.getPlans()
-      await commit('setPlans', plans || savedPlans || DEFAULT_PLANS)
-      await commit('setCurPlan', plan || savedPlan || 0)
-    } else {
-      await commit('setPlans', savedPlans || DEFAULT_PLANS)
-      await commit('setCurPlan', savedPlan || 0)
->>>>>>> 5f5f1ebfd3a8740b4b24adfbfadffc570470142a
     }
   }
-}
