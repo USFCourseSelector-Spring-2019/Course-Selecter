@@ -69,7 +69,7 @@ module.exports = Object.assign(
       "@nuxtjs/axios",
       "@nuxtjs/vuetify",
       ENABLE_AUTH && "@nuxtjs/auth",
-      process.env.LOCAL_DEV ? false : "@nuxtjs/pwa",
+      false && process.env.LOCAL_DEV ? false : "@nuxtjs/pwa",
       [
         "@nuxtjs/google-analytics",
         {

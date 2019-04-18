@@ -7,18 +7,19 @@
                 <h3 v-text="subject.shortcode" class="title"></h3>
             </v-card-title>
             <v-data-table :headers="headers" :items="courses" hide-actions item-key="index" expand>
-                <template slot="headerCell" slot-scope="props">
+                <template v-slot:headerCell="props">
                     <v-tooltip bottom :disabled="!props.header.description">
-                        <span slot="activator" class="secondary-fg--text">
-                  {{ props.header.text }}
-                </span>
+                        <template v-slot:activator="{ on }">
+                            <span v-on="on">
+                                {{ props.header.text }}
+                            </span>
+                        </template>
                         <span>
-                  {{ props.header.description }}
-                </span>
+                            {{ props.header.description }}
+                        </span>
                     </v-tooltip>
                 </template>
-                <template slot="items" slot-scope="props">
-
+                <template v-slot:items="props">
                     <tr @click="props.expanded = !props.expanded, goTo($refs[`row-${props.item.index}`])" :ref="`row-${props.item.index}`" :class="{'grey lighten-4 grey--text text--darken-1 fix-border':!props.item.available,'blue darken-4 white--text':isInPlanner(props.item),'datatable__expand-row':!props.item.available,enabled:props.item.available}" :key="expand(props).item.index" :id="props.item.index">
                         <td>{{ props.item.title }}</td>
                         <td class="text-xs-center">{{ props.item.shortcode }} {{props.item.id}}</td>
@@ -31,16 +32,18 @@
                         <td class="text-xs-center">{{ props.item.wl_remaining }}</td>
                     </tr>
                 </template>
-                <template slot="expand" slot-scope="props">
+                <template v-slot:expand="props">
                     <Course :course="props.item" @close="props.expanded=0" v-if="props.item.available && props.expanded" />
                     <v-alert :value="props.item.available===false" color="red darken-4" icon="warning" v-else @click="props.expanded=false" class="my-0">
                         Sorry {{props.item.title}} on {{props.item.days.join('')}} with {{props.item.instructor}} at {{props.item.times.join(" - ")}} is closed. Even the wait list is full or closed off.
                         <v-icon class="right" color="white" @click.stop="props.expanded=false">close</v-icon>
                     </v-alert>
                 </template>
-                <v-alert slot="no-results" :value="true" color="error" icon="warning">
-                    Your search found no results.
-                </v-alert>
+                <template v-slot:no-data>
+                    <v-alert :value="true" color="error" icon="warning">
+                        Your search found no results.
+                    </v-alert>
+                </template>
             </v-data-table>
         </v-card>
         <v-container v-else>
