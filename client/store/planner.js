@@ -1,5 +1,10 @@
 import ls from 'local-storage'
-// import { saveAs } from 'file-saver';
+import { saveAs } from 'file-saver'
+import Moment from 'moment'
+import {
+    extendMoment
+} from 'moment-range'
+
 
 function storeToLocalStorage ({ plans, plan }) {
   ls('plans', plans)
@@ -79,10 +84,10 @@ export const mutations = {
 
 export const actions = {
     async downloadPlan({ state: { plans } }, { index }) {
-        alert('hello!')
-        return
+        var FileSaver = require('file-saver')
+
         const moment = extendMoment(Moment)
-        const plan_to_download = plans[index];
+        const plan_to_download = plans[index]
         const ics = require('ics')
         const day_map = new Map([
             ['M', 'MO'],
@@ -94,59 +99,116 @@ export const actions = {
             ['U', 'SU']
         ])
 
+
+        
+
         let icsEvents = []
 
         plan_to_download.courses.forEach(function(plan_course) {
-            console.log('course')
-            console.log(plan_course)
-            const start_date = plan_course.dates[0]
-            const end_date = plan_course.dates[1]
-            const start_time = plan_course.times[0]
-            const end_time = plan_course.times[1]
+          const start_date = plan_course.dates[0]
+          const end_date = plan_course.dates[1]
+          const start_time = plan_course.times[0]
+          const end_time = plan_course.times[1]
+          const start_day = Number(start_date.slice(start_date.indexOf('/') + 1))
 
-            let start_hour = Number(start_time.slice(0,2))
-            let end_hour = Number(end_time.slice(0,2))
-            let start_minute = Number(start_time.slice(3,5))
-            let end_minute = Number(end_time.slice(3,5))
-            if (start_time.slice(-2) == 'pm') {
-                start_hour += 12
-            }
-            if (end_time.slice(-2) == 'pm') {
-                end_hour += 12
-            }
-            
-            let duration_hour = end_hour - start_hour
-            let duration_minute = end_minute - start_minute
+          let start_hour = Number(start_time.slice(0,2))
+          let end_hour = Number(end_time.slice(0,2))
+          let start_minute = Number(start_time.slice(3,5))
+          let end_minute = Number(end_time.slice(3,5))
 
-            console.log('start: ' + start_hour)
-            console.log('end: ' + end_hour)
-            
-            let recurr_string = 'FREQ=WEEKLY;BYDAY='
+          let recurr_string = 'FREQ=WEEKLY;BYDAY='
+          if (start_time.slice(-2) == 'pm' && start_hour > 12) {
+              start_hour += 12
+          }
+          if (end_time.slice(-2) == 'pm' && start_hour > 12) {
+              end_hour += 12
+          }
+
+          let duration_minute = 0
+
+          if (start_minute > end_minute) {
+            duration_minute = start_minute - end_minute
+            end_hour++
+          } else {
+            duration_minute = end_minute - start_minute
+          }
+          let duration_hour = end_hour - start_hour
+
+          console.log(plan_course)
+          console.log(duration_hour + ':' + duration_minute)
+          console.log(start_hour + ':' + start_minute)
+          console.log(end_hour + ':' + end_minute)
+
+          if (start_hour > 14) {
+              //the time 0:00 is at 5pm the day before for ICS for some reason
+              start_hour -= 8
+              start_day++
+              plan_course.days.forEach(function(day) {
+                  switch(day) {
+                    case 'M':
+                      recurr_string += day_map.get('T')
+                      break;
+                    case 'T':
+                      recurr_string += day_map.get('W')
+                      break;
+                    case 'W':
+                      recurr_string += day_map.get('R')
+                      break;
+                    case 'R':
+                      recurr_string += day_map.get('F')
+                      break;
+                    case 'F':
+                      recurr_string += day_map.get('S')
+                      break;
+                    case 'S':
+                      recurr_string += day_map.get('U')
+                      break;
+                    case 'U':
+                      recurr_string += day_map.get('M')
+                      break;
+                  }
+                  recurr_string += ','
+              })  
+          } else {
+            start_hour += 7
             plan_course.days.forEach(function(day) {
                 recurr_string += day_map.get(day) + ','
             })
-            recurr_string = recurr_string.slice(0, -1)
-            recurr_string += ';INTERVAL=1;UNTIL='
-            recurr_string += moment().year() + end_date.slice(0, end_date.indexOf('/')) + end_date.slice(end_date.indexOf('/') + 1)
+          }
 
-            ics.createEvent({
-                title: plan_course.title,
-                //TODO how do I get the course's year, not just this year
-                start: [moment().year(), start_date.slice(0, start_date.indexOf('/')), start_date.slice(start_date.indexOf('/') + 1), start_hour, start_minute],
-                duration: { hours: duration_hour, minutes: duration_minute },
-                location: plan_course.loc,
-                recurrenceRule: recurr_string
-            }, (error, value) => {
-                if (error) {
-                    console.log('error' + error)
-                    return
-                } else {
-                    icsEvents.push(value)
-                    console.log('ICS Event')
-                    console.log(value)
-                }
-            })
-        })
+          // plan_course.days.forEach(function(day) {
+          //       recurr_string += day_map.get(day) + ','
+          //   })
+
+          
+          recurr_string = recurr_string.slice(0, -1)
+          recurr_string += ';INTERVAL=1;UNTIL='
+          recurr_string += moment().year() + end_date.slice(0, end_date.indexOf('/')) + end_date.slice(end_date.indexOf('/') + 1)
+          recurr_string += 'T070000Z'
+
+          let course_ics_event = {
+              title: plan_course.title,
+              //TODO how do I get the course's year, not just this year
+              start: [moment().year(), start_date.slice(0, start_date.indexOf('/')), start_day, start_hour, start_minute],
+              duration: { hours: duration_hour, minutes: duration_minute },
+              location: plan_course.loc,
+              recurrenceRule: recurr_string
+          }
+          icsEvents.push(course_ics_event)
+      })
+
+      const { error, value } = ics.createEvents(icsEvents)
+
+      if (error) {
+        console.log('error')
+        console.log(error)
+        return
+      }
+
+      console.log(value)
+      var blob = new Blob([value], {type: "text/plain;charset=utf-8"});
+      FileSaver.saveAs(blob, plan_to_download.title + ".ics");
+
     },
     async showCourseView({ commit }) {
         await commit('setTab', 0)
