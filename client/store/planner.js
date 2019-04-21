@@ -84,8 +84,7 @@ export const mutations = {
 
 export const actions = {
     async downloadPlan({ state: { plans } }, { index }) {
-        var FileSaver = require('file-saver')
-
+        const FileSaver = require('file-saver')
         const moment = extendMoment(Moment)
         const plan_to_download = plans[index]
         const ics = require('ics')
@@ -98,13 +97,10 @@ export const actions = {
             ['S', 'SA'],
             ['U', 'SU']
         ])
-
-
-        
-
         let icsEvents = []
 
         plan_to_download.courses.forEach(function(plan_course) {
+          //the time 0:00 is at 5pm the day before for ICS for some reason
           const start_date = plan_course.dates[0]
           const end_date = plan_course.dates[1]
           const start_time = plan_course.times[0]
@@ -115,8 +111,8 @@ export const actions = {
           let end_hour = Number(end_time.slice(0,2))
           let start_minute = Number(start_time.slice(3,5))
           let end_minute = Number(end_time.slice(3,5))
-
           let recurr_string = 'FREQ=WEEKLY;BYDAY='
+
           if (start_time.slice(-2) == 'pm' && start_hour > 12) {
               start_hour += 12
           }
@@ -134,13 +130,7 @@ export const actions = {
           }
           let duration_hour = end_hour - start_hour
 
-          console.log(plan_course)
-          console.log(duration_hour + ':' + duration_minute)
-          console.log(start_hour + ':' + start_minute)
-          console.log(end_hour + ':' + end_minute)
-
           if (start_hour > 14) {
-              //the time 0:00 is at 5pm the day before for ICS for some reason
               start_hour -= 8
               start_day++
               plan_course.days.forEach(function(day) {
@@ -175,11 +165,6 @@ export const actions = {
                 recurr_string += day_map.get(day) + ','
             })
           }
-
-          // plan_course.days.forEach(function(day) {
-          //       recurr_string += day_map.get(day) + ','
-          //   })
-
           
           recurr_string = recurr_string.slice(0, -1)
           recurr_string += ';INTERVAL=1;UNTIL='
@@ -188,7 +173,6 @@ export const actions = {
 
           let course_ics_event = {
               title: plan_course.title,
-              //TODO how do I get the course's year, not just this year
               start: [moment().year(), start_date.slice(0, start_date.indexOf('/')), start_day, start_hour, start_minute],
               duration: { hours: duration_hour, minutes: duration_minute },
               location: plan_course.loc,
@@ -205,10 +189,8 @@ export const actions = {
         return
       }
 
-      console.log(value)
       var blob = new Blob([value], {type: "text/plain;charset=utf-8"});
       FileSaver.saveAs(blob, plan_to_download.title + ".ics");
-
     },
     async showCourseView({ commit }) {
         await commit('setTab', 0)
