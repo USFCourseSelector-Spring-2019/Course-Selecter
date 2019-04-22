@@ -100,7 +100,6 @@ export const actions = {
         let icsEvents = []
 
         plan_to_download.courses.forEach(function(plan_course) {
-          //the time 0:00 is at 5pm the day before for ICS for some reason
           const start_date = plan_course.dates[0]
           const end_date = plan_course.dates[1]
           const start_time = plan_course.times[0]
@@ -134,6 +133,8 @@ export const actions = {
 
           let duration_hour = end_hour - start_hour
 
+          //the time 0:00 is at 5pm the day before for ICS for some reason
+          //this is here to correct the actualy 24 hr time for ICS 24 hr time
           if (start_hour > 17) {
               start_hour -= 17
               start_day++
