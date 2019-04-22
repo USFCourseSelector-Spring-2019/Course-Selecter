@@ -105,33 +105,37 @@ export const actions = {
           const end_date = plan_course.dates[1]
           const start_time = plan_course.times[0]
           const end_time = plan_course.times[1]
-          const start_day = Number(start_date.slice(start_date.indexOf('/') + 1))
 
+          let start_day = Number(start_date.slice(start_date.indexOf('/') + 1))
           let start_hour = Number(start_time.slice(0,2))
           let end_hour = Number(end_time.slice(0,2))
           let start_minute = Number(start_time.slice(3,5))
           let end_minute = Number(end_time.slice(3,5))
           let recurr_string = 'FREQ=WEEKLY;BYDAY='
 
-          if (start_time.slice(-2) == 'pm' && start_hour > 12) {
+          if (start_time.slice(-2) == 'pm' && start_hour != 12) {
               start_hour += 12
           }
-          if (end_time.slice(-2) == 'pm' && start_hour > 12) {
+          if (end_time.slice(-2) == 'pm' && start_hour != 12) {
               end_hour += 12
           }
 
           let duration_minute = 0
+          let start_percent = start_minute/60
+          let end_percent = end_minute/60
 
-          if (start_minute > end_minute) {
-            duration_minute = start_minute - end_minute
-            end_hour++
+          if (start_percent > end_percent) {
+            duration_minute = (1 + end_percent) - start_percent
+            end_hour--
           } else {
-            duration_minute = end_minute - start_minute
+            duration_minute = end_percent - start_percent
           }
+          duration_minute = parseInt(60 * duration_minute)
+
           let duration_hour = end_hour - start_hour
 
-          if (start_hour > 14) {
-              start_hour -= 8
+          if (start_hour > 17) {
+              start_hour -= 17
               start_day++
               plan_course.days.forEach(function(day) {
                   switch(day) {
