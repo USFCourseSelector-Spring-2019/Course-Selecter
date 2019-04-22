@@ -100,6 +100,7 @@ export const actions = {
         let icsEvents = []
 
         plan_to_download.courses.forEach(function(plan_course) {
+          console.log(plan_course)
           const start_date = plan_course.dates[0]
           const end_date = plan_course.dates[1]
           const start_time = plan_course.times[0]
@@ -119,17 +120,17 @@ export const actions = {
               end_hour += 12
           }
 
-          let duration_minute = 0
-          let start_percent = start_minute/60
-          let end_percent = end_minute/60
+          console.log('start: ' + start_hour + ':' + start_minute)
+          console.log('end: ' + end_hour + ':' + end_minute)
 
-          if (start_percent > end_percent) {
-            duration_minute = (1 + end_percent) - start_percent
+          let duration_minute = 0
+
+          if (start_minute > end_minute) {
+            duration_minute = (60 + end_minute) - start_minute
             end_hour--
           } else {
-            duration_minute = end_percent - start_percent
+            duration_minute = end_minute - start_minute
           }
-          duration_minute = parseInt(60 * duration_minute)
 
           let duration_hour = end_hour - start_hour
 
@@ -139,6 +140,7 @@ export const actions = {
               start_hour -= 17
               start_day++
               plan_course.days.forEach(function(day) {
+                console.log("special days")
                   switch(day) {
                     case 'M':
                       recurr_string += day_map.get('T')
@@ -165,11 +167,15 @@ export const actions = {
                   recurr_string += ','
               })  
           } else {
-            start_hour += 7
+            start_hour += 8
             plan_course.days.forEach(function(day) {
                 recurr_string += day_map.get(day) + ','
+                console.log("normal days: " + day_map.get(day))
             })
           }
+
+          console.log('start: ' + start_hour + ':' + start_minute)
+          console.log('end: ' + end_hour + ':' + end_minute)
           
           recurr_string = recurr_string.slice(0, -1)
           recurr_string += ';INTERVAL=1;UNTIL='
@@ -193,6 +199,9 @@ export const actions = {
         console.log(error)
         return
       }
+
+      console.log(value)
+      // return
 
       var blob = new Blob([value], {type: "text/plain;charset=utf-8"});
       FileSaver.saveAs(blob, plan_to_download.title + ".ics");
