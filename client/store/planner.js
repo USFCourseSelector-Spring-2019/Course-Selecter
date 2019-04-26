@@ -87,12 +87,12 @@ export const actions = {
     const FileSaver = require('file-saver')
     const moment = extendMoment(Moment)
     const plan_to_download = plans[index]
-    const day_list = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
+    const ics_day_list = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
     const semester_year = (plan_to_download.courses[0].dates[0].slice(0, 2) < moment().month()) ? moment().year() + 1 : moment().year()
 
     //required iCalendar info
-    let calendar_string = 'BEGIN:VCALENDAR\nPRODID:-//Google Inc//Google Calendar 70.9054//EN\nVERSION:2.0\nCALSCALE:GREGORIAN'
-    calendar_string += '\nMETHOD:PUBLISH\nX-WR-CALNAME:test' + plan_to_download.title
+    let calendar_string = 'BEGIN:VCALENDAR\nPRODID:-//Nick and Pedram, Squaaaad//Course Calendar//EN\nVERSION:2.0\nCALSCALE:GREGORIAN'
+    calendar_string += '\nMETHOD:PUBLISH\nX-WR-CALNAME:' + plan_to_download.title
     //timezone and daylight savings info
     calendar_string += '\nX-WR-TIMEZONE:America/Los_Angeles\nBEGIN:VTIMEZONE\nTZID:America/Los_Angeles'
     calendar_string += '\nX-LIC-LOCATION:America/Los_Angeles\nBEGIN:DAYLIGHT\nTZOFFSETFROM:-0800\nTZOFFSETTO:-0700\nTZNAME:PDT'
@@ -101,8 +101,10 @@ export const actions = {
     calendar_string += '\nEND:VTIMEZONE\n'
 
     plan_to_download.courses.forEach(function(plan_course) {
-      console.log(plan_course)
+      //need to use moments to deal with the bug with the start day of the semester not being first day of the course
+      //start_moment = the starting date of the course and time the course starts each day
       let start_moment = moment(plan_course.dates[0] + '/' + semester_year)
+      //end_moment = the ending date of the course along with the time this course ends each day
       let end_moment = moment(plan_course.dates[1] + '/' + semester_year)
 
       start_moment.hour(Number(plan_course.times[0].slice(0,2)))
@@ -110,6 +112,7 @@ export const actions = {
       end_moment.hour(Number(plan_course.times[1].slice(0,2)))
       end_moment.minute(Number(plan_course.times[1].slice(3,5)))
 
+      //adjust for 24 hr time
       if (plan_course.times[0].slice(-2) == 'pm' && start_moment.hours() != 12) {
         start_moment.add(12, 'hours')
       }
@@ -117,17 +120,7 @@ export const actions = {
         end_moment.add(12, 'hours')
       }
 
-      let duration_minute = 0
-      let duration_hour = 0
-
-      if (start_moment.minutes() > end_moment.minutes()) {
-        duration_minute = (60 + end_moment.minutes()) - start_moment.minutes()
-        duration_hour = (end_moment.hours() - 1) - start_moment.hours()
-      } else {
-        duration_minute = end_moment.minutes() - start_moment.minutes()
-        duration_hour = end_moment.hours()  - start_moment.hours()
-      }
-
+      //create an array that maps the days proveded by banner to the days needed by ICS standard
       let course_dows = []
       plan_course.days.forEach(function(day) {
         switch(day) {
@@ -161,6 +154,15 @@ export const actions = {
         start_moment.add(1, 'day')
       }
 
+      let right_now = (moment().year()).toString() //used to show when this was made in correct ICS
+      right_now += ((moment().month() + 1).toString().length == 2) ? moment().month() + 1 : '0' + (moment().month() + 1)
+      right_now += (moment().date().toString().length == 2) ? moment().date() : '0' + moment().date()
+      right_now += 'T'
+      right_now += (moment().hours().toString().length == 2) ? moment().hours() : '0' + moment().hours()
+      right_now += (moment().minutes().toString().length == 2) ? moment().minutes() : '0' + moment().minutes()
+      right_now += '00Z'
+
+      //set up timezone info for this event
       calendar_string += 'BEGIN:VEVENT\nDTSTART;TZID=America/Los_Angeles:'
       calendar_string += start_moment.year()
       calendar_string += ((start_moment.month() + 1).toString().length == 2) ? start_moment.month() + 1 : '0' + (start_moment.month() + 1)
@@ -171,44 +173,26 @@ export const actions = {
       calendar_string += '00'
       calendar_string += '\nDTEND;TZID=America/Los_Angeles:'
       calendar_string += start_moment.year()
-      calendar_string += ((start_moment.month() + 1).toString().length == 2) ? start_moment.month() : '0' + (start_moment.month() + 1)
+      calendar_string += ((start_moment.month() + 1).toString().length == 2) ? start_moment.month() + 1 : '0' + (start_moment.month() + 1)
       calendar_string += (start_moment.date().toString().length == 2) ? start_moment.date() : '0' + start_moment.date()
       calendar_string += 'T'
       calendar_string += (end_moment.hours().toString().length == 2) ? end_moment.hours() : '0' + end_moment.hours()
       calendar_string += (end_moment.minutes().toString().length == 2) ? end_moment.minutes() : '0' + end_moment.minutes()
       calendar_string += '00'
-      calendar_string += '\nRRULE:FREQ=WEEKLY;WKST=SU;UNTIL=20200509T065959Z;BYDAY=MO,WE'
-      calendar_string += '\nDTSTAMP:20190425T223640Z\nUID:7q3thetls50ginkogm9qhg0o97@google.com\nCREATED:20190425T223609Z\nDESCRIPTION:'
-      calendar_string += '\nLAST-MODIFIED:20190425T223609Z\nLOCATION:\nSEQUENCE:0\nSTATUS:CONFIRMED\nSUMMARY:test course\nTRANSP:OPAQUE'
-      calendar_string += '\nEND:VEVENT\n'
-
-      return      
-
-      let recurr_string = 'FREQ=WEEKLY;BYDAY='
-
-      
-
-      
-
-      //ICS uses UTC time so it is 8 hours ahead of SF time (PST)
-      //this is here to correct for the repeat days
-      if (start_moment.hours() > 17) {
-        course_dows.forEach(function(day_num) {
-          if (day_num + 1 > 6) {
-            recurr_string += day_list[0] + ','            
-          } else {
-            recurr_string += day_list[day_num + 1] + ','
-          }
-        })  
-      } else {
-        course_dows.forEach(function(day_num) {
-          recurr_string += day_list[day_num] + ','
-        })
-      }
+      calendar_string += '\nRRULE:FREQ=WEEKLY;WKST=SU;UNTIL='
+      calendar_string += end_moment.year() 
+      calendar_string += ((end_moment.month() + 1).toString().length == 2) ? end_moment.month() + 1 : '0' + (end_moment.month() + 1)
+      calendar_string += (end_moment.date().toString().length == 2) ? end_moment.date() : '0' + end_moment.date()
+      calendar_string += 'T105959Z;BYDAY='
+      course_dows.forEach(function(dow) {
+        calendar_string += ics_day_list[dow] + ','
+      })
+      calendar_string = calendar_string.slice(0, -1)
+      calendar_string += '\nDTSTAMP:' + right_now + '\nUID:' + plan_course.title + '@usf.nickthesick.com\nCREATED:' + right_now
+      calendar_string += '\nLAST-MODIFIED:' + right_now + '\nLOCATION:' + plan_course.loc + '\nSEQUENCE:0\nSTATUS:CONFIRMED\nSUMMARY:'
+      calendar_string += plan_course.title + '\nEND:VEVENT\n'
     })
     calendar_string += 'END:VCALENDAR\n'
-
-    console.log(calendar_string)
 
     var blob = new Blob([calendar_string], {type: "text/plain;charset=utf-8"});
     FileSaver.saveAs(blob, plan_to_download.title + ".ics");
