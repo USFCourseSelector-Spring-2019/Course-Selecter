@@ -42,6 +42,26 @@ export async function downloadCalendar({ plan }) {
 		}
 
 		//create an array that maps the days proveded by banner to the days needed by ICS standard
+		// const course_dows = plan_course.days.map((arr, day) => {
+		//     switch (day) {
+		//        	case "M":
+		//         	return arr.concat(1);
+		//        	case "T":
+		//         	return arr.concat(2);
+		//        	case "W":
+		//         	return arr.concat(3);
+		//        	case "R":
+		//         	return arr.concat(4);
+		//        	case "F":
+		//         	return arr.concat(5);
+		//        	case "S":
+		//         	return arr.concat(6);
+		//        	case "U":
+		//         	return arr.concat(0);
+		//        	default:
+		//         	return arr;
+		//     }
+		// });
 		let course_dows = []
 		plan_course.days.forEach(function(day) {
 			switch(day) {
@@ -105,16 +125,16 @@ export async function downloadCalendar({ plan }) {
 		calendar_string += ((end_moment.month() + 1).toString().length == 2) ? end_moment.month() + 1 : '0' + (end_moment.month() + 1)
 		calendar_string += (end_moment.date().toString().length == 2) ? end_moment.date() : '0' + end_moment.date()
 		calendar_string += 'T105959Z;BYDAY='
-		course_dows.forEach(function(dow) {
-			calendar_string += ics_day_list[dow] + ','
-		})
-		calendar_string = calendar_string.slice(0, -1) //remove the extra comma at the end
+		calendar_string += course_dows.map((dow)=>ics_day_list[dow]).join(',');
 		//other event information
 		calendar_string += '\nDTSTAMP:' + right_now + '\nUID:' + plan_course.title + '@usf.nickthesick.com\nCREATED:' + right_now
 		calendar_string += '\nLAST-MODIFIED:' + right_now + '\nLOCATION:' + plan_course.loc + '\nSEQUENCE:0\nSTATUS:CONFIRMED\nSUMMARY:'
 		calendar_string += plan_course.title + '\nEND:VEVENT\n'
 	})
 	calendar_string += 'END:VCALENDAR\n'
+
+	console.log(calendar_string)
+	// return
 
 	var blob = new Blob([calendar_string], {type: "text/plain;charset=utf-8"});
 	FileSaver.saveAs(blob, plan.title + ".ics");
