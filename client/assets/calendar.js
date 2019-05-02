@@ -1,11 +1,10 @@
-import { saveAs } from 'file-saver'
+import FileSaver from 'file-saver'
 import Moment from 'moment'
 import {
   extendMoment
 } from 'moment-range'
 
 export async function downloadCalendar({ plan }) {
-	const FileSaver = require('file-saver')
 	const moment = extendMoment(Moment)
 	const ics_day_list = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'] //days of the week for ICS standard
 	const semester_year = (plan.courses[0].dates[0].slice(0, 2) < moment().month()) ? moment().year() + 1 : moment().year()
@@ -42,7 +41,7 @@ export async function downloadCalendar({ plan }) {
 		}
 
 		//create an array that maps the days proveded by banner to the days needed by ICS standard
-		// const course_dows = plan_course.days.map((arr, day) => {
+		// const course_day_numbers = plan_course.days.map((arr, day) => {
 		//     switch (day) {
 		//        	case "M":
 		//         	return arr.concat(1);
@@ -62,35 +61,35 @@ export async function downloadCalendar({ plan }) {
 		//         	return arr;
 		//     }
 		// });
-		let course_dows = []
+		let course_day_numbers = []
 		plan_course.days.forEach(function(day) {
 			switch(day) {
 				case 'M':
-				course_dows.push(1)
+				course_day_numbers.push(1)
 			break;
 				case 'T':
-				course_dows.push(2)
+				course_day_numbers.push(2)
 			break;
 				case 'W':
-				course_dows.push(3)
+				course_day_numbers.push(3)
 			break;
 				case 'R':
-				course_dows.push(4)
+				course_day_numbers.push(4)
 			break;
 				case 'F':
-				course_dows.push(5)
+				course_day_numbers.push(5)
 			break;
 				case 'S':
-				course_dows.push(6)
+				course_day_numbers.push(6)
 			break;
 				case 'U':
-				course_dows.push(0)
+				course_day_numbers.push(0)
 			break;
 		}
 		})
 
 		//there is an issue with the first day of the semester being later than when the first day of this class is
-		while(!course_dows.includes(start_moment.day())) {
+		while(!course_day_numbers.includes(start_moment.day())) {
 		start_moment.add(1, 'day')
 		}
 
@@ -125,7 +124,7 @@ export async function downloadCalendar({ plan }) {
 		calendar_string += ((end_moment.month() + 1).toString().length == 2) ? end_moment.month() + 1 : '0' + (end_moment.month() + 1)
 		calendar_string += (end_moment.date().toString().length == 2) ? end_moment.date() : '0' + end_moment.date()
 		calendar_string += 'T105959Z;BYDAY='
-		calendar_string += course_dows.map((dow)=>ics_day_list[dow]).join(',');
+		calendar_string += course_day_numbers.map((dow)=>ics_day_list[dow]).join(',');
 		//other event information
 		calendar_string += '\nDTSTAMP:' + right_now + '\nUID:' + plan_course.title + '@usf.nickthesick.com\nCREATED:' + right_now
 		calendar_string += '\nLAST-MODIFIED:' + right_now + '\nLOCATION:' + plan_course.loc + '\nSEQUENCE:0\nSTATUS:CONFIRMED\nSUMMARY:'
