@@ -137,7 +137,7 @@ export const actions = {
     savedPlan = ls('plan')
     if (loggedIn) {
       const { plans, plan } = await $api.auth.getPlans()
-      await commit('setPlans', plans || savedPlan || DEFAULT_PLANS)
+      await commit('setPlans', plans || savedPlans || DEFAULT_PLANS)
       await commit('setCurPlan', plan || savedPlan || 0)
     } else {
       const savedPlans = ls('plans')
