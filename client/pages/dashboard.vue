@@ -30,7 +30,7 @@
                 <v-flex md4 sm6 xs12 v-if="minor">
                     <circle-statistic :icon="minor_credits_completion===100?'done':'trending_up'" title="Minor Credits Completion" :sub-title="`${minor_credits_applied} / ${minor_credits_required}`" caption="Credits Completed" :value="minor_credits_completion" color="red darken-2" />
                 </v-flex>
-                <v-flex md8 sm6 xs12 class="pa-0">
+                <v-flex md3 sm6 xs12 class="pa-0">
                     <v-layout row wrap fill-height class="ma-0">
                         <v-flex sm6 xs12>
                             <v-card color="green white--text" class="text-xs-center fill-height layout column justify-center align-center ma-0">
@@ -49,7 +49,7 @@
                             </v-card>
                         </v-flex>
                         <v-flex sm6 xs12>
-                            <v-card color="red darken-2 white--text" class="text-xs-center fill-height layout column justify-center align-center ma-0">
+                            <v-card color="blue darken-2 white--text" class="text-xs-center fill-height layout column justify-center align-center ma-0">
                                 <div class="display-1 pt-3">{{ minor_requirements_left }}</div>
                                 <v-card-text class="subheading">
                                     Minor Requirements Needed
@@ -64,27 +64,35 @@
                                 </v-card-text>
                             </v-card>
                         </v-flex>
+
                     </v-layout>
                 </v-flex>
+
                 <v-flex md4 sm12 xs12>
+                  <v-card color="yellow darken-1 white--text" class="text-xs-center fill-height layout column justify-center align-center ma-0"> <!--Added-->
                     <v-widget title="Missing Cores">
                         <div slot="widget-content">
                             <v-list>
+                              <div v-for="(reqs,i) in major_missing_reqs" :key="i">
+                                <v-subheader>Requirement #{{i+1}}{{`${reqs.choose>1?'Choose '+reqs.choose:''}`}}</v-subheader>
                                 <v-list-tile avatar v-for="attribute in missing_attributes" :key="attribute">
                                     <v-list-tile-content>
                                         <v-list-tile-title v-text="attribute"></v-list-tile-title>
                                     </v-list-tile-content>
                                 </v-list-tile>
+                              </div>
                             </v-list>
                         </div>
                     </v-widget>
-                </v-flex>
+                  </v-card>
+                </v-flex><!--Added-->
                 <v-flex md4 sm12 xs12>
-                    <v-widget title="Missing Major Requirements">
+                  <v-card color="yellow darken-4 white--text" class="text-xs-center fill-height layout column justify-center align-center ma-0"> <!--Added-->
+                    <v-widget title="Missing Major Requirements" >
                         <div slot="widget-content">
-                            <div v-for="(reqs,i) in major_missing_reqs" :key="i">
+                            <div v-for="(reqs,i) in major_missing_reqs" :key="i" class="text-xs-center fill-height layout column justify-center align-center ma-0"> <!--Added-->
                                 <v-subheader class="pl-0">Requirement #{{i+1}}{{`${reqs.choose>1||reqs.classes.length>1?' - Choose '+reqs.choose:''}`}}</v-subheader>
-                                <v-layout row wrap>
+                                <v-layout row wrap class="text-xs-center fill-height layout column justify-center align-center ma-0"> <!--Added-->
                                     <v-flex v-for="req in reqs.classes" :key="req.name" md4 xs6>
                                         {{req.name}}
                                     </v-flex>
@@ -92,14 +100,15 @@
                             </div>
                         </div>
                     </v-widget>
+                  </v-card> <!--Added-->
                 </v-flex>
                 <v-flex md4 sm12 xs12 v-if="minor_missing_reqs.length">
                     <v-widget title="Missing Minor Requirements">
                         <div slot="widget-content">
-                            <v-list v-for="(reqs,i) in minor_missing_reqs" :key="i">
+                            <v-list v-for="(reqs,i) in minor_missing_reqs" :key="i" class="text-xs-center fill-height layout column justify-center align-center ma-0"> <!--Added-->
                                 <v-subheader>Requirement #{{i+1}}{{`${reqs.choose>1?'Choose '+reqs.choose:''}`}}</v-subheader>
                                 <v-list-tile v-for="req in reqs.classes" :key="req.name">
-                                    <v-list-tile-content>
+                                    <v-list-tile-content class="text-xs-center fill-height layout column justify-center align-center ma-0"> <!--Added-->
                                         <v-list-tile-title v-text="req.name"></v-list-tile-title>
                                     </v-list-tile-content>
                                 </v-list-tile>
