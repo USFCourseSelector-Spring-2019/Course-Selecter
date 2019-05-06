@@ -7,25 +7,29 @@ import {
 export async function downloadCalendar({ plan }) {
 	const moment = extendMoment(Moment)
 	const ics_day_list = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'] //days of the week for ICS standard
+	//determines if the semester is in this year or in the next one, will fail if you're dealing with previous years
 	const semester_year = (plan.courses[0].dates[0].slice(0, 2) < moment().month()) ? moment().year() + 1 : moment().year()
 
-	//required iCalendar info
-	//calendar_string is an array because what we use to print requires an array
-	let calendar_string = ['BEGIN:VCALENDAR\nPRODID:-//Nick and Pedram, Squaaaad//Course Calendar//EN\nVERSION:2.0\nCALSCALE:GREGORIAN']
-	calendar_string += '\nMETHOD:PUBLISH\nX-WR-CALNAME:' + plan.title
-	//timezone and daylight savings info
-	calendar_string += '\nX-WR-TIMEZONE:America/Los_Angeles\nBEGIN:VTIMEZONE\nTZID:America/Los_Angeles'
-	calendar_string += '\nX-LIC-LOCATION:America/Los_Angeles\nBEGIN:DAYLIGHT\nTZOFFSETFROM:-0800\nTZOFFSETTO:-0700\nTZNAME:PDT'
-	calendar_string += '\nDTSTART:19700308T020000\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU\nEND:DAYLIGHT\nBEGIN:STANDARD\nTZOFFSETFROM:-0700'
-	calendar_string += '\nTZOFFSETTO:-0800\nTZNAME:PST\nDTSTART:19701101T020000\nRRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU\nEND:STANDARD'
-	calendar_string += '\nEND:VTIMEZONE\n'
+	//stores the current moment to be used where ICS needs a timestamp
+	const right_now = `${moment().format('YYYYMMDD')}T${moment().format('HHmm')}00Z`
 
-	plan.courses.forEach(function(plan_course) {
+	//required iCalendar info
+	//Using template literal by request of Nick, but if I indent the second line my calendar app doesn't recognize it
+	let calendar_string = `BEGIN:VCALENDAR\nPRODID:-//Nick and Pedram, Squaaaad//Course Calendar//EN\nVERSION:2.0
+CALSCALE:GREGORIAN\nMETHOD:PUBLISH\nX-WR-CALNAME:${plan.title}`
+	//timezone and daylight savings info
+	calendar_string += `\nX-WR-TIMEZONE:America/Los_Angeles\nBEGIN:VTIMEZONE\nTZID:America/Los_Angeles\nX-LIC-LOCATION:America/Los_Angeles
+BEGIN:DAYLIGHT\nTZOFFSETFROM:-0800\nTZOFFSETTO:-0700\nTZNAME:PDT\nDTSTART:19700308T020000\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU\nEND:DAYLIGHT
+BEGIN:STANDARD\nTZOFFSETFROM:-0700\nTZOFFSETTO:-0800\nTZNAME:PST\nDTSTART:19701101T020000\nRRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU\nEND:STANDARD
+END:VTIMEZONE\n`
+
+	
+	try{plan.courses.forEach(function(plan_course) {
 		//need to use moments to deal with the bug with the start day of the semester not being first day of the course
 		//start_moment = the starting date of the course and time the course starts each day
-		let start_moment = moment(plan_course.dates[0] + '/' + semester_year)
+		let start_moment = moment(plan_course.dates[0] + '/' + semester_year, 'MM-DD-YYYY')
 		//end_moment = the ending date of the course along with the time this course ends each day
-		let end_moment = moment(plan_course.dates[1] + '/' + semester_year)
+		let end_moment = moment(plan_course.dates[1] + '/' + semester_year, 'MM-DD-YYYY')
 
 		start_moment.hour(Number(plan_course.times[0].slice(0,2)))
 		start_moment.minute(Number(plan_course.times[0].slice(3,5)))
@@ -40,27 +44,6 @@ export async function downloadCalendar({ plan }) {
 			end_moment.add(12, 'hours')
 		}
 
-		//create an array that maps the days proveded by banner to the days needed by ICS standard
-		// const course_day_numbers = plan_course.days.map((arr, day) => {
-		//     switch (day) {
-		//        	case "M":
-		//         	return arr.concat(1);
-		//        	case "T":
-		//         	return arr.concat(2);
-		//        	case "W":
-		//         	return arr.concat(3);
-		//        	case "R":
-		//         	return arr.concat(4);
-		//        	case "F":
-		//         	return arr.concat(5);
-		//        	case "S":
-		//         	return arr.concat(6);
-		//        	case "U":
-		//         	return arr.concat(0);
-		//        	default:
-		//         	return arr;
-		//     }
-		// });
 		let course_day_numbers = []
 		plan_course.days.forEach(function(day) {
 			switch(day) {
@@ -93,43 +76,19 @@ export async function downloadCalendar({ plan }) {
 		start_moment.add(1, 'day')
 		}
 
-		let right_now = (moment().year()).toString() //used to show when this was made in correct ICS format
-		right_now += ((moment().month() + 1).toString().length == 2) ? moment().month() + 1 : '0' + (moment().month() + 1)
-		right_now += (moment().date().toString().length == 2) ? moment().date() : '0' + moment().date()
-		right_now += 'T'
-		right_now += (moment().hours().toString().length == 2) ? moment().hours() : '0' + moment().hours()
-		right_now += (moment().minutes().toString().length == 2) ? moment().minutes() : '0' + moment().minutes()
-		right_now += '00Z'
-
 		//set up timezone info for this event
-		calendar_string += 'BEGIN:VEVENT\nDTSTART;TZID=America/Los_Angeles:'
-		calendar_string += start_moment.year()
-		calendar_string += ((start_moment.month() + 1).toString().length == 2) ? start_moment.month() + 1 : '0' + (start_moment.month() + 1)
-		calendar_string += (start_moment.date().toString().length == 2) ? start_moment.date() : '0' + start_moment.date()
-		calendar_string += 'T'
-		calendar_string += (start_moment.hours().toString().length == 2) ? start_moment.hours() : '0' + start_moment.hours()
-		calendar_string += (start_moment.minutes().toString().length == 2) ? start_moment.minutes() : '0' + start_moment.minutes()
-		calendar_string += '00'
-		calendar_string += '\nDTEND;TZID=America/Los_Angeles:'
-		calendar_string += start_moment.year()
-		calendar_string += ((start_moment.month() + 1).toString().length == 2) ? start_moment.month() + 1 : '0' + (start_moment.month() + 1)
-		calendar_string += (start_moment.date().toString().length == 2) ? start_moment.date() : '0' + start_moment.date()
-		calendar_string += 'T'
-		calendar_string += (end_moment.hours().toString().length == 2) ? end_moment.hours() : '0' + end_moment.hours()
-		calendar_string += (end_moment.minutes().toString().length == 2) ? end_moment.minutes() : '0' + end_moment.minutes()
-		calendar_string += '00'
+		calendar_string += `BEGIN:VEVENT\nDTSTART;TZID=America/Los_Angeles:${start_moment.format('YYYYMMDD')}T${start_moment.format('HHmm')}00
+DTEND;TZID=America/Los_Angeles:${start_moment.format('YYYYMMDD')}T${end_moment.format('HHmm')}00`
 		//set what days this course is on, aka the repititionss
-		calendar_string += '\nRRULE:FREQ=WEEKLY;WKST=SU;UNTIL='
-		calendar_string += end_moment.year() 
-		calendar_string += ((end_moment.month() + 1).toString().length == 2) ? end_moment.month() + 1 : '0' + (end_moment.month() + 1)
-		calendar_string += (end_moment.date().toString().length == 2) ? end_moment.date() : '0' + end_moment.date()
-		calendar_string += 'T105959Z;BYDAY='
-		calendar_string += course_day_numbers.map((dow)=>ics_day_list[dow]).join(',');
+		calendar_string += `\nRRULE:FREQ=WEEKLY;WKST=SU;UNTIL=${end_moment.format('YYYYMMDD')}T105959Z;BYDAY=\
+${course_day_numbers.map((dow)=>ics_day_list[dow]).join(',')}`
 		//other event information
-		calendar_string += '\nDTSTAMP:' + right_now + '\nUID:' + plan_course.title + '@usf.nickthesick.com\nCREATED:' + right_now
-		calendar_string += '\nLAST-MODIFIED:' + right_now + '\nLOCATION:' + plan_course.loc + '\nSEQUENCE:0\nSTATUS:CONFIRMED\nSUMMARY:'
-		calendar_string += plan_course.title + '\nEND:VEVENT\n'
-	})
+		calendar_string += `\nDTSTAMP:${right_now}\nUID:${plan_course.title}@usf.nickthesick.com\nCREATED:${right_now}LAST-MODIFIED:\
+${right_now}\nLOCATION:${plan_course.loc}\nSEQUENCE:0\nSTATUS:CONFIRMED\nSUMMARY:${plan_course.title}\nEND:VEVENT\n`
+	})}
+	catch (err) {
+		return false
+	}
 	calendar_string += 'END:VCALENDAR\n'
 
 	console.log(calendar_string)
@@ -137,4 +96,5 @@ export async function downloadCalendar({ plan }) {
 
 	var blob = new Blob([calendar_string], {type: "text/plain;charset=utf-8"});
 	FileSaver.saveAs(blob, plan.title + ".ics");
+	return true;
 }
