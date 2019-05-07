@@ -82,7 +82,7 @@ export const mutations = {
 }
 
 export const actions = {
-  async downloadPlanner({ state: { plans } }, { index }) {
+  downloadPlanner({ state: { plans } }, { index }) {
     downloadCalendar({plan: plans[index]})
   },
   async showCourseView({ commit }) {

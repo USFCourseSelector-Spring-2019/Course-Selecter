@@ -4,11 +4,11 @@ import {
   extendMoment
 } from 'moment-range'
 
-export async function downloadCalendar({ plan }) {
+export const downloadCalendar = ({ plan }) => {
 	const moment = extendMoment(Moment)
 	const ics_day_list = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'] //days of the week for ICS standard
-	//determines if the semester is in this year or in the next one, will fail if you're dealing with previous years
-	const semester_year = (plan.courses[0].dates[0].slice(0, 2) < moment().month()) ? moment().year() + 1 : moment().year()
+	//determines if the semester is in this year or in the next one by using the end date, will fail if you're dealing with previous years
+	const semester_year = (plan.courses[0].dates[1].slice(0, 2) < moment().month()) ? moment().year() + 1 : moment().year()
 
 	//stores the current moment to be used where ICS needs a timestamp
 	const right_now = `${moment().format('YYYYMMDD')}T${moment().format('HHmm')}00Z`
@@ -23,8 +23,7 @@ BEGIN:DAYLIGHT\nTZOFFSETFROM:-0800\nTZOFFSETTO:-0700\nTZNAME:PDT\nDTSTART:197003
 BEGIN:STANDARD\nTZOFFSETFROM:-0700\nTZOFFSETTO:-0800\nTZNAME:PST\nDTSTART:19701101T020000\nRRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU\nEND:STANDARD
 END:VTIMEZONE\n`
 
-	
-	try{plan.courses.forEach(function(plan_course) {
+	plan.courses.forEach(function(plan_course) {
 		//need to use moments to deal with the bug with the start day of the semester not being first day of the course
 		//start_moment = the starting date of the course and time the course starts each day
 		let start_moment = moment(plan_course.dates[0] + '/' + semester_year, 'MM-DD-YYYY')
@@ -44,57 +43,46 @@ END:VTIMEZONE\n`
 			end_moment.add(12, 'hours')
 		}
 
-		let course_day_numbers = []
-		plan_course.days.forEach(function(day) {
-			switch(day) {
-				case 'M':
-				course_day_numbers.push(1)
-			break;
-				case 'T':
-				course_day_numbers.push(2)
-			break;
-				case 'W':
-				course_day_numbers.push(3)
-			break;
-				case 'R':
-				course_day_numbers.push(4)
-			break;
-				case 'F':
-				course_day_numbers.push(5)
-			break;
-				case 'S':
-				course_day_numbers.push(6)
-			break;
-				case 'U':
-				course_day_numbers.push(0)
-			break;
-		}
-		})
+		let course_day_numbers = plan_course.days.map(day => {
+		    switch (day) {
+		       	case "M":
+		        	return 1
+		       	case "T":
+		        	return 2
+		       	case "W":
+		        	return 3
+		       	case "R":
+		        	return 4
+		       	case "F":
+		        	return 5
+		       	case "S":
+		        	return 6
+		       	case "U":
+		        	return 0
+		       	default:
+		        	return
+		    }
+	   	});
 
 		//there is an issue with the first day of the semester being later than when the first day of this class is
 		while(!course_day_numbers.includes(start_moment.day())) {
-		start_moment.add(1, 'day')
+			start_moment.add(1, 'day')
 		}
 
-		//set up timezone info for this event
+		//set up timezone info for this event, then add the days this course repeats on, and end it with tags needed for ICS
 		calendar_string += `BEGIN:VEVENT\nDTSTART;TZID=America/Los_Angeles:${start_moment.format('YYYYMMDD')}T${start_moment.format('HHmm')}00
-DTEND;TZID=America/Los_Angeles:${start_moment.format('YYYYMMDD')}T${end_moment.format('HHmm')}00`
-		//set what days this course is on, aka the repititionss
-		calendar_string += `\nRRULE:FREQ=WEEKLY;WKST=SU;UNTIL=${end_moment.format('YYYYMMDD')}T105959Z;BYDAY=\
-${course_day_numbers.map((dow)=>ics_day_list[dow]).join(',')}`
-		//other event information
-		calendar_string += `\nDTSTAMP:${right_now}\nUID:${plan_course.title}@usf.nickthesick.com\nCREATED:${right_now}LAST-MODIFIED:\
-${right_now}\nLOCATION:${plan_course.loc}\nSEQUENCE:0\nSTATUS:CONFIRMED\nSUMMARY:${plan_course.title}\nEND:VEVENT\n`
-	})}
-	catch (err) {
-		return false
-	}
+DTEND;TZID=America/Los_Angeles:${start_moment.format('YYYYMMDD')}T${end_moment.format('HHmm')}00\nRRULE:FREQ=WEEKLY;WKST=SU;\
+UNTIL=${end_moment.format('YYYYMMDD')}T105959Z;BYDAY=${course_day_numbers.map((dow)=>ics_day_list[dow]).join(',')}\nDTSTAMP:${right_now}
+UID:${plan_course.title}@usf.nickthesick.com\nCREATED:${right_now}\nLAST-MODIFIED:${right_now}\nLOCATION:${plan_course.loc}\nSEQUENCE:0
+STATUS:CONFIRMED\nSUMMARY:${plan_course.title}\nEND:VEVENT\n`
+	})
 	calendar_string += 'END:VCALENDAR\n'
 
-	console.log(calendar_string)
-	// return
-
-	var blob = new Blob([calendar_string], {type: "text/plain;charset=utf-8"});
-	FileSaver.saveAs(blob, plan.title + ".ics");
+	try {
+		var blob = new Blob([calendar_string], {type: "text/plain;charset=utf-8"})
+		FileSaver.saveAs(blob, plan.title + ".ics")}
+	catch(err) {
+		return false
+	}
 	return true;
 }
