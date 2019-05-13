@@ -38,6 +38,7 @@ export const getters = {
     })
     return indexInPlan
   },
+  canDeletePlans: state => state.plans.length !== 1,
   plannerIsVisible: state => state.visible
 }
 
@@ -56,7 +57,9 @@ export const mutations = {
     state.plans.push(plan)
   },
   removePlan (state, index) {
-    state.plans.splice(index, 1)
+    if (state.plans.length > 1) {
+      state.plans.splice(index, 1)
+    }
   },
   showPlanner (state) {
     state.visible = true
