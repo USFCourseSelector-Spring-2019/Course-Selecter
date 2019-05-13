@@ -14,7 +14,7 @@ const MAP_TO_ICS = {
   S: 6
 }
 
-const calendarGenerator = ({ title }) => `BEGIN:VCALENDAR
+const calendarGenerator = ({ title }, courses) => `BEGIN:VCALENDAR
 PRODID:-//Nick and Pedram, Squaaaad//Course Calendar//EN
 VERSION:2.0
 CALSCALE:GREGORIAN
@@ -39,7 +39,51 @@ DTSTART:19701101T020000
 RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
 END:STANDARD
 END:VTIMEZONE
+${courses}END:VCALENDAR
 `
+const courseCalendarGenerator = ({course, startDate, endDate, courseDays, currentTimeStamp}) => `BEGIN:VEVENT
+DTSTART;TZID=America/Los_Angeles:${startDate.format('YYYYMMDDTHHmm00')}
+DTEND;TZID=America/Los_Angeles:${startDate.format('YYYYMMDD')}T${endDate.format('HHmm00')}
+RRULE:FREQ=WEEKLY;WKST=SU;\
+UNTIL=${endDate.format('YYYYMMDD')}T105959Z;BYDAY=${courseDays.map(dow => ICS_DAYS[dow]).join(',')}
+DTSTAMP:${currentTimeStamp}
+UID:${course.title}@courseselector.app
+CREATED:${currentTimeStamp}
+LAST-MODIFIED:${currentTimeStamp}
+LOCATION:${course.loc}
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:${course.title}
+CATEGORIES:SCHOOL,CLASS
+END:VEVENT
+`
+
+const transformCourses = (courses, currentTimeStamp, year) =>
+  courses.reduce((acc, {
+    dates: [
+      startDateString,
+      endDateString
+    ],
+    times: [
+      startTime,
+      endTime
+    ],
+    ...course
+  }) => {
+    // startDate = the starting date of the course and time the course starts each day
+    const startDate = moment(`${startDateString}/${year}-${startTime}`, 'MM/DD/YYYY-hh:mm a')
+    // endDate = the ending date of the course along with the time this course ends each day
+    const endDate = moment(`${endDateString}/${year}-${endTime}`, 'MM/DD/YYYY-hh:mm a')
+    console.log(startDate.toString(),endDate.toString())
+    const courseDays = course.days.map(day => MAP_TO_ICS[day])
+
+    // there is an issue with the first day of the semester being later than when the first day of this class is
+    while (!courseDays.includes(startDate.day())) {
+      startDate.add(1, 'day')
+    }
+
+    return `${courseCalendarGenerator({course, startDate, endDate, courseDays, currentTimeStamp})}${acc}`
+  }, '')
 
 export const downloadCalendar = ({ plan }) => {
   // determines if the semester is in this year or in the next one by using the end date, will fail if you're dealing with previous years
@@ -47,70 +91,10 @@ export const downloadCalendar = ({ plan }) => {
     plan.courses[0].dates[1].slice(0, 2) < moment().month()
       ? moment().year() + 1
       : moment().year()
-
-  // current moment as a timestamp
+  // current time as a timestamp
   const currentTimeStamp = moment().format('YYYYMMDDTHHmm00[Z]')
-
-  // required iCalendar info
-  // Using template literal by request of Nick, but if I indent the second line my calendar app doesn't recognize it
-  let calendar = calendarGenerator(plan)
-
-  plan.courses.forEach(function (course) {
-    // need to use moments to deal with the bug with the start day of the semester not being first day of the course
-    // startDate = the starting date of the course and time the course starts each day
-    let startDate = moment(
-      course.dates[0] + '/' + year,
-      'MM-DD-YYYY'
-    )
-    // endDate = the ending date of the course along with the time this course ends each day
-    let endDate = moment(
-      course.dates[1] + '/' + year,
-      'MM-DD-YYYY'
-    )
-
-    startDate.hour(Number(course.times[0].slice(0, 2)))
-    startDate.minute(Number(course.times[0].slice(3, 5)))
-    endDate.hour(Number(course.times[1].slice(0, 2)))
-    endDate.minute(Number(course.times[1].slice(3, 5)))
-
-    // adjust for 24 hr time
-    if (course.times[0].slice(-2) == 'pm' && startDate.hours() != 12) {
-      startDate.add(12, 'hours')
-    }
-    if (course.times[1].slice(-2) == 'pm' && endDate.hours() != 12) {
-      endDate.add(12, 'hours')
-    }
-
-    let courseDays = course.days.map(day => MAP_TO_ICS[day])
-
-    // there is an issue with the first day of the semester being later than when the first day of this class is
-    while (!courseDays.includes(startDate.day())) {
-      startDate.add(1, 'day')
-    }
-
-    // set up timezone info for this event, then add the days this course repeats on, and end it with tags needed for ICS
-    calendar += `BEGIN:VEVENT
-    DTSTART;TZID=America/Los_Angeles:${startDate.format(
-    'YYYYMMDD'
-  )}T${startDate.format('HHmm')}00
-DTEND;TZID=America/Los_Angeles:${startDate.format(
-    'YYYYMMDD'
-  )}T${endDate.format('HHmm')}00
-RRULE:FREQ=WEEKLY;WKST=SU;\
-UNTIL=${endDate.format('YYYYMMDD')}T105959Z;BYDAY=${courseDays.map(dow => ICS_DAYS[dow]).join(',')}
-DTSTAMP:${currentTimeStamp}
-UID:${course.title}@usf.nickthesick.com
-CREATED:${currentTimeStamp}
-LAST-MODIFIED:${currentTimeStamp}
-LOCATION:${course.loc}
-SEQUENCE:0
-STATUS:CONFIRMED
-SUMMARY:${course.title}
-END:VEVENT
-`
-  })
-  calendar += 'END:VCALENDAR'
-
+  const courses = transformCourses(plan.courses, currentTimeStamp, year)
+  const calendar = calendarGenerator(plan, courses)
   try {
     var blob = new Blob([calendar], {
       type: 'text/plain;charset=utf-8'
