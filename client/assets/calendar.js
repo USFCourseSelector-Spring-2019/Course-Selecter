@@ -14,7 +14,7 @@ const MAP_TO_ICS = {
   S: 6
 }
 
-const calendarGenerator = ({ title }, courses) => `BEGIN:VCALENDAR
+const calendarGenerator = ({ title }, courseEvents) => `BEGIN:VCALENDAR
 PRODID:-//Nick and Pedram, Squaaaad//Course Calendar//EN
 VERSION:2.0
 CALSCALE:GREGORIAN
@@ -39,7 +39,7 @@ DTSTART:19701101T020000
 RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
 END:STANDARD
 END:VTIMEZONE
-${courses}END:VCALENDAR
+${courseEvents}END:VCALENDAR
 `
 const courseCalendarGenerator = ({course, startDate, endDate, courseDays, currentTimeStamp}) => `BEGIN:VEVENT
 DTSTART;TZID=America/Los_Angeles:${startDate.format('YYYYMMDDTHHmm00')}
@@ -68,14 +68,14 @@ const transformCourses = (courses, currentTimeStamp, year) =>
       startTime,
       endTime
     ],
+    days,
     ...course
   }) => {
     // startDate = the starting date of the course and time the course starts each day
-    const startDate = moment(`${startDateString}/${year}-${startTime}`, 'MM/DD/YYYY-hh:mm a')
+    const startDate = moment(`${startDateString}-${year}-${startTime}`, 'MM-DD-YYYY-hh:mm a')
     // endDate = the ending date of the course along with the time this course ends each day
-    const endDate = moment(`${endDateString}/${year}-${endTime}`, 'MM/DD/YYYY-hh:mm a')
-    console.log(startDate.toString(),endDate.toString())
-    const courseDays = course.days.map(day => MAP_TO_ICS[day])
+    const endDate = moment(`${endDateString}-${year}-${endTime}`, 'MM-DD-YYYY-hh:mm a')
+    const courseDays = days.map(day => MAP_TO_ICS[day])
 
     // there is an issue with the first day of the semester being later than when the first day of this class is
     while (!courseDays.includes(startDate.day())) {
@@ -85,18 +85,17 @@ const transformCourses = (courses, currentTimeStamp, year) =>
     return `${courseCalendarGenerator({course, startDate, endDate, courseDays, currentTimeStamp})}${acc}`
   }, '')
 
-export const downloadCalendar = ({ plan }) => {
+export const downloadCalendar = ({ plan: { courses, ...plan } }) => {
+  const now = moment()
+  const firstCourseEndDate = parseInt(courses[0].dates[1].slice(0, 2), 10)
   // determines if the semester is in this year or in the next one by using the end date, will fail if you're dealing with previous years
-  const year =
-    plan.courses[0].dates[1].slice(0, 2) < moment().month()
-      ? moment().year() + 1
-      : moment().year()
+  const year = now.year() + (firstCourseEndDate < now.month() ? 1 : 0)
   // current time as a timestamp
-  const currentTimeStamp = moment().format('YYYYMMDDTHHmm00[Z]')
-  const courses = transformCourses(plan.courses, currentTimeStamp, year)
-  const calendar = calendarGenerator(plan, courses)
+  const currentTimeStamp = now.format('YYYYMMDDTHHmm00[Z]')
+  const courseEvents = transformCourses(courses, currentTimeStamp, year)
+  const calendar = calendarGenerator(plan, courseEvents)
   try {
-    var blob = new Blob([calendar], {
+    const blob = new Blob([calendar], {
       type: 'text/plain;charset=utf-8'
     })
     FileSaver.saveAs(blob, plan.title + '.ics')
