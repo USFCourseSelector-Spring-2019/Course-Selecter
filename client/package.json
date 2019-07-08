@@ -33,6 +33,8 @@
     "nuxt-neo": "^2.0.2",
     "sass-loader": "^7.1.0",
     "stripe": "^7.1.0",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
     "vue-infinite-scroll": "^2.0.2",
     "vue-stripe-elements-plus": "^0.2.9",
     "vuetify": "^1.5.14"
@@ -48,8 +50,6 @@
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
-    "nodemon": "^1.19.1",
-    "stylus": "^0.54.5",
-    "stylus-loader": "^3.0.2"
+    "nodemon": "^1.19.1"
   }
 }
