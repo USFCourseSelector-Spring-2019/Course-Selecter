@@ -1,21 +1,27 @@
-FROM node:12
+FROM node:12-alpine as build
 
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+RUN apk --no-cache add --virtual native-deps \
+  g++ gcc libgcc libstdc++ linux-headers autoconf automake make nasm python git && \
+  npm install --quiet node-gyp -g
 
-WORKDIR /home/node/app
+WORKDIR /usr/src/app
 
 COPY package*.json ./
+RUN npm install --only=production
 
-USER node
+# optimizes build time
+FROM node:12-alpine
+WORKDIR /usr/src/app
 
-RUN npm install
+COPY --from=build /usr/src/app .
+# Copy those package jsons from the build above
 
-COPY --chown=node:node . .
+COPY . ./
 
 ENV HOST 0.0.0.0
-EXPOSE 3000
+ENV NODE_ENV production
 
 RUN npm run build
 
-# start command
+EXPOSE 3000
 CMD [ "npm", "start" ]

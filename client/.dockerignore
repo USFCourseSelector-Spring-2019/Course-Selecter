@@ -1,2 +1,8 @@
 node_modules
 npm-debug.log
+.nuxt
+erl_crash.dump
+README.md
+.gitignore
+.eslintrc.js
+*/README.md
