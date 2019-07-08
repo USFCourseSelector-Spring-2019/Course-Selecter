@@ -21,7 +21,7 @@ export default class CoursesController {
       M: 'Monday',
       T: 'Tuesday',
       W: 'Wednesday',
-      R: 'Thurdsday',
+      R: 'Thursday',
       F: 'Friday',
       S: 'Saturday',
       U: 'Sunday'

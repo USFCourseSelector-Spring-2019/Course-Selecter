@@ -1,4 +1,9 @@
 import ls from 'local-storage'
+import Moment from 'moment'
+import {
+  extendMoment
+} from 'moment-range'
+import { downloadCalendar } from '../assets/calendar'
 
 function storeToLocalStorage ({ plans, plan }) {
   ls('plans', plans)
@@ -6,10 +11,10 @@ function storeToLocalStorage ({ plans, plan }) {
 }
 
 const DEFAULT_PLANS = [
-  {
-    title: 'My 1st Planner',
-    courses: []
-  }
+{
+  title: 'My 1st Planner',
+  courses: []
+}
 ]
 
 export const state = () => ({
@@ -24,7 +29,7 @@ export const getters = {
   currentPlan: state => state.plans[state.plan],
   currentPlanIndex: state => state.plan,
   isInPlan: state => ({ index }) =>
-    state.plans[state.plan].courses.some(course => course.index === index),
+  state.plans[state.plan].courses.some(course => course.index === index),
   indexInPlan: state => ({ index }) => {
     let indexInPlan = -1
     state.plans[state.plan].courses.some((course, i) => {
@@ -33,6 +38,7 @@ export const getters = {
     })
     return indexInPlan
   },
+  canDeletePlans: state => state.plans.length !== 1,
   plannerIsVisible: state => state.visible
 }
 
@@ -51,7 +57,9 @@ export const mutations = {
     state.plans.push(plan)
   },
   removePlan (state, index) {
-    state.plans.splice(index, 1)
+    if (state.plans.length > 1) {
+      state.plans.splice(index, 1)
+    }
   },
   showPlanner (state) {
     state.visible = true
@@ -77,26 +85,20 @@ export const mutations = {
 }
 
 export const actions = {
-  async showCourseView ({ commit }) {
+  downloadPlanner({ state: { plans } }, { index }) {
+    downloadCalendar({plan: plans[index]})
+  },
+  async showCourseView({ commit }) {
     await commit('setTab', 0)
     await commit('showPlanner')
   },
-  async showCalendarView ({ commit }) {
+  async showCalendarView({ commit }) {
     await commit('setTab', 1)
     await commit('showPlanner')
   },
-  async saveSettings (
-    {
-      state,
-      rootState: {
-        auth: { loggedIn, user }
-      }
-    },
-    { $api }
-  ) {
-    // Store these settings to the user in the db and localstorage or just localstorage if not logged in
+  async saveSettings({ state, rootState: { auth: { loggedIn, user } } }, { $api }) {
+    //Store these settings to the user in the db and localstorage or just localstorage if not logged in
     if (loggedIn) {
-      const { plans, plan } = state
       try {
         console.log($api)
         await $api.auth.savePlans({ body: { plans, plan } })
@@ -106,46 +108,42 @@ export const actions = {
     }
     storeToLocalStorage(state)
   },
-  async addCourse ({ commit, dispatch }, { payload, $api }) {
+  async addCourse({ commit, dispatch }, { payload, $api }) {
     await commit('addCourse', payload)
     await dispatch('saveSettings', { $api })
   },
-  async removeCourse ({ commit, dispatch }, { payload, $api }) {
+  async removeCourse({ commit, dispatch }, { payload, $api }) {
     await commit('removeCourseIndex', payload)
     await dispatch('saveSettings', { $api })
   },
-  async addPlan ({ commit, dispatch }, { payload, $api }) {
+  async addPlan({ commit, dispatch }, { payload, $api }) {
     await commit('addPlan', payload)
     await dispatch('saveSettings', { $api })
   },
-  async setTitleOf ({ commit, dispatch }, { payload, $api }) {
+  async setTitleOf({ commit, dispatch }, { payload, $api }) {
     await commit('setTitleOf', payload)
     await dispatch('saveSettings', { $api })
   },
-  async setCurPlan ({ commit, dispatch }, { payload, $api }) {
+  async setCurPlan({ commit, dispatch }, { payload, $api }) {
     await commit('setCurPlan', payload)
     await dispatch('saveSettings', { $api })
   },
-  async removePlan ({ commit, dispatch }, { payload, $api }) {
+  async removePlan({ commit, dispatch }, { payload, $api }) {
     await commit('removePlan', payload)
     await dispatch('saveSettings', { $api })
   },
-  async loadSettings (
-    {
-      commit,
-      rootState: {
-        auth: { loggedIn, user }
-      }
-    },
-    { $api }
-  ) {
-    const savedPlans = ls('plans')
-    const savedPlan = ls('plan')
+  async loadSettings({
+    commit,
+    rootState: { auth: { loggedIn, user } }
+  }, { $api }) {
+    const savedPlans = ls('plans'),
+    savedPlan = ls('plan')
     if (loggedIn) {
       const { plans, plan } = await $api.auth.getPlans()
       await commit('setPlans', plans || savedPlans || DEFAULT_PLANS)
       await commit('setCurPlan', plan || savedPlan || 0)
     } else {
+      const savedPlans = ls('plans')
       await commit('setPlans', savedPlans || DEFAULT_PLANS)
       await commit('setCurPlan', savedPlan || 0)
     }
