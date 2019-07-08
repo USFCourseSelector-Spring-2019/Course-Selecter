@@ -68,43 +68,49 @@
                 </v-flex>
                 <v-flex md4 sm12 xs12>
                     <v-widget title="Missing Cores">
-                        <div slot="widget-content">
-                            <v-list>
-                                <v-list-tile avatar v-for="attribute in missing_attributes" :key="attribute">
-                                    <v-list-tile-content>
-                                        <v-list-tile-title v-text="attribute"></v-list-tile-title>
-                                    </v-list-tile-content>
-                                </v-list-tile>
-                            </v-list>
-                        </div>
+                        <template v-slot:widget-content>
+                            <div>
+                                <v-list>
+                                    <v-list-tile avatar v-for="attribute in missing_attributes" :key="attribute">
+                                        <v-list-tile-content>
+                                            <v-list-tile-title v-text="attribute"></v-list-tile-title>
+                                        </v-list-tile-content>
+                                    </v-list-tile>
+                                </v-list>
+                            </div>
+                        </template>
                     </v-widget>
                 </v-flex>
                 <v-flex md4 sm12 xs12>
                     <v-widget title="Missing Major Requirements">
-                        <div slot="widget-content">
-                            <div v-for="(reqs,i) in major_missing_reqs" :key="i">
-                                <v-subheader class="pl-0">Requirement #{{i+1}}{{`${reqs.choose>1||reqs.classes.length>1?' - Choose '+reqs.choose:''}`}}</v-subheader>
-                                <v-layout row wrap>
-                                    <v-flex v-for="req in reqs.classes" :key="req.name" md4 xs6>
-                                        {{req.name}}
-                                    </v-flex>
-                                </v-layout>
+                        <template v-slot:widget-content>
+                            <div>
+                                <div v-for="(reqs,i) in major_missing_reqs" :key="i">
+                                    <v-subheader class="pl-0">Requirement #{{i+1}}{{`${reqs.choose>1||reqs.classes.length>1?' - Choose '+reqs.choose:''}`}}</v-subheader>
+                                    <v-layout row wrap>
+                                        <v-flex v-for="req in reqs.classes" :key="req.name" md4 xs6>
+                                            {{req.name}}
+                                        </v-flex>
+                                    </v-layout>
+                                </div>
                             </div>
-                        </div>
+                        </template>
                     </v-widget>
                 </v-flex>
                 <v-flex md4 sm12 xs12 v-if="minor_missing_reqs.length">
                     <v-widget title="Missing Minor Requirements">
-                        <div slot="widget-content">
-                            <v-list v-for="(reqs,i) in minor_missing_reqs" :key="i">
-                                <v-subheader>Requirement #{{i+1}}{{`${reqs.choose>1?'Choose '+reqs.choose:''}`}}</v-subheader>
-                                <v-list-tile v-for="req in reqs.classes" :key="req.name">
-                                    <v-list-tile-content>
-                                        <v-list-tile-title v-text="req.name"></v-list-tile-title>
-                                    </v-list-tile-content>
-                                </v-list-tile>
-                            </v-list>
-                        </div>
+                        <template v-slot:widget-content>
+                            <div>
+                                <v-list v-for="(reqs,i) in minor_missing_reqs" :key="i">
+                                    <v-subheader>Requirement #{{i+1}}{{`${reqs.choose>1?'Choose '+reqs.choose:''}`}}</v-subheader>
+                                    <v-list-tile v-for="req in reqs.classes" :key="req.name">
+                                        <v-list-tile-content>
+                                            <v-list-tile-title v-text="req.name"></v-list-tile-title>
+                                        </v-list-tile-content>
+                                    </v-list-tile>
+                                </v-list>
+                            </div>
+                        </template>
                     </v-widget>
                 </v-flex>
                 <v-flex md4 sm12 xs12>
@@ -113,9 +119,11 @@
                             <span>Update Info</span>
                             <v-icon class="text--secondary" right>refresh</v-icon>
                         </v-btn>
-                        <div slot="widget-content">
-                            You are doin' friggin fantastic keep up the good work!
-                        </div>
+                        <template v-slot:widget-content>
+                            <div>
+                                You are doin' friggin fantastic keep up the good work!
+                            </div>  
+                        </template>
                     </v-widget>
                 </v-flex>
             </v-layout>
