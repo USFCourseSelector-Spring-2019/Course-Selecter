@@ -18,7 +18,7 @@
                 <v-layout column align-center style="height:65%">
                     <v-flex v-for="(filter,i) in filters" :key="filter.key" :class="{'px-3':$vuetify.breakpoint.lgAndDown}" style="width:100%">
                         <v-autocomplete :items="filter.possibles.map(mapper)" v-model="selected[i]" :label="filter.title" clearable color="primary" item-text="label" :item-value="filter.possibles[0].key?'key':undefined" v-if="filter.possibles.length" hide-details>
-                            <template v-slot:item="data">
+                            <template slot="item" slot-scope="data">
                                 <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
                             </template>
                         </v-autocomplete>
@@ -51,7 +51,7 @@
                 <v-layout justify-center row wrap>
                     <v-flex sm6 xs12 v-for="(filter,i) in filters" :key="filter.key" class="px-4">
                         <v-autocomplete :items="filter.possibles.map(mapper)" v-model="selected[i]" :label="filter.title" clearable color="primary" item-text="label" :item-value="filter.possibles[0].key?'key':undefined" v-if="filter.possibles.length">
-                            <template v-slot:item="data">
+                            <template slot="item" slot-scope="data">
                                 <v-list-tile-content v-html="data.item.label||data.item"></v-list-tile-content>
                             </template>
                         </v-autocomplete>
