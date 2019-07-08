@@ -115,10 +115,12 @@
                 </v-flex>
                 <v-flex md4 sm12 xs12>
                     <v-widget title="Progress">
-                        <v-btn slot="widget-header-action" flat>
-                            <span>Update Info</span>
-                            <v-icon class="text--secondary" right>refresh</v-icon>
-                        </v-btn>
+                        <template v-slot:widget-header-action>
+                            <v-btn flat>
+                                <span>Update Info</span>
+                                <v-icon class="text--secondary" right>refresh</v-icon>
+                            </v-btn>
+                        </template>
                         <template v-slot:widget-content>
                             <div>
                                 You are doin' friggin fantastic keep up the good work!

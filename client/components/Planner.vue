@@ -9,18 +9,20 @@
             <v-btn icon @click.native="$emit('close')" color="primary-fg" flat>
                 <v-icon>close</v-icon>
             </v-btn>
-            <v-tabs slot="extension" centered v-model="curTab" slider-color="white" color="transparent" grow>
-                <v-tabs-slider color="secondary"></v-tabs-slider>
-                <v-tab ripple class="primary-fg--text">
-                    Courses
-                </v-tab>
-                <v-tab ripple class="primary-fg--text">
-                    Calendar
-                </v-tab>
-                <v-tab ripple class="primary-fg--text">
-                    Settings
-                </v-tab>
-            </v-tabs>
+            <template v-slot:extension>
+                <v-tabs centered v-model="curTab" slider-color="white" color="transparent" grow>
+                    <v-tabs-slider color="secondary"></v-tabs-slider>
+                    <v-tab ripple class="primary-fg--text">
+                        Courses
+                    </v-tab>
+                    <v-tab ripple class="primary-fg--text">
+                        Calendar
+                    </v-tab>
+                    <v-tab ripple class="primary-fg--text">
+                        Settings
+                    </v-tab>
+                </v-tabs>
+            </template>
         </v-toolbar>
         <v-tabs-items v-model="curTab">
             <v-tab-item key="course">
@@ -58,7 +60,7 @@
                                 <v-btn @click.native.stop="$store.dispatch('planner/downloadPlanner',{index: i})" v-if="canDeletePlans">Download</v-btn>
                                 <v-tooltip bottom>
                                     <template v-slot:activator="{ on }">
-                                        <v-btn @click.native.stop="$store.dispatch('planner/removePlan',{payload:i,$api})" icon flat slot="activator">
+                                        <v-btn @click.native.stop="$store.dispatch('planner/removePlan',{payload:i,$api})" icon flat v-on="on">
                                             <v-icon>close</v-icon>
                                         </v-btn>
                                     </template>
@@ -68,7 +70,7 @@
                         </v-layout>
                         <v-tooltip top>
                             <template v-slot:activator="{ on }">
-                                <v-btn @click.native.stop="$store.dispatch('planner/addPlan',{payload:{title: `Plan #${plans.length+1}`,courses: []},$api})" color="primary" slot="activator">
+                                <v-btn @click.native.stop="$store.dispatch('planner/addPlan',{payload:{title: `Plan #${plans.length+1}`,courses: []},$api})" color="primary" v-on="on">
                                     <v-icon left>add</v-icon>
                                     Add A Plan
                                 </v-btn>
