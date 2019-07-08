@@ -12,13 +12,13 @@
             <template v-slot:extension>
                 <v-tabs centered v-model="curTab" slider-color="white" color="transparent" grow>
                     <v-tabs-slider color="secondary"></v-tabs-slider>
-                    <v-tab ripple class="primary-fg--text">
+                    <v-tab ripple class="primary-fg--text" key="course">
                         Courses
                     </v-tab>
-                    <v-tab ripple class="primary-fg--text">
+                    <v-tab ripple class="primary-fg--text" key="calendar">
                         Calendar
                     </v-tab>
-                    <v-tab ripple class="primary-fg--text">
+                    <v-tab ripple class="primary-fg--text" key="settings">
                         Settings
                     </v-tab>
                 </v-tabs>
@@ -97,6 +97,7 @@ export default {
         computed: {
             curTab: {
                 get() {
+                    console.log()
                     return this.$store.state.planner.curTab
                 },
                 set(index) {

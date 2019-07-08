@@ -5,12 +5,12 @@
                 <v-icon>chevron_left</v-icon>
             </v-btn>
             <v-spacer></v-spacer>
-            <template v-if="$vuetify.breakpoint.mdAndUp">
+            <span v-if="$vuetify.breakpoint.mdAndUp">
                 <v-btn v-for="viewOption in viewOptions" :key="viewOption.value" :flat="days===viewOption.value" @click="days=viewOption.value" depressed color="primary" v-text="viewOption.label"></v-btn>
-            </template>
-            <template v-else>
+            </span>
+            <span v-else>
                 <v-select :items="viewOptions" item-text="label" label="Calendar View" v-model="days"></v-select>
-            </template>
+            </span>
             <v-spacer></v-spacer>
             <v-btn @click="nextWeek" icon :disabled="nextWeekDisabled">
                 <v-icon>chevron_right</v-icon>
@@ -33,7 +33,7 @@
                         <h2 class="title" v-text="day.date()"></h2>
                     </v-card-title>
                     <div :style="`height:${height}px`" class="time-container">
-                        <div v-for="(course,ind) in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])}px;height:${distanceBetween(course.times)}px;`" :class="{'time-block':true,'is-blocking-times':$vuetify.breakpoint.mdAndUp&&i==0}">
+                        <div v-for="(course) in classesInDay[day.day()]" :key="course.index" :style="`top:${distanceBetween([course.times[0]])}px;height:${distanceBetween(course.times)}px;`" :class="{'time-block':true,'is-blocking-times':$vuetify.breakpoint.mdAndUp&&i==0}">
                             <calendar-item :course="course" :color="getColor(classes.indexOf(course))"></calendar-item>
                         </div>
                     </div>

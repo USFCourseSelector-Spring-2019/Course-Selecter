@@ -1,6 +1,6 @@
 <template>
     <v-tooltip left max-width="200">
-        <template v-slot:activator="on">
+        <template v-slot:activator="{ on }">
             <v-card class="fill-height calendar-item" :color="color" :to="`/courses/add/${course.crn}`" ripple raised :data-start="course.times[0]" :data-end="course.times[1]">
                 <v-card-title class="text-xs-center px-0 py-2 ma-0 d-block primary primary-fg--text" v-text="course.shortcode + course.id"></v-card-title>
                 <div v-text="course.instructor" class="text-xs-center"></div>

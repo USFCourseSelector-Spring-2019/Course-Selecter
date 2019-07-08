@@ -7,7 +7,7 @@
                 <h3 v-text="subject.shortcode" class="title"></h3>
             </v-card-title>
             <v-data-table :headers="headers" :items="courses" hide-actions item-key="index" expand>
-                <template v-slot:headerCell="props">
+                <template v-slot:header-cell="props">
                     <v-tooltip bottom :disabled="!props.header.description">
                         <template v-slot:activator>
                             <span class="secondary-fg--text">
