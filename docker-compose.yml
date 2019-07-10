@@ -27,6 +27,19 @@ services:
       COUCHDB_PASSWORD: 'password'
     ports: 
       - 5984:5984
+  server:
+    build:
+      context: server
+    depends_on: 
+      - couchdb
+    restart: always
+    container_name: course-selector-scraper
+    networks: 
+      - course
+    environment: 
+      DB_URL: 'course:password@couchdb'
+    ports:
+      - 9000:9000
   tasker:
     image: strm/tasker
     volumes:

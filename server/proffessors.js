@@ -1,4 +1,4 @@
-const scraper = require('../usf/Proffessors/scrape-browser'),
+const scraper = require('./usf/Proffessors/scrape-browser'),
     Promise = require('bluebird'),
     mydb = require('nano')(`http://${process.env.DB_URL || 'localhost'}:5984`)
 function getLongestNames(name){

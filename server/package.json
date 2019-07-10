@@ -3,18 +3,33 @@
   "version": "1.0.0",
   "description": "Server for the Course-Selecter",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "cron": "pm2 start index.js --no-autorestart  --cron \"*/10 6-24, 0-6/1 * * *\" --name \"scraper\"",
     "monthly": "pm2 stop scraper  --cron \"*/0 * 30 4 * \"",
-    "start": "pm2 start scraper  --cron \"*/0 * 1 4 * \"",
+    "start_month": "pm2 start scraper  --cron \"*/0 * 1 4 * \"",
+    "start": "node server.js",
     "courses": "node index.js",
     "proffessors": "node proffessors.js"
   },
   "author": "Nick the Sick",
   "license": "ISC",
   "dependencies": {
+    "axios": "0.19.0",
     "bluebird": "3.5.4",
-    "nano": "8.0.1"
+    "conf": "5.0.0",
+    "express": "4.17.1",
+    "nano": "8.0.1",
+    "cheerio": "^1.0.0-rc.2",
+    "execa": "^1.0.0",
+    "fs-readfile-promise": "^3.0.1",
+    "load-json-file": "^4.0.0",
+    "puppeteer": "^1.8.0",
+    "read-json-file": "^1.0.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "write": "^1.0.3",
+    "write-json-file": "^2.3.0"
   }
 }

@@ -1,10 +1,8 @@
 node_modules
-usf/courses.json
-usf/creds.js
+creds.js
 .DS_Store
 yarn-error.log
 courses.json
-/usf/Courses/courses.json
-usf/Proffessors/allproffessors.json
+allproffessors.json
 erl_crash.dmp
 erl_crash.dump

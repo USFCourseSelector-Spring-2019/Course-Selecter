@@ -1,4 +1,4 @@
-const scraper = require('../usf/Courses/'),
+const scraper = require('./usf/Courses/'),
     Promise = require('bluebird'),
     mydb = require('nano')(`http://${process.env.DB_URL || 'localhost'}:5984`)
 
