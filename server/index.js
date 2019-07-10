@@ -1,6 +1,6 @@
 const scraper = require('../usf/Courses/'),
     Promise = require('bluebird'),
-    mydb = require('nano')(`http://${process.env.DB_URL}:5984`)
+    mydb = require('nano')(`http://${process.env.DB_URL || 'localhost'}:5984`)
 
 function attachUpdate(db) {
     db.update = function (obj, key, callback, transform = a => a) {
