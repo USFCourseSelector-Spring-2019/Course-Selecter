@@ -1,6 +1,6 @@
 const scraper = require('../usf/Proffessors/scrape-browser'),
     Promise = require('bluebird'),
-    mydb = require('nano')('http://localhost:5984')
+    mydb = require('nano')(`http://${process.env.DB_URL}:5984`)
 function getLongestNames(name){
   const namesSortedByLength = name.split(' ').sort((a, b)=>b.length-a.length)
   return namesSortedByLength.slice(0,2).join(" ")
