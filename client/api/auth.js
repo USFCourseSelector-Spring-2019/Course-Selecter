@@ -1,16 +1,12 @@
 import jsonwebtoken from 'jsonwebtoken'
-import { getUser, constants, checkPassword } from '../api_helpers'
+import { getUser, constants, checkPassword, nanoInstance } from '../api_helpers'
 import Nano from 'nano'
 const { secret } = constants
 export default class AuthController {
   constructor (request) {
     this.request = request
     this.user = getUser(request)
-    this.nano = new Nano(
-      /* context.isDev */ true
-        ? 'http://localhost:5984/'
-        : 'http://db.courseselector.com/'
-    )
+    this.nano = nanoInstance
     this.userDB = this.nano.use('users')
   }
   async isCorrectPassword (password, user) {

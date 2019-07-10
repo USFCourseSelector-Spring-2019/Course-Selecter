@@ -2,6 +2,13 @@ import bcrypt from 'bcrypt'
 import cookieParser from 'cookie-parser'
 import jwt from 'express-jwt'
 import constant from './constants'
+import Nano from 'nano'
+
+export const nanoInstance = new Nano(
+  context.isDev
+    ? `http://localhost:5984`
+    : 'http://${process.env.DB_URL}:5984'
+)
 
 export async function getUser (request) {
   return new Promise((resolve, reject) => {

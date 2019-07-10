@@ -1,14 +1,9 @@
-import Nano from 'nano'
-const { getUser, constants } = require('../api_helpers')
+import { getUser, nanoInstance } from '../api_helpers'
 export default class DashboardController {
   constructor (request) {
     this.request = request
     this.user = getUser(request)
-    this.nano = new Nano(
-      /* context.isDev */ true
-        ? 'http://localhost:5984/'
-        : 'http://db.courseselector.com/'
-    )
+    this.nano = nanoInstance
     this.auditDB = this.nano.use('degree_audits')
   }
   async getProgress () {

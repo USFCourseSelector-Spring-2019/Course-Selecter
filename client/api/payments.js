@@ -1,14 +1,9 @@
-import Nano from 'nano'
-const { constants, hashPassword } = require('../api_helpers')
+import { hashPassword, nanoInstance } from '../api_helpers'
 const stripe = require('stripe')('sk_test_NqR71Jtkq7zpa1vsdyrwFMf7')
 export default class PaymentController {
   constructor (request) {
     this.request = request
-    this.nano = new Nano(
-      /* context.isDev */ true
-        ? 'http://localhost:5984/'
-        : 'http://db.courseselector.com/'
-    )
+    this.nano = nanoInstance
     this.userDB = this.nano.use('users')
   }
   async userWithUsernameExists ({ params: { username } }) {
