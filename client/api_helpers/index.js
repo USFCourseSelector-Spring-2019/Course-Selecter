@@ -5,14 +5,14 @@ import constant from './constants'
 import Nano from 'nano'
 
 export const nanoInstance = new Nano(
-  context.isDev
-    ? `http://localhost:5984`
-    : 'http://${process.env.DB_URL}:5984'
+  process.env.NODE_ENV === 'production'
+  ? `http://${process.env.DB_URL}:5984`
+  : 'http://localhost:5984'
 )
 
 export async function getUser (request) {
   return new Promise((resolve, reject) => {
-    const doTheThing = () => {
+    const extractJWTFromCookies = () => {
       request.headers.authorization =
         request.cookies[`auth._token.${request.cookies['auth.strategy']}`]
       if (request.headers.authorization === 'false') {
@@ -28,9 +28,9 @@ export async function getUser (request) {
       })
     }
     if (!request.cookies) {
-      cookieParser()(request, request.res, doTheThing)
+      cookieParser()(request, request.res, extractJWTFromCookies)
     } else {
-      doTheThing()
+      extractJWTFromCookies()
     }
   })
 }

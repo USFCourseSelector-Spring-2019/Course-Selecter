@@ -2,7 +2,6 @@ import { nanoInstance } from '../api_helpers'
 export default class CoursesController {
   constructor(request) {
     this.request = request
-    console.log(process.env.DB_URL)
     this.nano = nanoInstance
     this.coursesDB = this.nano.use('usf')
   }
@@ -128,6 +127,8 @@ export default class CoursesController {
       )
       return ret
     } catch (err) {
+      // Probably need a better empty state
+      console.error(err)
       return []
     }
   }
