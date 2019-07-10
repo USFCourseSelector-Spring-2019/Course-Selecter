@@ -11,8 +11,9 @@ const config = new Conf();
 const ranBefore = config.get('ran-before')
 
 if (!ranBefore) {
-  (new Promise(resolve => setTimeout(resolve, 9000)))
-  .then(Promise.all([
+  // If the server has never been run before let couchdb initialize and run both of the scrapers
+  (new Promise(resolve => setTimeout(resolve, 10000)))
+    .then(Promise.all([
       axios.put(`http://${DB_URL}:5984/_users`),
       axios.put(`http://${DB_URL}:5984/degree_audits`),
       axios.put(`http://${DB_URL}:5984/usf`),
