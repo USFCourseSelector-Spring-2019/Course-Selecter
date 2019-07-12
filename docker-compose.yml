@@ -4,6 +4,7 @@ services:
   app:
     build:
       context: client
+    image: nickthesick/course-selector_app
     depends_on:
       - couchdb
     restart: always
@@ -28,10 +29,11 @@ services:
   server:
     build:
       context: server
+    image: nickthesick/course-selector_server
     depends_on: 
       - couchdb
     restart: always
-    container_name: course-selector-scraper
+    container_name: course-selector-server
     networks: 
       - course
     environment: 
@@ -56,8 +58,7 @@ services:
               image: pstauffer/curl:latest
               network: client_course # docker-compose prepends with client_ needed to be able to connect to the same network
               script:
-                - curl course-selector-scraper:9000/courses/ # This can be used to send notifications to an express server that will actually scrape or not
-
+                - curl course-selector-server:9000/courses/ # This can be used to send notifications to an express server that will actually scrape or not
 volumes: 
   couchdb:
 networks: 
