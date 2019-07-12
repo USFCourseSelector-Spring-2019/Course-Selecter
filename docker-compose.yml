@@ -25,8 +25,6 @@ services:
     environment:
       COUCHDB_USER: 'course'
       COUCHDB_PASSWORD: 'password'
-    ports: 
-      - 5984:5984
   server:
     build:
       context: server
@@ -38,8 +36,6 @@ services:
       - course
     environment: 
       DB_URL: 'course:password@couchdb'
-    ports:
-      - 9000:9000
   tasker:
     image: strm/tasker
     volumes:
@@ -52,7 +48,7 @@ services:
               org.springframework.web: WARN
               sh.strm: DEBUG
         schedule:
-          - every: minute
+          - every: hour
             task: scrape-courses
         tasks:
           docker:
@@ -60,7 +56,7 @@ services:
               image: pstauffer/curl:latest
               network: client_course # docker-compose prepends with client_ needed to be able to connect to the same network
               script:
-                - curl couchdb:5984/_utils/ # This can be used to send notifications to an express server that will actually scrape or not
+                - curl course-selector-scraper:9000/courses/ # This can be used to send notifications to an express server that will actually scrape or not
 
 volumes: 
   couchdb:
