@@ -7,6 +7,9 @@ const { DB_URL } = process.env
 const port = 9000
 
 const config = new Conf();
+const options = {
+  offset: 1
+}
 
 const ranBefore = config.get('ran-before')
 
@@ -27,7 +30,7 @@ if (!ranBefore) {
     })))).then((all) => {
       console.log('Initialized database with required tables\n')
     }).then(() => {
-      return scrapeCourses().catch((err) => {
+      return scrapeCourses(options).catch((err) => {
         console.error(err)
         console.log('Unable to scrape courses check your username and password, additional output is likely above this.')
       })
@@ -47,5 +50,43 @@ if (!ranBefore) {
 
 app.get('/', (req, res) => res.send('Hello World!'))
 app.get('/healthcheck', (req, res) => res.json({ ok: true }))
+app.get('/courses', async (req, res) => {
+  const startTime = Date.now();
+  try {
+    const documentId = await scrapeCourses(options)
+    const endTime = Date.now();
+    return res.json({
+      updated: documentId,
+      responseTime: startTime - endTime
+    })
+  } catch (err) {
+    const endTime = Date.now();
+    return res.error(JSON.stringify({
+      error: true,
+      name: err.name,
+      message: err.message,
+      responseTime: startTime - endTime
+    }))
+  }
+})
+app.get('/proffessors', async (req, res) => {
+  const startTime = Date.now();
+  try {
+    const documentId = await scrapeProfessors()
+    const endTime = Date.now();
+    return res.json({
+      updated: documentId,
+      responseTime: startTime - endTime
+    })
+  } catch (err) {
+    const endTime = Date.now();
+    return res.error(JSON.stringify({
+      error: true,
+      name: err.name,
+      message: err.message,
+      responseTime: startTime - endTime
+    }))
+  }
+})
 
 app.listen(port, () => console.log(`Server is listening on port ${port}!`))
