@@ -97,11 +97,9 @@ export default {
         computed: {
             curTab: {
                 get() {
-                    console.log()
                     return this.$store.state.planner.curTab
                 },
                 set(index) {
-                    console.log('setting tab to', index)
                     this.$store.commit('planner/setTab', index)
                 }
             },

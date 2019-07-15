@@ -19,7 +19,7 @@ const DEFAULT_PLANS = [
 
 export const state = () => ({
   visible: false,
-  curTab: 'course',
+  curTab: 0,
   plan: 0,
   plans: DEFAULT_PLANS
 })
