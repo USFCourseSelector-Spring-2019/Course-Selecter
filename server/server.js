@@ -8,7 +8,7 @@ const port = 9000
 
 const config = new Conf();
 const options = {
-  offset: 1
+  offset: 0
 }
 
 const ranBefore = config.get('ran-before')
