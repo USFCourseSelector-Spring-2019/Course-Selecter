@@ -16,7 +16,7 @@
   "author": "Nick the Sick",
   "license": "ISC",
   "dependencies": {
-    "axios": "0.19.0",
+    "axios": "0.21.1",
     "bluebird": "3.5.4",
     "conf": "5.0.0",
     "express": "4.17.1",
