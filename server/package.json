@@ -19,7 +19,7 @@
     "axios": "0.19.0",
     "bluebird": "3.5.4",
     "conf": "5.0.0",
-    "express": "4.17.1",
+    "express": "4.17.3",
     "nano": "8.0.1",
     "cheerio": "^1.0.0-rc.2",
     "execa": "^1.0.0",
