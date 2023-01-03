@@ -29,7 +29,7 @@
     "moment-range": "^4.0.2",
     "nano": "^8.1.0",
     "node-sass": "^4.12.0",
-    "nuxt": "^2.8.1",
+    "nuxt": "^2.15.8",
     "nuxt-neo": "^2.0.2",
     "sass-loader": "^7.1.0",
     "stripe": "^7.4.0",
